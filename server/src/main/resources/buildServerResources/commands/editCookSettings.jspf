@@ -1,0 +1,28 @@
+<%@ taglib prefix="c" uri ="http://java.sun.com/jsp/jstl/core" %>
+
+<%--@elvariable id="cookComponent" type="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.CookComponent"--%>
+
+<c:set var="noBorder" value="${true}"/>
+
+<c:set var="parameter" value="${cookComponent.cook}"/>
+<c:set var="onclick" value="BS.UnrealRunner.updateContentBasedOnCheckbox('${cookComponent.cook.name}', '.cook-settings')"/>
+<%@ include file="../common/checkbox.jspf"%>
+<c:set var="onclick" value=""/>
+
+<c:set var="cssClass" value="cook-settings"/>
+
+<c:set var="parameter" value="${cookComponent.maps}"/>
+<%@ include file="../common/textField.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.cultures}"/>
+<%@ include file="../common/textField.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.unversionedContent}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="cssClass" value=""/>
+<c:set var="noBorder" value=""/>
+
+<script type="text/javascript">
+    BS.UnrealRunner.updateContentBasedOnCheckbox('${cookComponent.cook.name}', '.cook-settings');
+</script>

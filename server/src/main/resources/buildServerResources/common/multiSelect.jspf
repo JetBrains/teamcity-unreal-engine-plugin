@@ -1,0 +1,54 @@
+<%--@elvariable id="parameter" type="com.jetbrains.teamcity.plugins.unrealengine.common.parameters.MultiSelectParameter"--%>
+<%--@elvariable id="propertiesBean" type="jetbrains.buildServer.controllers.BasePropertiesBean"--%>
+<%--@elvariable id="noBorder" type="java.lang.Boolean"--%>
+<%--@elvariable id="cssClass" type="java.lang.String"--%>
+
+<tr class="${cssClass}">
+    <th class="${noBorder ? "noBorder" : ""}">
+        <label for="${parameter.name}">
+            ${parameter.displayName}: <c:if test = "${parameter.required}"> <l:star/> </c:if>
+        </label>
+    </th>
+    <td class="${noBorder ? "noBorder" : ""}">
+        <div id="${parameter.name}-tag-container"></div>
+        <span class="error" id="error_${parameter.name}"></span>
+    </td>
+</tr>
+
+<script>
+    {
+        const defineRenderFunction = () => {
+            BS.UnrealRunner.renderMultiSelect = (parameters) => {
+                UnrealRunner.renderTagSelector(parameters.parameterName + "-tag-container", {
+                    name: parameters.parameterName,
+                    separator: parameters.separator,
+                    selectedValues: parameters.selectedOptions,
+                    values: parameters.options,
+                    allowAddNewTags: parameters.allowAddNewTags,
+                    buildTypeId: parameters.buildTypeId,
+                });
+            }
+        }
+
+        const renderMultiselect = () => {
+            BS.UnrealRunner.renderMultiSelect({
+                options: ${parameter.getOptionsAsJsArray()},
+                selectedOptions: ${parameter.getSelectedOptionsAsJsArray(propertiesBean.properties)},
+                parameterName: "${parameter.name}",
+                separator: "${parameter.separator}",
+                allowAddNewTags: ${parameter.allowCustomValues},
+                buildTypeId: "${buildForm.settingsId}",
+            });
+        }
+
+        if (BS.UnrealRunner?.renderMultiSelect) {
+            defineRenderFunction();
+            renderMultiselect();
+        } else {
+            $j(BS.Util.escapeId("unreal-runner-react-extensions")).one("UnrealRunnerReactExtensionsLoaded", () => {
+                defineRenderFunction();
+                renderMultiselect();
+            });
+        }
+    }
+</script>

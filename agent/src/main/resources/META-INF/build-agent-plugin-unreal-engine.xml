@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       default-autowire="constructor">
+
+    <import resource="classpath*:META-INF/framework-beans.xml"/>
+    <import resource="classpath*:META-INF/build-common-plugin-unreal-engine.xml"/>
+
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineBuildSessionFactory"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.EngineInstallationParametersProvider"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.ExtensionRegistration"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProvider"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolRegistry"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildcookrun.BuildCookRunWorkflowCreator"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.runautomation.RunAutomationWorkflowCreator"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.BuildGraphWorkflowCreator"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.DistributedBuildSettingsCreator"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.SingleMachineExecutor"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.DistributedExecutor"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineSourceVersionDetector"/>
+
+</beans>

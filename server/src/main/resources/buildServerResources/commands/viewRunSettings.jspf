@@ -1,0 +1,44 @@
+<%@ taglib prefix="c" uri ="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="props" tagdir="/WEB-INF/tags/props" %>
+
+<jsp:useBean id="runComponent" class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.RunComponent"/>
+
+<div class="parameter">
+    ${runComponent.performStage.displayName}:
+        <strong>
+            ${runComponent.formatFlag(runComponent.performStage, propertiesBean.properties)}
+        </strong>
+</div>
+
+<c:if test="${not empty propertiesBean.properties[runComponent.stagingDirectory.name]}">
+    <div class="parameter">
+        ${runComponent.stagingDirectory.displayName}: <props:displayValue name="${runComponent.stagingDirectory.name}"/>
+    </div>
+</c:if>
+
+<c:set var="runFalgs" value="${runComponent.formatFlags(propertiesBean.properties)}"/>
+<c:if test="${not empty runFalgs}">
+    <div class="parameter">
+        Run flags: <strong>${runFalgs}</strong>
+    </div>
+</c:if>
+
+<div class="parameter">
+    ${runComponent.performPackage.displayName}:
+        <strong>
+            ${runComponent.formatFlag(runComponent.performPackage, propertiesBean.properties)}
+        </strong>
+</div>
+
+<div class="parameter">
+    ${runComponent.archiveBuild.displayName}:
+        <strong>
+            ${runComponent.formatFlag(runComponent.archiveBuild, propertiesBean.properties)}
+        </strong>
+</div>
+
+<c:if test="${not empty propertiesBean.properties[runComponent.archiveDirectory.name]}">
+    <div class="parameter">
+        ${runComponent.archiveDirectory.displayName}: <props:displayValue name="${runComponent.archiveDirectory.name}"/>
+    </div>
+</c:if>

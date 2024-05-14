@@ -1,0 +1,26 @@
+[versions]
+rodm = "1.5.3"
+kotlin = "1.9.22"
+coroutines = "1.7.3"
+
+[libraries]
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.2" }
+kotlin-serialization-properties = { module = "org.jetbrains.kotlinx:kotlinx-serialization-properties", version = "1.6.2" }
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+arrow-core = { module = "io.arrow-kt:arrow-core", version = "1.2.1" }
+mockk = { module = "io.mockk:mockk", version = "1.13.9" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.10.2" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.10.2" }
+constraint-transitive-icu4j = { module = "com.ibm.icu:icu4j", version = { require = "3.4.4" } }
+
+
+[plugins]
+changelog = { id = "org.jetbrains.changelog", version = "2.2.0" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+teamcity-server = { id = "io.github.rodm.teamcity-server", version.ref = "rodm" }
+teamcity-environments = { id = "io.github.rodm.teamcity-environments", version.ref = "rodm" }
+teamcity-base = { id = "io.github.rodm.teamcity-base", version.ref = "rodm" }
+teamcity-agent = { id = "io.github.rodm.teamcity-agent", version.ref = "rodm" }
+teamcity-common = { id = "io.github.rodm.teamcity-common", version.ref = "rodm" }

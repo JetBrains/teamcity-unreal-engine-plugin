@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<dsl-extension kind="buildStep" type="unreal-engine" generateDslJar="true">
+    <class name="UnrealEngine">
+        <description>Allows you to build Unreal Engine projects</description>
+    </class>
+    <function name="unrealEngine">
+        <description>
+            Adds an UnrealEngine build step
+            @see UnrealEngine
+        </description>
+    </function>
+    <params>
+        <param name="engine-detection-mode" dslName="engineDetectionMode" type="compound">
+            <description>
+                Engine detection mode
+            </description>
+            <option name="automatic" value="automatic-detection-mode">
+                <description>
+                	Automatically searches for Unreal Engine versions installed on agent machines and picks the latest
+                    one (if multiple instances are found).
+
+                    Adds a corresponding agent requirement with the Engine major version as a value.
+                    If TeamCity detect multiple installed versions match the requirement value (for example, versions "5.3.2", "5.3.4",
+                    "5.1" and "5.2.3" all match the identifier of "5"), the latest version ("5.3.4") will be used.
+                </description>
+                <param name="engine-identifier" dslName="identifier">
+                    <description>
+                    	Choose a specific version of Unreal Engine that should be used. You can enter regular numeric identifiers
+                        (for example, "5.2" or "5.3.4") for default versions installed on agent machines, or custom
+                        identifiers for source-built versions.
+                    </description>
+                </param>
+            </option>
+            <option name="manual" value="manual-detection-mode">
+                <description>Manual</description>
+                <param name="engine-root-path" dslName="rootDir">
+                    <description>
+                        Specify a path (absolute or relative to the checkout directory) to the Unreal Engine root folder.
+                    </description>
+                </param>
+            </option>
+        </param>
+
+        <param name="unreal-command" dslName="command" type="compound">
+            <description>
+                Command to run
+            </description>
+            <option name="buildCookRun" value="BuildCookRun">
+                <param name="build-cook-run-project-path" dslName="project" type="string" mandatory="true">
+                    <description>
+                        The path (relative to the checkout directory) to the .uproject file.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-build-type" dslName="buildConfiguration" type="compound">
+                    <description>
+                        This parameter has four possible values: "standaloneGame", "client", "server", and "clientAndServer".
+
+                        The plugin augments the UAT BuildCookRun commandlet with specific parameters and flags based on the chosen value.
+                        These include: `-client`, `-server`, `-noserver`, `-clientconfig`, `-serverconfig`, `-config`,
+                        `-targetplatform`, and `-servertargetplatform`.
+                    </description>
+                    <option name="standaloneGame" value="StandaloneGame">
+                        <description>Standalone game</description>
+                        <param name="target-configurations" dslName="configurations" type="string" mandatory="true">
+                            <description>Target configurations</description>
+                        </param>
+                        <param name="target-platforms" dslName="platforms" type="string" mandatory="true">
+                            <description>Target platforms</description>
+                        </param>
+                    </option>
+                    <option name="client" value="Client">
+                        <description>Client</description>
+                        <param name="client-target-configurations" dslName="configurations" type="string" mandatory="true">
+                            <description>Client target configurations</description>
+                        </param>
+                        <param name="client-target-platforms" dslName="platforms" type="string" mandatory="true">
+                            <description>Client target platforms</description>
+                        </param>
+                    </option>
+                    <option name="server" value="Server">
+                        <description>Server</description>
+                        <param name="server-target-configurations" dslName="configurations" type="string" mandatory="true">
+                            <description>Server target configurations</description>
+                        </param>
+                        <param name="server-target-platforms" dslName="platforms" type="string" mandatory="true">
+                            <description>Server target platforms</description>
+                        </param>
+                    </option>
+                    <option name="clientAndServer" value="ClientAndServer">
+                        <description>Client and server</description>
+                        <param name="client-target-configurations" dslName="clientConfigurations" type="string" mandatory="true">
+                            <description>Client target configurations</description>
+                        </param>
+                        <param name="client-target-platforms" dslName="clientPlatforms" type="string" mandatory="true">
+                            <description>Client target platforms</description>
+                        </param>
+                        <param name="server-target-configurations" dslName="serverConfigurations" type="string" mandatory="true">
+                            <description>Server target configurations</description>
+                        </param>
+                        <param name="server-target-platforms" dslName="serverPlatforms" type="string" mandatory="true">
+                            <description>Server target platforms</description>
+                        </param>
+                    </option>
+                </param>
+
+                <param name="build-cook-run-build-target" dslName="buildTarget" type="string">
+                    <description>
+                        Select a single build target or list multiple required targets separated by "+".
+                        This option should be used for projects with multiple targets of identical types.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-cook" dslName="cook" type="compound">
+                    <description>
+                    	Set this parameter to `skipCook()` to skip the project cook stage of a build.
+                    </description>
+                    <option name="cookConfiguration" value="true">
+                        <param name="build-cook-run-maps-to-cook" dslName="maps" type="string">
+                            <description>
+                                The list of maps that should be cooked. Use "+" as a separator to enumerate multiple maps.
+                                If this list is empty, the plugin uses all maps specified in the project settings.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-cook-cultures" dslName="cultures" type="string">
+                            <description>
+                            	The list of localization cultures (for example, "en-US" or "de-DE") that should be cooked. Use "+" as a separator to enumerate multiple cultures.
+                                If this list is empty, the plugin uses the CulturesToStage value of project settings.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-unversioned-cooked-content" dslName="unversionedContent" type="boolean" trueValue="true" falseValue="">
+                            <description>
+                                Enables omitting asset versions, assuming all loaded assets are of the current version.
+                                The default value is "true".
+                            </description>
+                        </param>
+                    </option>
+                    <option name="skipCook" value="false"/>
+                </param>
+
+                <param name="build-cook-run-stage" dslName="stage" type="compound">
+                    <description>
+                    	Set this parameter to `skipStage` to skip project staging
+                        (the build phase that places the executables and the content of the build in a stage directory).
+                    </description>
+                    <option name="stageConfiguration" value="true">
+                        <param name="build-cook-run-staging-directory" dslName="directory" type="string">
+                            <description>
+                            	The stage directory to copy the builds to. The default value is "Saved/StagedBuilds".
+                            </description>
+                        </param>
+                    </option>
+                    <option name="skipStage" value="false"/>
+                </param>
+
+                <param name="build-cook-run-use-pak" dslName="pak" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                    	Allows you to put all assets into a single ".pak" file instead of copying individual files.
+                        This approach reduces the number of transferred files that benefits projects with a large amount of asset files.
+                        The default value is "true".
+                    </description>
+                </param>
+
+                <param name="build-cook-run-compressed-content" dslName="compressed" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                    	Allows you to compress the build content. File compression decreases the deployment size, but may increase the loading time.
+                        The default value is "true".
+                    </description>
+                </param>
+
+                <param name="build-cook-run-prerequisites" dslName="prerequisites" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Specifies whether to include an installer for packaged game prerequisites
+                        (such as redistributable operating system components) on supported platforms.
+                        The default value is "true".
+                    </description>
+                </param>
+
+                <!-- We can't use just "package" for a dslName here, since it will be transformed into Kotlin code later, and this word is reserved -->"
+                <param name="build-cook-run-package" dslName="packageProject" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        A package for the target platform. The default value is "true".
+                    </description>
+                </param>
+
+                <param name="build-cook-run-archive" dslName="archive" type="compound">
+                    <description>
+                    	Set this parameter to `skipArchive` to prevent TeamCity from putting this build in the archive directory.
+                    </description>
+                    <option name="archiveConfiguration" value="true">
+                        <param name="build-cook-run-archive-directory" dslName="directory" type="string">
+                            <description>Archive directory</description>
+                        </param>
+                    </option>
+                    <option name="skipArchive" value="false"/>
+                </param>
+
+            </option>
+
+            <option name="buildGraph" value="BuildGraph">
+                <param name="build-graph-script-path" dslName="script" type="string" mandatory="true">
+                    <description>
+                        The path (relative to the checkout directory) to the graph script.
+                    </description>
+                </param>
+                <param name="build-graph-target-node" dslName="targetNode" type="string" mandatory="true">
+                    <description>
+                        The name of the node or output tag to be built.
+                    </description>
+                </param>
+                <param name="build-graph-options" dslName="options" type="string">
+                    <description>
+                        Custom command-line options that will be passed to your BuildGraph script.
+                        Provide a list of key/value pairs in the format OPTION_NAME=OPTION_VALUE, with each option on a new line.
+                    </description>
+                </param>
+                <param name="build-graph-mode" dslName="mode" type="BuildGraphMode">
+                    <description>
+                        Allows you to specify the BuildGraph script execution mode:
+                        "SingleMachine" — Executes all nodes sequentially on the single build agent.
+                        "Distributed" — Distributes the process across multiple agents.
+                    </description>
+                </param>
+            </option>
+
+            <option name="runAutomation" value="RunAutomation">
+                <param name="automation-project-path" dslName="project" type="string" mandatory="true">
+                    <description>
+                        The path (relative to the checkout directory) to the .uproject file.
+                    </description>
+                </param>
+                <param name="automation-exec-command" dslName="execCommand" type="compound">
+                    <description>
+                        The automation exec command to run.
+                    </description>
+                    <option name="runAll" value="run-all">
+                        <description>Runs all tests</description>
+                    </option>
+                    <option name="runFilter" value="run-filter">
+                        <description>Specifies whether only tests tagged with the specific filter should be run.</description>
+                        <param name="automation-tests-filter" dslName="filter" type="RunFilterType"/>
+                    </option>
+                    <option name="runTests" value="run-tests">
+                        <description>Specifies whether only the selected tests should be run.</description>
+                        <param name="automation-tests" dslName="tests">
+                            <description>
+                                The newline-delimited list of tests to run. Both full and partial hierarchical test names are supported.
+                            </description>
+                        </param>
+                    </option>
+                </param>
+                <param name="automation-null-rhi" dslName="nullRHI" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Specifies whether rendering is disabled. The default value is "true".
+                    </description>
+                </param>
+            </option>
+        </param>
+
+        <param name="additional-arguments" dslName="additionalArguments" type="string">
+            <description>Specify additional command line arguments.</description>
+        </param>
+    </params>
+
+    <examples>
+
+        <example>
+            <description>
+                Runs the specified "foo-project/build.xml" BuildGraph script located in the root of a checkout directory,
+                executing the node "BuildProject" in a distributed fashion (converting graph of nodes into a proper TeamCity build chain).
+
+                The root folder that contains "Engine" is expected to be located within the "engine-root"
+                folder of a checkout directory. Essentially, it assumes that the engine is in the source code.
+            </description>
+            <code>
+                unrealEngine {
+                    engineDetectionMode = manual {
+                        rootDir = "engine-root"
+                    }
+                    command = buildGraph {
+                        script = "foo-project/build.xml"
+                        targetNode = "BuildProject"
+                        options = """
+                            Option1=Value1
+                            Option2=Value2
+                        """.trimIndent()
+                        mode = UnrealEngine.BuildGraphMode.Distributed
+                    }
+                }
+            </code>
+        </example>
+
+        <example>
+            <description>
+                Runs a bunch of tests within the specified "foo.uproject" project while disabling rendering.
+                These tests include all those starting from "JsonConfig" and also include the "Input.Triggers.Released" test.
+            </description>
+            <code>
+                unrealEngine {
+                    engineDetectionMode = automatic {
+                        identifier = "5"
+                    }
+                    command = runAutomation {
+                        project = "foo.uproject"
+                        execCommand = runTests {
+                            tests = """
+                                StartsWith:JsonConfig
+                                Input.Triggers.Released
+                            """.trimIndent()
+                        }
+                        nullRHI = true
+                    }
+                    additionalArguments = "-utf8output -buildmachine -unattended -noP4 -nosplash -stdout -NoCodeSign"
+                }
+            </code>
+        </example>
+
+        <example>
+            <description>
+                Runs BuildCookRun with the specified options.
+            </description>
+            <code>
+                unrealEngine {
+                    engineDetectionMode = automatic {
+                        identifier = "5.3"
+                    }
+                    command = buildCookRun {
+                        project = "foo.uproject"
+                        buildConfiguration = standaloneGame {
+                            configurations = "Development+Shipping"
+                            platforms = "Mac"
+                        }
+                        cook = cookConfiguration {
+                            maps = "FooMap+BarMap"
+                            cultures = "FooCulture+BarCulture"
+                            unversionedContent = true
+                        }
+                        stage = stageConfiguration {
+                            directory = "./staged"
+                        }
+                        packageProject = true
+                        pak = true
+                        compressed = true
+                        prerequisites = true
+                        archive = archiveConfiguration {
+                            directory = "./archived"
+                        }
+                    }
+                    additionalArguments = "-utf8output -buildmachine -unattended -noP4 -nosplash -stdout -NoCodeSign"
+                }
+            </code>
+        </example>
+
+    </examples>
+
+    <types>
+        <enum name="BuildGraphMode">
+            <option name="SingleMachine" value="SingleMachine"/>
+            <option name="Distributed" value="Distributed"/>
+        </enum>
+        <enum name="RunFilterType">
+            <option name="Engine" value="Engine"/>
+            <option name="Smoke" value="Smoke"/>
+            <option name="Stress" value="Stress"/>
+            <option name="Perf" value="Perf"/>
+            <option name="Product" value="Product"/>
+        </enum>
+    </types>
+</dsl-extension>

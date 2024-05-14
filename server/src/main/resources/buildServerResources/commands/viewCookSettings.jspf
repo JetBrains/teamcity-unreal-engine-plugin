@@ -1,0 +1,36 @@
+<%@ taglib prefix="c" uri ="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="props" tagdir="/WEB-INF/tags/props" %>
+
+<jsp:useBean id="cookComponent" class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.CookComponent"/>
+
+<c:choose>
+    <c:when test="${propertiesBean.properties[cookComponent.cook.name]}">
+        <div class="parameter">
+            ${cookComponent.cook.displayName}: <strong>Yes</strong>
+        </div>
+
+        <c:if test="${not empty propertiesBean.properties[cookComponent.maps.name]}">
+            <div class="parameter">
+                ${cookComponent.maps.displayName}: <props:displayValue name="${cookComponent.maps.name}"/>
+            </div>
+        </c:if>
+
+        <c:if test="${not empty propertiesBean.properties[cookComponent.cultures.name]}">
+            <div class="parameter">
+                ${cookComponent.cultures.displayName}: <props:displayValue name="${cookComponent.cultures.name}"/>
+            </div>
+        </c:if>
+
+        <c:set var="cookFlags" value="${cookComponent.formatFlags(propertiesBean.properties)}"/>
+        <c:if test="${not empty cookFlags}">
+            <div class="parameter">
+                Cook flags: <strong>${cookFlags}</strong>
+            </div>
+        </c:if>
+    </c:when>
+    <c:otherwise>
+        <div class="parameter">
+            ${cookComponent.cook.displayName}: <strong>No</strong>
+        </div>
+    </c:otherwise>
+</c:choose>

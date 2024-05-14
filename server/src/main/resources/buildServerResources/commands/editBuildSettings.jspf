@@ -1,0 +1,80 @@
+<%@ taglib prefix="c" uri ="http://java.sun.com/jsp/jstl/core" %>
+
+<%--@elvariable id="buildConfigurationComponent" type="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.BuildConfigurationComponent"--%>
+
+<c:set var="parameter" value="${buildConfigurationComponent.configuration}"/>
+<c:set var="onChange" value="BS.UnrealRunner.updateBuildConfigurationSettings()"/>
+<%@ include file="../common/selectField.jspf"%>
+<c:set var="onChange" value=""/>
+
+<c:set var="noBorder" value="${true}"/>
+<c:set var="cssClass" value="standalone-game-settings"/>
+<c:set var="parameter" value="${buildConfigurationComponent.targetConfigurations}"/>
+<%@ include file="../common/multiSelect.jspf"%>
+<c:set var="parameter" value="${buildConfigurationComponent.targetPlatforms}"/>
+<%@ include file="../common/multiSelect.jspf"%>
+
+<c:set var="cssClass" value="client-settings"/>
+<c:set var="parameter" value="${buildConfigurationComponent.clientTargetConfigurations}"/>
+<%@ include file="../common/multiSelect.jspf"%>
+<c:set var="parameter" value="${buildConfigurationComponent.clientTargetPlatforms}"/>
+<%@ include file="../common/multiSelect.jspf"%>
+
+<c:set var="cssClass" value="server-settings"/>
+<c:set var="parameter" value="${buildConfigurationComponent.serverTargetConfigurations}"/>
+<%@ include file="../common/multiSelect.jspf"%>
+<c:set var="parameter" value="${buildConfigurationComponent.serverTargetPlatforms}"/>
+<%@ include file="../common/multiSelect.jspf"%>
+<c:set var="cssClass" value=""/>
+
+<c:set var="parameter" value="${buildConfigurationComponent.buildTargets}"/>
+<%@ include file="../common/textField.jspf"%>
+
+<c:set var="noBorder" value=""/>
+
+<script type="text/javascript">
+    BS.UnrealRunner.updateBuildConfigurationSettings = () => {
+        const standaloneSettings = $j(BS.Util.escape('.standalone-game-settings'));
+        const clientSettings = $j(BS.Util.escape('.client-settings'));
+        const serverSettings = $j(BS.Util.escape('.server-settings'));
+        const buildType = $j(BS.Util.escapeId(`${buildConfigurationComponent.configuration.name}`)).val();
+
+        const hideAll = () => {
+            standaloneSettings.hide();
+            clientSettings.hide();
+            serverSettings.hide();
+        }
+
+        switch(buildType) {
+            case "${buildConfigurationComponent.configuration.standalone.name}":
+                hideAll();
+                standaloneSettings.show();
+                break;
+
+            case "${buildConfigurationComponent.configuration.client.name}":
+                hideAll();
+                clientSettings.show();
+                break;
+
+            case "${buildConfigurationComponent.configuration.server.name}":
+                hideAll();
+                serverSettings.show();
+                break;
+
+            case "${buildConfigurationComponent.configuration.clientAndServer.name}":
+                hideAll();
+                clientSettings.show();
+                serverSettings.show();
+                break;
+
+            default:
+                hideAll();
+                standaloneSettings.show();
+                break;
+        }
+
+        BS.MultilineProperties.updateVisible();
+    }
+
+    BS.UnrealRunner.updateBuildConfigurationSettings();
+</script>

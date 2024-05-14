@@ -1,0 +1,38 @@
+<%@ taglib prefix="c" uri ="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="l" tagdir="/WEB-INF/tags/layout" %>
+<%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="props" tagdir="/WEB-INF/tags/props" %>
+
+<%--@elvariable id="parameter" type="com.jetbrains.teamcity.plugins.unrealengine.common.parameters.SelectParameter"--%>
+<%--@elvariable id="rowId" type="java.lang.String"--%>
+<%--@elvariable id="onChange" type="java.lang.String"--%>
+<%--@elvariable id="cssClass" type="java.lang.String"--%>
+<%--@elvariable id="noBorder" type="java.lang.Boolean"--%>
+
+<tr id="${rowId}" class="${cssClass}">
+    <th class="${noBorder ? "noBorder" : ""}">
+        <label for="${parameter.name}">
+            ${parameter.displayName}:
+        </label>
+    </th>
+    <td class="${noBorder ? "noBorder" : ""}">
+        <props:selectProperty name="${parameter.name}" enableFilter="true" onchange="${onChange}" className="mediumField">
+            <c:forEach var="option" items="${parameter.options}">
+                <props:option
+                    value="${option.name}"
+                    selected="${option.name == propertiesBean.properties[parameter.name]}">
+
+                    <c:out value="${option.displayName}"/>
+
+                </props:option>
+            </c:forEach>
+        </props:selectProperty>
+
+        <span class="error" id="error_${parameter.name}"></span>
+        <c:if test = "${not empty parameter.description}">
+            <span class="smallNote" id="${parameter.name}-hint">
+                ${parameter.escapeHTML(parameter.description)}
+            </span>
+        </c:if>
+    </td>
+</tr>

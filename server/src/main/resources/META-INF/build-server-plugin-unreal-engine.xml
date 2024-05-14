@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       default-autowire="constructor">
+
+    <import resource="classpath*:META-INF/build-common-plugin-unreal-engine.xml"/>
+
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.UnrealEngineRunType"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.discovery.UprojectFileDiscoverer"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.discovery.UprojectDirsFileDiscoverer"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.discovery.UnrealEngineRunnerDiscoverer"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.RunTypeRegistration"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.UnrealEngineRunnerPropertiesValidator"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.UnrealEngineRunnerParametersProvider"/>
+
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.UnrealRunnerComponent"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.UnrealRunnerComponent"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.EngineComponent"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.BuildConfigurationComponent"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.CookComponent"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.RunComponent"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.BuildGraphComponent"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.BuildCookRunComponent"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.RunnerDescriptionGenerator"/>
+
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphDistributionConfigurer"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphParser"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphBuildChainCreator"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphSettings"/>
+
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.ServerLifecycleListenerRegistration" init-method="register"/>
+
+</beans>

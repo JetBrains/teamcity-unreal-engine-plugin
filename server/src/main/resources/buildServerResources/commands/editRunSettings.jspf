@@ -1,0 +1,33 @@
+<%--@elvariable id="runComponent" type="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.RunComponent"--%>
+
+<c:set var="noBorder" value="${true}"/>
+
+<c:set var="parameter" value="${runComponent.performStage}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.stagingDirectory}"/>
+<%@ include file="../common/textField.jspf"%>
+
+<c:set var="parameter" value="${runComponent.usePak}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.compressedContent}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.prerequisites}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="noBorder" value=""/>
+
+<c:set var="parameter" value="${runComponent.performPackage}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.archiveBuild}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="noBorder" value="${true}"/>
+
+<c:set var="parameter" value="${runComponent.archiveDirectory}"/>
+<%@ include file="../common/textField.jspf"%>
+
+<c:set var="noBorder" value=""/>
