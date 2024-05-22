@@ -12,27 +12,22 @@ import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.BuildQueueEx
 import jetbrains.buildServer.serverSide.BuildServerAdapter
 import jetbrains.buildServer.serverSide.SAgentRestrictor
-import jetbrains.buildServer.serverSide.SBuildType
 import jetbrains.buildServer.serverSide.SRunningBuild
-import jetbrains.buildServer.serverSide.SimpleParameter
 import jetbrains.buildServer.serverSide.artifacts.BuildArtifact
 import jetbrains.buildServer.serverSide.artifacts.BuildArtifacts
 import jetbrains.buildServer.serverSide.artifacts.BuildArtifactsViewMode
 import jetbrains.buildServer.util.DependencyOptionSupportImpl
-import jetbrains.buildServer.virtualConfiguration.generator.VirtualBuildTypeSettings
-import jetbrains.buildServer.virtualConfiguration.generator.VirtualPromotionGeneratorFactory
 import java.io.InputStream
 
 class BuildGraphBuildChainCreator(
     private val buildGraphParser: BuildGraphParser,
-    private val buildGeneratorFactory: VirtualPromotionGeneratorFactory,
+    private val virtualBuildCreator: BuildGraphVirtualBuildCreator,
     private val buildQueue: BuildQueueEx,
     private val settings: BuildGraphSettings,
 ) : BuildServerAdapter() {
 
     companion object {
         private val logger = TeamCityLoggers.server<BuildGraphBuildChainCreator>()
-        private val restrictedIdCharactersRegex = "[^A-Za-z0-9_]".toRegex()
     }
 
     override fun beforeBuildFinish(runningBuild: SRunningBuild) {
@@ -124,21 +119,19 @@ class BuildGraphBuildChainCreator(
     ): BuildChain {
         val groupDependencies = mutableMapOf<BuildGraphNodeGroup, MutableList<BuildPromotionEx>>()
 
-        val buildsToAdd = buildGraph.topologicalSort()
-            .map {
-                val build = createBuildForGroupOfNodes(it, originalBuild)
+        val buildsToAdd = with(virtualBuildCreator.inContextOf(originalBuild)) {
+            buildGraph.topologicalSort()
+                .map {
+                    val build = createBuildForGroupOfNodes(it)
 
-                for (successor in buildGraph.adjacencyList[it]!!) {
-                    groupDependencies.computeIfAbsent(successor) { mutableListOf() }
-                    groupDependencies[successor]!!.add(build)
+                    for (successor in buildGraph.adjacencyList[it]!!) {
+                        groupDependencies.computeIfAbsent(successor) { mutableListOf() }
+                        groupDependencies[successor]!!.add(build)
+                    }
+                    build.addDependencies(groupDependencies[it].orEmpty())
+                    build
                 }
-
-                build.setRevisionsFrom(originalBuild)
-
-                build.addDependencies(groupDependencies[it].orEmpty())
-
-                build
-            }
+        }
 
         return BuildChain(buildsToAdd)
     }
@@ -157,25 +150,29 @@ class BuildGraphBuildChainCreator(
         }
     }
 
+    context(BuildGraphVirtualBuildCreator.VirtualBuildCreationContext)
     private fun createBuildForGroupOfNodes(
         group: BuildGraphNodeGroup,
-        originalBuild: BuildPromotionEx,
     ): BuildPromotionEx {
         val originalRunnerParameters = originalBuild.activeRunners().single().parameters
         val originalBuildId = originalBuild.id.toString()
 
-        return buildGeneratorFactory.create(originalBuild).getOrCreate(
-            VirtualBuildTypeSettings(
-                originalBuild.generateIdForVirtualBuild(group.name).toExternalId(),
-                group.name,
-            ),
-        ) { buildConfiguration, _ ->
+        return virtualBuildCreator.create(group.name) {
             for (node in group.nodes) {
-                buildConfiguration.addRunnerForNode(node.name, originalBuildId, originalRunnerParameters)
+                val parameters = originalRunnerParameters +
+                    mapOf(
+                        AdditionalArgumentsParameter.name to
+                            originalRunnerParameters[AdditionalArgumentsParameter.name] + " \"-SingleNode=${node.name}\"",
+                    ) +
+                    BuildGraphRunnerInternalSettings.RegularBuildSettings(
+                        originalBuildId,
+                    ).toMap()
+
+                addUnrealRunner(node.name, parameters)
             }
 
             if (group.agents.any()) {
-                buildConfiguration.addRequirement(
+                addRequirement(
                     Requirement(
                         "unreal-engine.build-graph.agent.type",
                         ".*(;|^)(${group.agents.joinToString(separator = "|")})(;|$).*",
@@ -183,32 +180,6 @@ class BuildGraphBuildChainCreator(
                     ),
                 )
             }
-
-            originalBuild.buildParameters.forEach { (name, value) ->
-                buildConfiguration.addParameter(SimpleParameter(name, value))
-            }
-
-            val changed = true
-            changed
-        } as BuildPromotionEx
+        }
     }
-
-    private fun SBuildType.addRunnerForNode(
-        nodeName: String,
-        originalBuildId: String,
-        originalRunnerParameters: Map<String, String>,
-    ) {
-        val parameters = originalRunnerParameters +
-            mapOf(
-                AdditionalArgumentsParameter.name to
-                    originalRunnerParameters[AdditionalArgumentsParameter.name] + " \"-SingleNode=$nodeName\"",
-            ) +
-            BuildGraphRunnerInternalSettings.RegularBuildSettings(
-                originalBuildId,
-            ).toMap()
-
-        addUnrealRunner(nodeName, parameters)
-    }
-
-    private fun String.toExternalId() = restrictedIdCharactersRegex.replace(this, "_")
 }

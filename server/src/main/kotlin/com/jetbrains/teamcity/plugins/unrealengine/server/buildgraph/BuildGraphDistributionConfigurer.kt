@@ -14,13 +14,11 @@ import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.BuildQueueEx
 import jetbrains.buildServer.serverSide.impl.LogUtil
 import jetbrains.buildServer.util.DependencyOptionSupportImpl
-import jetbrains.buildServer.virtualConfiguration.generator.VirtualBuildTypeSettings
-import jetbrains.buildServer.virtualConfiguration.generator.VirtualPromotionGeneratorFactory
 import jetbrains.buildServer.virtualConfiguration.processor.ProcessVirtualConfigurations
 
 class BuildGraphDistributionConfigurer(
     private val buildQueue: BuildQueueEx,
-    private val buildGeneratorFactory: VirtualPromotionGeneratorFactory,
+    private val virtualBuildCreator: BuildGraphVirtualBuildCreator,
     private val settings: BuildGraphSettings,
 ) : ProcessVirtualConfigurations {
 
@@ -117,31 +115,26 @@ class BuildGraphDistributionConfigurer(
     private fun createBuildGraphSetupBuild(originalBuild: BuildPromotionEx): BuildPromotionEx {
         val originalRunnerParameters = originalBuild.activeRunners().single().parameters
 
-        val buildGenerator = buildGeneratorFactory.create(originalBuild)
-        val setupBuild = buildGenerator.getOrCreate(
-            VirtualBuildTypeSettings(
-                originalBuild.generateIdForVirtualBuild(settings.setupBuildName),
-                settings.setupBuildName,
-            ),
-        ) { buildConfiguration, _ ->
-            val graphExportPath =
-                "%${AgentRuntimeProperties.BUILD_CHECKOUT_DIR}%/${settings.graphArtifactName}"
+        val setupBuild = with(virtualBuildCreator.inContextOf(originalBuild)) {
+            virtualBuildCreator.create(settings.setupBuildName) {
+                val graphExportPath =
+                    "%${AgentRuntimeProperties.BUILD_CHECKOUT_DIR}%/${settings.graphArtifactName}"
 
-            val setupRunnerParameters = originalRunnerParameters + mapOf(
-                AdditionalArgumentsParameter.name to
-                    originalRunnerParameters[AdditionalArgumentsParameter.name] + " \"-Export=$graphExportPath\"",
-            ) + BuildGraphRunnerInternalSettings.SetupBuildSettings(
-                graphExportPath,
-                originalBuild.id.toString(),
-            ).toMap()
+                val setupRunnerParameters = originalRunnerParameters + mapOf(
+                    AdditionalArgumentsParameter.name to
+                        originalRunnerParameters[AdditionalArgumentsParameter.name] + " \"-Export=$graphExportPath\"",
+                ) + BuildGraphRunnerInternalSettings.SetupBuildSettings(
+                    graphExportPath,
+                    originalBuild.id.toString(),
+                ).toMap()
 
-            buildConfiguration.addUnrealRunner(settings.setupBuildName, setupRunnerParameters)
-
-            val changed = true
-            changed
+                addUnrealRunner(
+                    settings.setupBuildName,
+                    setupRunnerParameters,
+                )
+            }
         }
 
-        (setupBuild as BuildPromotionEx).setRevisionsFrom(originalBuild)
         val dependencyOptions = DependencyOptionSupportImpl().default()
         originalBuild.addDependency(setupBuild, dependencyOptions)
 

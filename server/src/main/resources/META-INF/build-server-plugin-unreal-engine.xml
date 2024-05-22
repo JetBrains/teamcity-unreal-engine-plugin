@@ -28,6 +28,7 @@
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphParser"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphBuildChainCreator"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphSettings"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphVirtualBuildCreator"/>
 
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.ServerLifecycleListenerRegistration" init-method="register"/>
 
