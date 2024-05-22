@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## 1.0.1 - 2024-05-22
+
+### Fixed
+
+- Additional arguments for generated configurations are now inherited from the original BuildGraph configuration
+in distributed mode [TW-87872](https://youtrack.jetbrains.com/issue/TW-87872)
+- Build parameters for the generated "Setup" configuration are now inherited from the original BuildGraph configuration
+in distributed mode [TW-87893](https://youtrack.jetbrains.com/issue/TW-87893)
+
 ## 1.0.0 - 2024-05-07
 
 ### Added
