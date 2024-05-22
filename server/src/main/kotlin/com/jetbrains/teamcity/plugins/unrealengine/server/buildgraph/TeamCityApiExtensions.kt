@@ -10,6 +10,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealComma
 import jetbrains.buildServer.serverSide.BuildPromotion
 import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.SBuildRunnerDescriptor
+import jetbrains.buildServer.serverSide.SBuildType
 import jetbrains.buildServer.serverSide.TriggeredByBuilder
 import jetbrains.buildServer.serverSide.dependency.DependencyOptions
 import jetbrains.buildServer.util.DependencyOptionSupportImpl
@@ -55,3 +56,6 @@ fun VirtualPromotionGeneratorFactory.create(build: BuildPromotion): VirtualPromo
     create(build, "Unreal Engine BuildGraph")
 
 fun BuildPromotion.generateIdForVirtualBuild(name: String) = "${id}_ue_plugin_generated_$name"
+
+fun SBuildType.addUnrealRunner(name: String, parameters: Map<String, String>) =
+    addBuildRunner(name, UnrealEngineRunner.RUN_TYPE, parameters)

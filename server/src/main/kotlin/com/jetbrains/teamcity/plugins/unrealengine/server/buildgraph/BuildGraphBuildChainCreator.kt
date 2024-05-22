@@ -3,15 +3,16 @@ package com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph
 import arrow.core.Either
 import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
-import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRunner
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphRunnerInternalSettings
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.toMap
+import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
 import jetbrains.buildServer.requirements.Requirement
 import jetbrains.buildServer.requirements.RequirementType
 import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.BuildQueueEx
 import jetbrains.buildServer.serverSide.BuildServerAdapter
 import jetbrains.buildServer.serverSide.SAgentRestrictor
+import jetbrains.buildServer.serverSide.SBuildType
 import jetbrains.buildServer.serverSide.SRunningBuild
 import jetbrains.buildServer.serverSide.SimpleParameter
 import jetbrains.buildServer.serverSide.artifacts.BuildArtifact
@@ -122,11 +123,10 @@ class BuildGraphBuildChainCreator(
         originalBuild: BuildPromotionEx,
     ): BuildChain {
         val groupDependencies = mutableMapOf<BuildGraphNodeGroup, MutableList<BuildPromotionEx>>()
-        val runnerParameters = originalBuild.activeRunners().last().parameters
 
         val buildsToAdd = buildGraph.topologicalSort()
             .map {
-                val build = createBuildForGroupOfNodes(it, runnerParameters, originalBuild)
+                val build = createBuildForGroupOfNodes(it, originalBuild)
 
                 for (successor in buildGraph.adjacencyList[it]!!) {
                     groupDependencies.computeIfAbsent(successor) { mutableListOf() }
@@ -159,9 +159,11 @@ class BuildGraphBuildChainCreator(
 
     private fun createBuildForGroupOfNodes(
         group: BuildGraphNodeGroup,
-        runnerParameters: Map<String, String>,
         originalBuild: BuildPromotionEx,
     ): BuildPromotionEx {
+        val originalRunnerParameters = originalBuild.activeRunners().single().parameters
+        val originalBuildId = originalBuild.id.toString()
+
         return buildGeneratorFactory.create(originalBuild).getOrCreate(
             VirtualBuildTypeSettings(
                 originalBuild.generateIdForVirtualBuild(group.name).toExternalId(),
@@ -169,21 +171,7 @@ class BuildGraphBuildChainCreator(
             ),
         ) { buildConfiguration, _ ->
             for (node in group.nodes) {
-                buildConfiguration.addBuildRunner(
-                    node.name,
-                    UnrealEngineRunner.RUN_TYPE,
-                    runnerParameters +
-                        mapOf(
-                            "additional-arguments" to
-                                """
-                                        "-SingleNode=${node.name}"
-                                        -utf8output -buildmachine -unattended -noP4 -nosplash -stdout -NoCodeSign
-                                """.trimIndent(),
-                        ) +
-                        BuildGraphRunnerInternalSettings.RegularBuildSettings(
-                            originalBuild.id.toString(),
-                        ).toMap(),
-                )
+                buildConfiguration.addRunnerForNode(node.name, originalBuildId, originalRunnerParameters)
             }
 
             if (group.agents.any()) {
@@ -203,6 +191,23 @@ class BuildGraphBuildChainCreator(
             val changed = true
             changed
         } as BuildPromotionEx
+    }
+
+    private fun SBuildType.addRunnerForNode(
+        nodeName: String,
+        originalBuildId: String,
+        originalRunnerParameters: Map<String, String>,
+    ) {
+        val parameters = originalRunnerParameters +
+            mapOf(
+                AdditionalArgumentsParameter.name to
+                    originalRunnerParameters[AdditionalArgumentsParameter.name] + " \"-SingleNode=$nodeName\"",
+            ) +
+            BuildGraphRunnerInternalSettings.RegularBuildSettings(
+                originalBuildId,
+            ).toMap()
+
+        addUnrealRunner(nodeName, parameters)
     }
 
     private fun String.toExternalId() = restrictedIdCharactersRegex.replace(this, "_")

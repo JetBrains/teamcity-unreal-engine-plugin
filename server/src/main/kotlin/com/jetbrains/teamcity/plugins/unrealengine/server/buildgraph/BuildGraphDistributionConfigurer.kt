@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
-import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRunner
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphRunnerInternalSettings
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.toMap
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
@@ -128,21 +127,15 @@ class BuildGraphDistributionConfigurer(
             val graphExportPath =
                 "%${AgentRuntimeProperties.BUILD_CHECKOUT_DIR}%/${settings.graphArtifactName}"
 
-            buildConfiguration.addBuildRunner(
-                settings.setupBuildName,
-                UnrealEngineRunner.RUN_TYPE,
-                originalRunnerParameters +
-                    mapOf(
-                        AdditionalArgumentsParameter.name to
-                            """
-                                        "-Export=$graphExportPath"
-                                        -utf8output -buildmachine -unattended -noP4 -nosplash -stdout -NoCodeSign
-                            """.trimIndent(),
-                    ) + BuildGraphRunnerInternalSettings.SetupBuildSettings(
-                        graphExportPath,
-                        originalBuild.id.toString(),
-                    ).toMap(),
-            )
+            val setupRunnerParameters = originalRunnerParameters + mapOf(
+                AdditionalArgumentsParameter.name to
+                    originalRunnerParameters[AdditionalArgumentsParameter.name] + " \"-Export=$graphExportPath\"",
+            ) + BuildGraphRunnerInternalSettings.SetupBuildSettings(
+                graphExportPath,
+                originalBuild.id.toString(),
+            ).toMap()
+
+            buildConfiguration.addUnrealRunner(settings.setupBuildName, setupRunnerParameters)
 
             val changed = true
             changed
