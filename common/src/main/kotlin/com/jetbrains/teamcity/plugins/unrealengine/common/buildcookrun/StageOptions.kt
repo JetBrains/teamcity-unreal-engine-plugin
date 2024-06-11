@@ -9,34 +9,34 @@ data class StageOptions(
     val installPrerequisites: Boolean = false,
 ) {
     companion object {
-        fun from(runnerParameters: Map<String, String>): StageOptions {
-            return StageOptions(
+        fun from(runnerParameters: Map<String, String>): StageOptions =
+            StageOptions(
                 runnerParameters[StagingDirectoryParameter.name],
                 runnerParameters[UsePakParameter.name].toBoolean(),
                 runnerParameters[CompressedContentParameter.name].toBoolean(),
                 runnerParameters[PrerequisitesParameter.name].toBoolean(),
             )
-        }
     }
 
     context(CommandExecutionContext)
-    fun toArguments() = buildList {
-        add("-stage")
+    fun toArguments() =
+        buildList {
+            add("-stage")
 
-        stagingDirectory?.let {
-            add("-stagingdirectory=${concatPaths(workingDirectory, stagingDirectory)}")
-        }
+            stagingDirectory?.let {
+                add("-stagingdirectory=${concatPaths(workingDirectory, stagingDirectory)}")
+            }
 
-        if (usePak) {
-            add("-pak")
-        }
+            if (usePak) {
+                add("-pak")
+            }
 
-        if (compressContent) {
-            add("-compressed")
-        }
+            if (compressContent) {
+                add("-compressed")
+            }
 
-        if (installPrerequisites) {
-            add("-prereqs")
+            if (installPrerequisites) {
+                add("-prereqs")
+            }
         }
-    }
 }

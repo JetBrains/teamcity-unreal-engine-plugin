@@ -9,7 +9,9 @@ enum class UnrealCommandType {
 }
 
 @JvmInline
-value class ArgumentsPreparationError(val message: String)
+value class ArgumentsPreparationError(
+    val message: String,
+)
 
 interface UnrealCommand {
     context(CommandExecutionContext)

@@ -18,22 +18,23 @@ class ArchiveOptionsTests {
 
     companion object {
         @JvmStatic
-        fun generateTestCases() = listOf(
-            TestCase(
-                mapOf(),
-                ArchiveOptions(),
-                listOf("-archive"),
-                listOf("-archivedirectory"),
-            ),
-            TestCase(
-                mapOf(
-                    ArchiveDirectoryParameter.name to "bar",
+        fun generateTestCases() =
+            listOf(
+                TestCase(
+                    mapOf(),
+                    ArchiveOptions(),
+                    listOf("-archive"),
+                    listOf("-archivedirectory"),
                 ),
-                ArchiveOptions("bar"),
-                listOf("-archive", "-archivedirectory=foo/bar"),
-                emptyList(),
-            ),
-        )
+                TestCase(
+                    mapOf(
+                        ArchiveDirectoryParameter.name to "bar",
+                    ),
+                    ArchiveOptions("bar"),
+                    listOf("-archive", "-archivedirectory=foo/bar"),
+                    emptyList(),
+                ),
+            )
     }
 
     @ParameterizedTest
@@ -50,9 +51,10 @@ class ArchiveOptionsTests {
     @MethodSource("generateTestCases")
     fun `should generate a correct list of arguments`(case: TestCase) {
         // act
-        val arguments = with(commandExecutionContext) {
-            case.expectedOptions.toArguments()
-        }
+        val arguments =
+            with(commandExecutionContext) {
+                case.expectedOptions.toArguments()
+            }
 
         // assert
         assertTrue(arguments.containsAll(case.shouldContainItems))

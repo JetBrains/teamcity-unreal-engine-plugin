@@ -7,29 +7,28 @@ import jetbrains.buildServer.util.browser.Element
 class UprojectDirsFileDiscoverer(
     private val projectFileDiscoverer: UprojectFileDiscoverer,
 ) : UnrealProjectDiscoverer {
-
     companion object {
         private val logger = TeamCityLoggers.server<UprojectDirsFileDiscoverer>()
-        private const val projectDirFileExtension = ".uprojectdirs"
+        private const val PROJECT_DIR_FILE_EXTENSION = ".uprojectdirs"
     }
 
-    override fun discover(directory: Element): Collection<UnrealEngineProject> = directory.children?.let { children ->
-        children
-            .filter { it.isContentAvailable && it.fullName.endsWith(projectDirFileExtension) }
-            .flatMap {
-                getProjectPathsFrom(it)
-            }
-            .distinct()
-            .flatMap {
-                val element = directory.browser.getElement(it)
-                if (element != null) {
-                    projectFileDiscoverer.discover(element)
-                } else {
-                    logger.debug("Project search path $it referenced by .uprojectdirs was not found, ignoring")
-                    emptyList()
+    override fun discover(directory: Element): Collection<UnrealEngineProject> =
+        directory.children?.let { children ->
+            children
+                .filter { it.isContentAvailable && it.fullName.endsWith(PROJECT_DIR_FILE_EXTENSION) }
+                .flatMap {
+                    getProjectPathsFrom(it)
+                }.distinct()
+                .flatMap {
+                    val element = directory.browser.getElement(it)
+                    if (element != null) {
+                        projectFileDiscoverer.discover(element)
+                    } else {
+                        logger.debug("Project search path $it referenced by .uprojectdirs was not found, ignoring")
+                        emptyList()
+                    }
                 }
-            }
-    } ?: emptyList()
+        } ?: emptyList()
 
     private fun getProjectPathsFrom(projectDirsFile: Element): Collection<String> {
         val commentPrefix = ';'

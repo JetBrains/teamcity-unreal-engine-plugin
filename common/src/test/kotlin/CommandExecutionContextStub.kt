@@ -7,8 +7,17 @@ class CommandExecutionContextStub(
     val concatPathsStub: (String, String) -> String = { root, path -> "$root/$path" },
     val isAbsoluteStub: (String) -> Boolean = { true },
 ) : CommandExecutionContext {
-    override fun concatPaths(root: String, path: String) = concatPathsStub(root, path)
+    override fun concatPaths(
+        root: String,
+        path: String,
+    ) = concatPathsStub(root, path)
+
     override fun fileExists(path: String) = fileExistsStub(path)
+
     override fun isAbsolute(path: String) = isAbsoluteStub(path)
-    override fun createDirectory(root: String, vararg parts: String) = ""
+
+    override fun createDirectory(
+        root: String,
+        vararg parts: String,
+    ) = ""
 }

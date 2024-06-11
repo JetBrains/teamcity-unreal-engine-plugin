@@ -15,15 +15,15 @@ class UnrealEngineProcessListener private constructor(
         private val buildStdOutLogger = TeamCityLoggers.buildStdOut()
 
         context(UnrealBuildContext)
-        fun create(vararg handlers: LogMessageHandler): UnrealEngineProcessListener {
-            return UnrealEngineProcessListener(build.buildLogger, handlers.asList())
-        }
+        fun create(vararg handlers: LogMessageHandler): UnrealEngineProcessListener =
+            UnrealEngineProcessListener(build.buildLogger, handlers.asList())
     }
 
     override fun onStandardOutput(text: String) {
-        val handler = handlers
-            .firstOrNull { it.tryHandleMessage(text) }
-            ?.also { agentLogger.debug("\"$text\" was handled by \"${it::class.simpleName}\"") }
+        val handler =
+            handlers
+                .firstOrNull { it.tryHandleMessage(text) }
+                ?.also { agentLogger.debug("\"$text\" was handled by \"${it::class.simpleName}\"") }
 
         if (handler == null) {
             buildLogger.message(text)

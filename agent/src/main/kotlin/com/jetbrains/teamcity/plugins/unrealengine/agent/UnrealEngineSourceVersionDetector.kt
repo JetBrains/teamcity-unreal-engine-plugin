@@ -20,10 +20,8 @@ import kotlinx.serialization.Serializable
 private data class BuildVersion(
     @SerialName("MajorVersion")
     val majorVersion: Int,
-
     @SerialName("MinorVersion")
     val minorVersion: Int,
-
     @SerialName("PatchVersion")
     val patchVersion: Int,
 ) {
@@ -42,27 +40,29 @@ class UnrealEngineSourceVersionDetector(
     }
 
     context(Raise<WorkflowCreationError.EngineLocationError>, UnrealBuildContext)
-    suspend fun detect(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion = recover({
-        lookUpInBuildVersionFile(engineRootPath)
-    }) {
-        logger.warn(
-            "An error occurred while searching in the 'Build.version' file: " +
-                "${it.message}. Proceeding to search in the 'Version.h' file",
-        )
-        lookUpInCppVersionHeaderFile(engineRootPath)
-    }
+    suspend fun detect(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion =
+        recover({
+            lookUpInBuildVersionFile(engineRootPath)
+        }) {
+            logger.warn(
+                "An error occurred while searching in the 'Build.version' file: " +
+                    "${it.message}. Proceeding to search in the 'Version.h' file",
+            )
+            lookUpInCppVersionHeaderFile(engineRootPath)
+        }
 
     context(Raise<WorkflowCreationError.EngineLocationError>, UnrealBuildContext)
     private suspend fun lookUpInBuildVersionFile(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion {
-        val locationResults = resourceLocator.locateResources {
-            anyOS(
-                {
-                    file(concatPaths(engineRootPath.value, "Engine/Build/Build.version"))
-                        .json<BuildVersion>(json)
-                        .map { UnrealEngineVersion(it.majorVersion, it.minorVersion, it.patchVersion) }
-                },
-            )
-        }
+        val locationResults =
+            resourceLocator.locateResources {
+                anyOS(
+                    {
+                        file(concatPaths(engineRootPath.value, "Engine/Build/Build.version"))
+                            .json<BuildVersion>(json)
+                            .map { UnrealEngineVersion(it.majorVersion, it.minorVersion, it.patchVersion) }
+                    },
+                )
+            }
 
         val result = locationResults.firstOrNull()
         ensureNotNull(result) {
@@ -82,17 +82,18 @@ class UnrealEngineSourceVersionDetector(
 
     context(Raise<WorkflowCreationError.EngineLocationError>, UnrealBuildContext)
     private suspend fun lookUpInCppVersionHeaderFile(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion {
-        val locationResults = resourceLocator.locateResources {
-            anyOS(
-                {
-                    file(concatPaths(engineRootPath.value, "Engine/Source/Runtime/Launch/Resources/Version.h"))
-                        .filteredLines(
-                            accept = { line -> versionPartRegex.matches(line) },
-                            continueReading = { _, acceptedSoFar -> acceptedSoFar != BuildVersion.PART_COUNT },
-                        )
-                },
-            )
-        }
+        val locationResults =
+            resourceLocator.locateResources {
+                anyOS(
+                    {
+                        file(concatPaths(engineRootPath.value, "Engine/Source/Runtime/Launch/Resources/Version.h"))
+                            .filteredLines(
+                                accept = { line -> versionPartRegex.matches(line) },
+                                continueReading = { _, acceptedSoFar -> acceptedSoFar != BuildVersion.PART_COUNT },
+                            )
+                    },
+                )
+            }
 
         val result = locationResults.firstOrNull()
         ensureNotNull(result) {

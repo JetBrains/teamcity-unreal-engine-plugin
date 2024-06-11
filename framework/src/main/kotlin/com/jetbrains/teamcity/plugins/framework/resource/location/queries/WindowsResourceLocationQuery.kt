@@ -14,7 +14,7 @@ import com.jetbrains.teamcity.plugins.framework.resource.location.windows.regist
 import kotlinx.serialization.json.Json
 import java.io.Reader
 
-interface WindowsResourceLocationContext : FileSystem {
+interface WindowsResourceLocationContext : FileSystem, ResourceLocationContext {
     val commandLineRunner: CommandLineRunner
 }
 

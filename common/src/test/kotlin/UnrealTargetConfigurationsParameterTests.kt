@@ -16,75 +16,81 @@ class UnrealTargetConfigurationsParameterTests {
 
     companion object {
         @JvmStatic
-        fun generateHappyPathTestCases() = listOf(
-            TestCase(
-                mapOf(
-                    UnrealTargetConfigurationsParameter.Client.name to UnrealTargetConfigurationsParameter
-                        .joinConfigurations(UnrealTargetConfiguration.knownConfigurations),
+        fun generateHappyPathTestCases() =
+            listOf(
+                TestCase(
+                    mapOf(
+                        UnrealTargetConfigurationsParameter.Client.name to
+                            UnrealTargetConfigurationsParameter
+                                .joinConfigurations(UnrealTargetConfiguration.knownConfigurations),
+                    ),
+                    UnrealTargetConfigurationsParameter.Client.name,
+                    UnrealTargetConfiguration.knownConfigurations.toList(),
                 ),
-                UnrealTargetConfigurationsParameter.Client.name,
-                UnrealTargetConfiguration.knownConfigurations.toList(),
-            ),
-            TestCase(
-                mapOf(
-                    UnrealTargetConfigurationsParameter.Client.name to UnrealTargetConfiguration.Development.value,
+                TestCase(
+                    mapOf(
+                        UnrealTargetConfigurationsParameter.Client.name to UnrealTargetConfiguration.Development.value,
+                    ),
+                    UnrealTargetConfigurationsParameter.Client.name,
+                    listOf(UnrealTargetConfiguration.Development),
                 ),
-                UnrealTargetConfigurationsParameter.Client.name,
-                listOf(UnrealTargetConfiguration.Development),
-            ),
-            TestCase(
-                mapOf(
-                    UnrealTargetConfigurationsParameter.Client.name to "%parameterRef%",
+                TestCase(
+                    mapOf(
+                        UnrealTargetConfigurationsParameter.Client.name to "%parameterRef%",
+                    ),
+                    UnrealTargetConfigurationsParameter.Client.name,
+                    listOf(UnrealTargetConfiguration("%parameterRef%")),
                 ),
-                UnrealTargetConfigurationsParameter.Client.name,
-                listOf(UnrealTargetConfiguration("%parameterRef%")),
-            ),
-        )
+            )
 
         @JvmStatic
-        fun generateInvalidConfigurationsTestCases() = listOf(
-            TestCase(
-                mapOf(
-                    UnrealTargetConfigurationsParameter.Client.name to "",
+        fun generateInvalidConfigurationsTestCases() =
+            listOf(
+                TestCase(
+                    mapOf(
+                        UnrealTargetConfigurationsParameter.Client.name to "",
+                    ),
+                    UnrealTargetConfigurationsParameter.Client.name,
+                    emptyList(),
                 ),
-                UnrealTargetConfigurationsParameter.Client.name,
-                emptyList(),
-            ),
-            TestCase(
-                mapOf(
-                    UnrealTargetConfigurationsParameter.Client.name to "foo",
+                TestCase(
+                    mapOf(
+                        UnrealTargetConfigurationsParameter.Client.name to "foo",
+                    ),
+                    UnrealTargetConfigurationsParameter.Client.name,
+                    emptyList(),
                 ),
-                UnrealTargetConfigurationsParameter.Client.name,
-                emptyList(),
-            ),
-            TestCase(
-                mapOf(
-                    UnrealTargetConfigurationsParameter.Client.name to listOf("foo", "bar")
-                        .joinToString(separator = "+"),
+                TestCase(
+                    mapOf(
+                        UnrealTargetConfigurationsParameter.Client.name to
+                            listOf("foo", "bar")
+                                .joinToString(separator = "+"),
+                    ),
+                    UnrealTargetConfigurationsParameter.Client.name,
+                    emptyList(),
                 ),
-                UnrealTargetConfigurationsParameter.Client.name,
-                emptyList(),
-            ),
-            TestCase(
-                mapOf(
-                    UnrealTargetConfigurationsParameter.Client.name to listOf(
-                        UnrealTargetConfiguration.Development,
-                        UnrealTargetConfiguration.Test,
-                    ).joinToString(separator = ","),
+                TestCase(
+                    mapOf(
+                        UnrealTargetConfigurationsParameter.Client.name to
+                            listOf(
+                                UnrealTargetConfiguration.Development,
+                                UnrealTargetConfiguration.Test,
+                            ).joinToString(separator = ","),
+                    ),
+                    UnrealTargetConfigurationsParameter.Client.name,
+                    emptyList(),
                 ),
-                UnrealTargetConfigurationsParameter.Client.name,
-                emptyList(),
-            ),
-        )
+            )
     }
 
     @ParameterizedTest
     @MethodSource("generateHappyPathTestCases")
     fun `should parse target configurations correctly`(case: TestCase) {
         // act
-        val result = either {
-            UnrealTargetConfigurationsParameter.parseTargetConfigurations(case.properties, case.propertyName)
-        }
+        val result =
+            either {
+                UnrealTargetConfigurationsParameter.parseTargetConfigurations(case.properties, case.propertyName)
+            }
 
         // assert
         val configurations = result.getOrNull()
@@ -96,9 +102,10 @@ class UnrealTargetConfigurationsParameterTests {
     @MethodSource("generateInvalidConfigurationsTestCases")
     fun `should raise error while parsing incorrect configurations`(case: TestCase) {
         // act
-        val result = either {
-            UnrealTargetConfigurationsParameter.parseTargetConfigurations(case.properties, case.propertyName)
-        }
+        val result =
+            either {
+                UnrealTargetConfigurationsParameter.parseTargetConfigurations(case.properties, case.propertyName)
+            }
 
         // assert
         val error = result.leftOrNull()

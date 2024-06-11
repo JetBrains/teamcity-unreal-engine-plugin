@@ -15,12 +15,13 @@ class UnrealEngineRunnerPropertiesValidator(
     override fun process(properties: MutableMap<String, String>?): MutableCollection<InvalidProperty> {
         properties ?: return mutableListOf()
 
-        val result = either {
-            zipOrAccumulate<ValidationError, Any, Any, Unit>(
-                { parseDetectionMode(properties) },
-                { commandCreator.create(properties) },
-            ) { _, _ -> }
-        }
+        val result =
+            either {
+                zipOrAccumulate<ValidationError, Any, Any, Unit>(
+                    { parseDetectionMode(properties) },
+                    { commandCreator.create(properties) },
+                ) { _, _ -> }
+            }
 
         return when (result) {
             is Either.Left ->

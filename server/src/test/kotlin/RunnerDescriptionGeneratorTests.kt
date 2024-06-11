@@ -18,47 +18,50 @@ import kotlin.test.assertEquals
 class RunnerDescriptionGeneratorTests {
     companion object {
         @JvmStatic
-        fun generateHappyPathTestCases(): Collection<TestCase> = buildList {
-            val buildCookRun = TestCase(
-                mapOf(
-                    EngineDetectionModeParameter.name to EngineDetectionModeParameter.manual.name,
-                    UnrealEngineRootParameter.name to "/foo/UE_5.2",
-                    UnrealCommandTypeParameter.name to UnrealCommandType.BuildCookRun.name,
-                    BuildCookRunProjectPathParameter.name to "foo/bar.uproject",
+        fun generateHappyPathTestCases(): Collection<TestCase> =
+            buildList {
+                val buildCookRun =
+                    TestCase(
+                        mapOf(
+                            EngineDetectionModeParameter.name to EngineDetectionModeParameter.manual.name,
+                            UnrealEngineRootParameter.name to "/foo/UE_5.2",
+                            UnrealCommandTypeParameter.name to UnrealCommandType.BuildCookRun.name,
+                            BuildCookRunProjectPathParameter.name to "foo/bar.uproject",
+                        ),
+                        "Command: BuildCookRun, Project: foo/bar.uproject, " +
+                            "Engine detection mode: Manual, Engine Root path: /foo/UE_5.2",
+                    )
 
-                ),
-                "Command: BuildCookRun, Project: foo/bar.uproject, " +
-                    "Engine detection mode: Manual, Engine Root path: /foo/UE_5.2",
-            )
+                val buildGraph =
+                    TestCase(
+                        mapOf(
+                            EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
+                            UnrealEngineIdentifierParameter.name to "5.3",
+                            UnrealCommandTypeParameter.name to UnrealCommandType.BuildGraph.name,
+                            BuildGraphScriptPathParameter.name to "foo/BuildGraph.xml",
+                            BuildGraphTargetNodeParameter.name to "FooBar",
+                            BuildGraphModeParameter.name to BuildGraphMode.Distributed.name,
+                        ),
+                        "Command: BuildGraph, Script path: foo/BuildGraph.xml, " +
+                            "Target: FooBar, Mode: Distributed, Engine detection mode: Auto, Engine identifier: 5.3",
+                    )
 
-            val buildGraph = TestCase(
-                mapOf(
-                    EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
-                    UnrealEngineIdentifierParameter.name to "5.3",
-                    UnrealCommandTypeParameter.name to UnrealCommandType.BuildGraph.name,
-                    BuildGraphScriptPathParameter.name to "foo/BuildGraph.xml",
-                    BuildGraphTargetNodeParameter.name to "FooBar",
-                    BuildGraphModeParameter.name to BuildGraphMode.Distributed.name,
-                ),
-                "Command: BuildGraph, Script path: foo/BuildGraph.xml, " +
-                    "Target: FooBar, Mode: Distributed, Engine detection mode: Auto, Engine identifier: 5.3",
-            )
+                val runAutomation =
+                    TestCase(
+                        mapOf(
+                            EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
+                            UnrealEngineIdentifierParameter.name to "5.3",
+                            UnrealCommandTypeParameter.name to UnrealCommandType.RunAutomation.name,
+                            AutomationProjectPathParameter.name to "bar/baz.uproject",
+                        ),
+                        "Command: RunAutomation, Project: bar/baz.uproject, " +
+                            "Engine detection mode: Auto, Engine identifier: 5.3",
+                    )
 
-            val runAutomation = TestCase(
-                mapOf(
-                    EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
-                    UnrealEngineIdentifierParameter.name to "5.3",
-                    UnrealCommandTypeParameter.name to UnrealCommandType.RunAutomation.name,
-                    AutomationProjectPathParameter.name to "bar/baz.uproject",
-                ),
-                "Command: RunAutomation, Project: bar/baz.uproject, " +
-                    "Engine detection mode: Auto, Engine identifier: 5.3",
-            )
-
-            add(buildCookRun)
-            add(buildGraph)
-            add(runAutomation)
-        }
+                add(buildCookRun)
+                add(buildGraph)
+                add(runAutomation)
+            }
     }
 
     data class TestCase(

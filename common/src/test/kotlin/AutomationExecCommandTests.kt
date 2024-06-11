@@ -23,8 +23,8 @@ class AutomationExecCommandTests {
         private const val TEST_FILTER_NAME = "testNameFilter"
 
         @JvmStatic
-        fun generateHappyPathTestCases(): List<HappyTestCase> {
-            return listOf(
+        fun generateHappyPathTestCases(): List<HappyTestCase> =
+            listOf(
                 HappyTestCase(
                     "parse RunAll command",
                     mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.all.name),
@@ -56,7 +56,6 @@ class AutomationExecCommandTests {
                     ExecCommand.RunAll,
                 ),
             )
-        }
 
         data class UnhappyTestCase(
             val description: String,
@@ -65,8 +64,8 @@ class AutomationExecCommandTests {
         )
 
         @JvmStatic
-        fun generateInvalidDataTestCases(): List<UnhappyTestCase> {
-            return listOf(
+        fun generateInvalidDataTestCases(): List<UnhappyTestCase> =
+            listOf(
                 UnhappyTestCase(
                     "return expected error when command is RunTests but the list of tests is empty",
                     mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.list.name),
@@ -78,7 +77,6 @@ class AutomationExecCommandTests {
                     ValidationError(AutomationFilterParameter.name, "Empty test filter."),
                 ),
             )
-        }
     }
 
     @ParameterizedTest

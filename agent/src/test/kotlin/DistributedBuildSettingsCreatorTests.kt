@@ -14,41 +14,49 @@ class DistributedBuildSettingsCreatorTests {
     private val buildAgentConfigurationMock = mockk<BuildAgentConfiguration>(relaxed = true)
 
     companion object {
-        private fun Map<String, String>.prependInternalPrefixToKeys() = mapKeys {
-            "build-graph.internal-settings.${it.key}"
-        }
+        private fun Map<String, String>.prependInternalPrefixToKeys() =
+            mapKeys {
+                "build-graph.internal-settings.${it.key}"
+            }
 
         @JvmStatic
-        fun generateHappyPathTestCases() = listOf(
-            TestCase(
-                runnerParameters = mapOf(
-                    "type" to "setup",
-                    "exportedGraphPath" to "foo",
-                    "compositeBuildId" to "1",
-                ).prependInternalPrefixToKeys(),
-                agentParameters = mapOf(
-                    "unreal-engine.build-graph.agent.shared-dir" to "/tmp/foo",
+        fun generateHappyPathTestCases() =
+            listOf(
+                TestCase(
+                    runnerParameters =
+                        mapOf(
+                            "type" to "setup",
+                            "exportedGraphPath" to "foo",
+                            "compositeBuildId" to "1",
+                        ).prependInternalPrefixToKeys(),
+                    agentParameters =
+                        mapOf(
+                            "unreal-engine.build-graph.agent.shared-dir" to "/tmp/foo",
+                        ),
+                    expectedSettings =
+                        DistributedBuildSettings.SetupBuildSettings(
+                            "foo",
+                            "/tmp/foo",
+                            "1",
+                        ),
                 ),
-                expectedSettings = DistributedBuildSettings.SetupBuildSettings(
-                    "foo",
-                    "/tmp/foo",
-                    "1",
+                TestCase(
+                    runnerParameters =
+                        mapOf(
+                            "type" to "regular",
+                            "compositeBuildId" to "1",
+                        ).prependInternalPrefixToKeys(),
+                    agentParameters =
+                        mapOf(
+                            "unreal-engine.build-graph.agent.shared-dir" to "/tmp/foo",
+                        ),
+                    expectedSettings =
+                        DistributedBuildSettings.RegularBuildSettings(
+                            "/tmp/foo",
+                            "1",
+                        ),
                 ),
-            ),
-            TestCase(
-                runnerParameters = mapOf(
-                    "type" to "regular",
-                    "compositeBuildId" to "1",
-                ).prependInternalPrefixToKeys(),
-                agentParameters = mapOf(
-                    "unreal-engine.build-graph.agent.shared-dir" to "/tmp/foo",
-                ),
-                expectedSettings = DistributedBuildSettings.RegularBuildSettings(
-                    "/tmp/foo",
-                    "1",
-                ),
-            ),
-        )
+            )
     }
 
     data class TestCase(

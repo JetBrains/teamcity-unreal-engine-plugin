@@ -7,7 +7,6 @@ class ServerLifecycleListenerRegistration(
     private val server: SBuildServer,
     private val buildGraphBuildChainCreator: BuildGraphBuildChainCreator,
 ) {
-
     fun register() {
         server.addListener(buildGraphBuildChainCreator)
     }

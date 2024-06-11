@@ -16,12 +16,13 @@ import jetbrains.buildServer.serverSide.dependency.DependencyOptions
 import jetbrains.buildServer.util.DependencyOptionSupportImpl
 import jetbrains.buildServer.virtualConfiguration.generator.VirtualPromotionGeneratorFactory
 
-fun BuildPromotionEx.setRevisionsFrom(another: BuildPromotionEx) = setBuildRevisions(
-    another.allRevisionsMap.values,
-    another.lastModificationId ?: 0L,
-    another.chainModificationId ?: 0L,
-    false,
-)
+fun BuildPromotionEx.setRevisionsFrom(another: BuildPromotionEx) =
+    setBuildRevisions(
+        another.allRevisionsMap.values,
+        another.lastModificationId ?: 0L,
+        another.chainModificationId ?: 0L,
+        false,
+    )
 
 fun BuildPromotionEx.asTriggeredBy(): String {
     val triggeredBy = TriggeredByBuilder()
@@ -35,17 +36,17 @@ fun BuildPromotionEx.asTriggeredBy(): String {
     return triggeredBy.toString()
 }
 
-fun BuildPromotion.hasSingleDistributedBuildGraphStep() =
-    activeRunners().singleOrNull()?.isDistributedBuildGraph() ?: false
+fun BuildPromotion.hasSingleDistributedBuildGraphStep() = activeRunners().singleOrNull()?.isDistributedBuildGraph() ?: false
 
 fun BuildPromotion.activeRunners(): Collection<SBuildRunnerDescriptor> = buildSettings.buildRunners
 
-private fun SBuildRunnerDescriptor.isDistributedBuildGraph() = either {
-    val unrealRunner = runType.type == UnrealEngineRunner.RUN_TYPE
-    val buildGraph = UnrealCommandTypeParameter.parse(parameters) == UnrealCommandType.BuildGraph
-    val distributed = BuildGraphModeParameter.parse(parameters) == BuildGraphMode.Distributed
-    unrealRunner && buildGraph && distributed
-}.getOrElse { false }
+private fun SBuildRunnerDescriptor.isDistributedBuildGraph() =
+    either {
+        val unrealRunner = runType.type == UnrealEngineRunner.RUN_TYPE
+        val buildGraph = UnrealCommandTypeParameter.parse(parameters) == UnrealCommandType.BuildGraph
+        val distributed = BuildGraphModeParameter.parse(parameters) == BuildGraphMode.Distributed
+        unrealRunner && buildGraph && distributed
+    }.getOrElse { false }
 
 fun DependencyOptionSupportImpl.default(): DependencyOptionSupportImpl {
     setOption(DependencyOptions.TAKE_STARTED_BUILD_WITH_SAME_REVISIONS, true)
@@ -57,5 +58,7 @@ fun VirtualPromotionGeneratorFactory.create(build: BuildPromotion): VirtualPromo
 
 fun BuildPromotion.generateIdForVirtualBuild(name: String) = "${id}_ue_plugin_generated_$name"
 
-fun BuildTypeSettings.addUnrealRunner(name: String, parameters: Map<String, String>) =
-    addBuildRunner(name, UnrealEngineRunner.RUN_TYPE, parameters)
+fun BuildTypeSettings.addUnrealRunner(
+    name: String,
+    parameters: Map<String, String>,
+) = addBuildRunner(name, UnrealEngineRunner.RUN_TYPE, parameters)

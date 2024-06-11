@@ -10,20 +10,23 @@ import kotlin.test.assertEquals
 
 class AutomationTestLogMessageHandlerTests {
     private val buildLoggerMock = mockk<BuildProgressLogger>(relaxed = true)
-    private val buildContext = UnrealBuildContextStub(
-        build = mockk<AgentRunningBuild> {
-            every { buildLogger } returns buildLoggerMock
-        },
-    )
+    private val buildContext =
+        UnrealBuildContextStub(
+            build =
+                mockk<AgentRunningBuild> {
+                    every { buildLogger } returns buildLoggerMock
+                },
+        )
     private val handler = with(buildContext) { AutomationTestLogMessageHandler() }
 
     @Test
     fun `should write test service messages in right order`() {
         // arrange
-        val lines = listOf(
-            "LogAutomationController: Display: Test Started. Name={Scalar} Path={Input Test.Modifiers.Scalar}",
-            "LogAutomationController: Display: Test Completed. Result={Success} Name={Scalar} Path={Input Test.Modifiers.Scalar}",
-        )
+        val lines =
+            listOf(
+                "LogAutomationController: Display: Test Started. Name={Scalar} Path={Input Test.Modifiers.Scalar}",
+                "LogAutomationController: Display: Test Completed. Result={Success} Name={Scalar} Path={Input Test.Modifiers.Scalar}",
+            )
 
         // act
         val handledCount = lines.count { handler.tryHandleMessage(it) }
@@ -45,10 +48,11 @@ class AutomationTestLogMessageHandlerTests {
     @Test
     fun `should not handle other messages`() {
         // arrange
-        val lines = listOf(
-            "LogAudio: Display: Audio Device unregistered from world 'None'",
-            "LogAudio: Display: Audio Device (ID: 1) registered with world 'Untitled'.",
-        )
+        val lines =
+            listOf(
+                "LogAudio: Display: Audio Device unregistered from world 'None'",
+                "LogAudio: Display: Audio Device (ID: 1) registered with world 'Untitled'.",
+            )
 
         // act
         val handledCount = lines.count { handler.tryHandleMessage(it) }

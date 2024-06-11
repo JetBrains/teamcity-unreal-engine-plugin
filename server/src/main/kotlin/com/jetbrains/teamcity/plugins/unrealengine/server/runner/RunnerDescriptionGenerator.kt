@@ -18,41 +18,49 @@ class RunnerDescriptionGenerator {
         private val logger = TeamCityLoggers.agent<RunnerDescriptionGenerator>()
     }
 
-    fun generate(runnerParameters: Map<String, String>): String = either {
-        val commandParameters = when (UnrealCommandTypeParameter.parse(runnerParameters)) {
-            UnrealCommandType.BuildCookRun -> sequenceOf(
-                UnrealCommandTypeParameter,
-                BuildCookRunProjectPathParameter,
-            )
-            UnrealCommandType.BuildGraph -> sequenceOf(
-                UnrealCommandTypeParameter,
-                BuildGraphScriptPathParameter,
-                BuildGraphTargetNodeParameter,
-                BuildGraphModeParameter,
-            )
-            UnrealCommandType.RunAutomation -> sequenceOf(
-                UnrealCommandTypeParameter,
-                AutomationProjectPathParameter,
-            )
-        }.associate { it.displayName to runnerParameters[it.name] }
+    fun generate(runnerParameters: Map<String, String>): String =
+        either {
+            val commandParameters =
+                when (UnrealCommandTypeParameter.parse(runnerParameters)) {
+                    UnrealCommandType.BuildCookRun ->
+                        sequenceOf(
+                            UnrealCommandTypeParameter,
+                            BuildCookRunProjectPathParameter,
+                        )
+                    UnrealCommandType.BuildGraph ->
+                        sequenceOf(
+                            UnrealCommandTypeParameter,
+                            BuildGraphScriptPathParameter,
+                            BuildGraphTargetNodeParameter,
+                            BuildGraphModeParameter,
+                        )
+                    UnrealCommandType.RunAutomation ->
+                        sequenceOf(
+                            UnrealCommandTypeParameter,
+                            AutomationProjectPathParameter,
+                        )
+                }.associate { it.displayName to runnerParameters[it.name] }
 
-        val detectionModeParameters = when (val detectionMode = EngineDetectionModeParameter.parseDetectionMode(runnerParameters)) {
-            is EngineDetectionMode.Automatic -> mapOf(
-                "Engine detection mode" to "Auto",
-                "Engine identifier" to detectionMode.identifier.value,
-            )
-            is EngineDetectionMode.Manual -> mapOf(
-                "Engine detection mode" to "Manual",
-                "Engine Root path" to detectionMode.engineRootPath.value,
-            )
+            val detectionModeParameters =
+                when (val detectionMode = EngineDetectionModeParameter.parseDetectionMode(runnerParameters)) {
+                    is EngineDetectionMode.Automatic ->
+                        mapOf(
+                            "Engine detection mode" to "Auto",
+                            "Engine identifier" to detectionMode.identifier.value,
+                        )
+                    is EngineDetectionMode.Manual ->
+                        mapOf(
+                            "Engine detection mode" to "Manual",
+                            "Engine Root path" to detectionMode.engineRootPath.value,
+                        )
+                }
+
+            (commandParameters + detectionModeParameters)
+                .asSequence()
+                .joinToString(separator = ", ") { "${it.key}: ${it.value}" }
+        }.getOrElse {
+            logger.info("There was an error during runner description generation: $it")
+
+            ""
         }
-
-        (commandParameters + detectionModeParameters)
-            .asSequence()
-            .joinToString(separator = ", ") { "${it.key}: ${it.value}" }
-    }.getOrElse {
-        logger.info("There was an error during runner description generation: $it")
-
-        ""
-    }
 }

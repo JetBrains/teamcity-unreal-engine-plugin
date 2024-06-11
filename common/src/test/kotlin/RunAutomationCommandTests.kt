@@ -22,8 +22,8 @@ class RunAutomationCommandTests {
         )
 
         @JvmStatic
-        fun generateHappyPathTestCases(): List<TestCase> {
-            return listOf(
+        fun generateHappyPathTestCases(): List<TestCase> =
+            listOf(
                 TestCase(
                     "fill ExecCmds argument with RunAll command",
                     RunAutomationCommand(testProject, nullRHI = true, ExecCommand.RunAll),
@@ -48,7 +48,6 @@ class RunAutomationCommandTests {
                     "-ExecCmds=Automation RunFilter Product;Quit;",
                 ),
             )
-        }
     }
 
     @ParameterizedTest

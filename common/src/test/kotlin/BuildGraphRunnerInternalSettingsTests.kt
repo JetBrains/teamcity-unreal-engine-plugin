@@ -7,8 +7,8 @@ import kotlin.test.assertEquals
 class BuildGraphRunnerInternalSettingsTests {
     companion object {
         @JvmStatic
-        fun generateHappyPathTestCases(): List<TestCase> {
-            return listOf(
+        fun generateHappyPathTestCases(): List<TestCase> =
+            listOf(
                 TestCase(
                     BuildGraphRunnerInternalSettings.RegularBuildSettings("1"),
                     mapOf(
@@ -25,7 +25,6 @@ class BuildGraphRunnerInternalSettingsTests {
                     ),
                 ),
             )
-        }
     }
 
     data class TestCase(

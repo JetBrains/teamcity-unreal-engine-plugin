@@ -38,10 +38,11 @@ object AutomationExecCommandParameter : SelectParameter() {
         return when (type) {
             all.name -> RunAll
 
-            filter.name -> RunFilter(
-                AutomationFilterParameter.parse(properties)
-                    ?: raise(ValidationError(AutomationFilterParameter.name, "Empty test filter.")),
-            )
+            filter.name ->
+                RunFilter(
+                    AutomationFilterParameter.parse(properties)
+                        ?: raise(ValidationError(AutomationFilterParameter.name, "Empty test filter.")),
+                )
 
             list.name -> {
                 val tests = AutomationTestsParameter.parse(properties)
@@ -68,17 +69,17 @@ object AutomationFilterParameter : SelectParameter() {
     override val options: List<SelectOption>
         get() = RunFilterType.entries.map { SelectOption(it.name) }
 
-    fun parse(properties: Map<String, String>): RunFilterType? =
-        properties[name]?.let { enumValueOfOrNull<RunFilterType>(it) }
+    fun parse(properties: Map<String, String>): RunFilterType? = properties[name]?.let { enumValueOfOrNull<RunFilterType>(it) }
 }
 
 object AutomationTestsParameter : RunnerParameter {
     override val name = "automation-tests"
     override val displayName = "Tests"
     override val defaultValue = ""
-    val description = """
+    val description =
+        """
         A newline-delimited list of test names. Supports both full and partial hierarchical test names.
-    """.trimIndent()
+        """.trimIndent()
 
     fun parse(properties: Map<String, String>): List<UnrealAutomationTest> {
         val testsString = properties[name]

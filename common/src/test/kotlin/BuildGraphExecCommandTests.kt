@@ -17,25 +17,28 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class BuildGraphExecCommandTests {
-    private val commandExecutionContext = CommandExecutionContextStub(
-        workingDirectory = WORKING_DIR,
-    )
+    private val commandExecutionContext =
+        CommandExecutionContextStub(
+            workingDirectory = WORKING_DIR,
+        )
 
     companion object {
         const val WORKING_DIR = "FOO"
-        val happyPathCaseParams = mapOf(
-            BuildGraphScriptPathParameter.name to "BuildGraph.xml",
-            BuildGraphTargetNodeParameter.name to "Build Linux",
-            BuildGraphOptionsParameter.name to "Foo=Bar",
-        )
+        val happyPathCaseParams =
+            mapOf(
+                BuildGraphScriptPathParameter.name to "BuildGraph.xml",
+                BuildGraphTargetNodeParameter.name to "Build Linux",
+                BuildGraphOptionsParameter.name to "Foo=Bar",
+            )
 
         @JvmStatic
-        fun generateHappyPathTestCases(): List<TestCase> {
-            return listOf(
+        fun generateHappyPathTestCases(): List<TestCase> =
+            listOf(
                 TestCase(
-                    happyPathCaseParams + mapOf(
-                        AdditionalArgumentsParameter.name to "-P4 -Submit",
-                    ),
+                    happyPathCaseParams +
+                        mapOf(
+                            AdditionalArgumentsParameter.name to "-P4 -Submit",
+                        ),
                     BuildGraphCommand(
                         BuildGraphScriptPath("BuildGraph.xml"),
                         BuildGraphTargetNode("Build Linux"),
@@ -47,9 +50,10 @@ class BuildGraphExecCommandTests {
                     emptyList(),
                 ),
                 TestCase(
-                    happyPathCaseParams + mapOf(
-                        BuildGraphOptionsParameter.name to "Foo=Bar\rFoo2=Bar2",
-                    ),
+                    happyPathCaseParams +
+                        mapOf(
+                            BuildGraphOptionsParameter.name to "Foo=Bar\rFoo2=Bar2",
+                        ),
                     BuildGraphCommand(
                         BuildGraphScriptPath("BuildGraph.xml"),
                         BuildGraphTargetNode("Build Linux"),
@@ -63,7 +67,6 @@ class BuildGraphExecCommandTests {
                     emptyList(),
                 ),
             )
-        }
     }
 
     @ParameterizedTest
@@ -88,9 +91,10 @@ class BuildGraphExecCommandTests {
     @MethodSource("generateHappyPathTestCases")
     fun `should generate a correct list of arguments`(case: TestCase) {
         // act
-        val arguments = with(commandExecutionContext) {
-            case.expectedCommand.toArguments()
-        }.getOrNull()
+        val arguments =
+            with(commandExecutionContext) {
+                case.expectedCommand.toArguments()
+            }.getOrNull()
 
         // assert
         assertNotNull(arguments)
@@ -101,9 +105,10 @@ class BuildGraphExecCommandTests {
     @Test
     fun `should raise an error when a script file doesn't exist`() {
         // arrange
-        val context = CommandExecutionContextStub(
-            fileExistsStub = { false },
-        )
+        val context =
+            CommandExecutionContextStub(
+                fileExistsStub = { false },
+            )
 
         val command =
             BuildGraphCommand(BuildGraphScriptPath(""), BuildGraphTargetNode(""), emptyList(), BuildGraphMode.SingleMachine, emptyList())

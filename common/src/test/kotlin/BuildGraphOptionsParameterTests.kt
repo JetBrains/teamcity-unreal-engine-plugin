@@ -11,8 +11,8 @@ class BuildGraphOptionsParameterTests {
         private val acceptableSeparators = listOf("\r", "\n", "\r\n")
 
         @JvmStatic
-        fun generateHappyPathTestCases(): List<TestCase> {
-            return listOf(
+        fun generateHappyPathTestCases(): List<TestCase> =
+            listOf(
                 TestCase(emptyMap()),
                 TestCase(
                     mapOf(BuildGraphOptionsParameter.name to "Foo=Bar"),
@@ -25,21 +25,21 @@ class BuildGraphOptionsParameterTests {
                 TestCase(
                     mapOf(BuildGraphOptionsParameter.name to "\r\n\n\r"),
                 ),
-                *acceptableSeparators.map {
-                    TestCase(
-                        mapOf(BuildGraphOptionsParameter.name to "Foo=Bar${it}Foo2=Bar2"),
-                        listOf(
-                            BuildGraphOption("Foo", "Bar"),
-                            BuildGraphOption("Foo2", "Bar2"),
-                        ),
-                    )
-                }.toTypedArray(),
+                *acceptableSeparators
+                    .map {
+                        TestCase(
+                            mapOf(BuildGraphOptionsParameter.name to "Foo=Bar${it}Foo2=Bar2"),
+                            listOf(
+                                BuildGraphOption("Foo", "Bar"),
+                                BuildGraphOption("Foo2", "Bar2"),
+                            ),
+                        )
+                    }.toTypedArray(),
             )
-        }
 
         @JvmStatic
-        fun generateInvalidDataTestCases(): List<TestCase> {
-            return listOf(
+        fun generateInvalidDataTestCases(): List<TestCase> =
+            listOf(
                 TestCase(
                     mapOf(BuildGraphOptionsParameter.name to "=Bar"),
                 ),
@@ -50,7 +50,6 @@ class BuildGraphOptionsParameterTests {
                     mapOf(BuildGraphOptionsParameter.name to "Foo"),
                 ),
             )
-        }
     }
 
     data class TestCase(

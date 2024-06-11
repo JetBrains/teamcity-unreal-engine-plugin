@@ -5,10 +5,11 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.TextInputPa
 object UnrealBuildTargetParameter : TextInputParameter {
     override val name = "build-cook-run-build-target"
     override val displayName = "Target"
-    override val description = """
+    override val description =
+        """
         Explicitly specify the build target; this might be useful if your project has multiple targets of the same type.
         You can also join multiple targets using '+'.
-    """.trimIndent()
+        """.trimIndent()
     override val supportsVcsNavigation = false
     override val expandable = false
     override val required = false
@@ -22,7 +23,8 @@ object UnrealBuildTargetParameter : TextInputParameter {
     fun parseBuildTargets(properties: Map<String, String>): List<UnrealBuildTarget> {
         val targets = properties[name] ?: return emptyList()
 
-        return targets.split(SEPARATOR)
+        return targets
+            .split(SEPARATOR)
             .filter { it.isNotEmpty() }
             .map { UnrealBuildTarget(it.trim()) }
     }

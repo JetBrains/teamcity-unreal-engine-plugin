@@ -3,6 +3,6 @@ plugins {
 }
 
 teamcity {
-    version = "2023.11"
+    version = libs.versions.teamcity.get()
     validateBeanDefinition = com.github.rodm.teamcity.ValidationMode.FAIL
 }

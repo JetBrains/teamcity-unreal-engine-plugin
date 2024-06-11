@@ -31,8 +31,7 @@ class UnrealEngineProgramCommandLine
                     } else {
                         it
                     }
-                }
-                .toMutableList()
+                }.toMutableList()
         }
 
         private fun String.escapeInnerQuotes(): String {

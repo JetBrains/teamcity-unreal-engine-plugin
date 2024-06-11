@@ -9,7 +9,10 @@ import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 object TeamCityTestNameFormatter {
     private val logger = TeamCityLoggers.server<TeamCityTestNameFormatter>()
 
-    fun format(name: String, fullName: String): String {
+    fun format(
+        name: String,
+        fullName: String,
+    ): String {
         if (fullName.endsWith(name)) {
             val packageClassName = fullName.removeSuffix(name)
             return sanitizePackageClassName(packageClassName) + sanitizeTestName(name)
@@ -22,9 +25,11 @@ object TeamCityTestNameFormatter {
     }
 
     private const val SUITE_NAME_SEPARATOR = ": "
-    private fun sanitizeTestName(text: String) = text
-        .replace('.', '_')
-        .replace(SUITE_NAME_SEPARATOR, " ")
+
+    private fun sanitizeTestName(text: String) =
+        text
+            .replace('.', '_')
+            .replace(SUITE_NAME_SEPARATOR, " ")
 
     private fun sanitizePackageClassName(text: String) = text.replace(' ', '_')
 

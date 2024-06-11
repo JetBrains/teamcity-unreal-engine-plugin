@@ -17,44 +17,49 @@ class StageOptionsTests {
         val shouldNotContainItems: List<String>,
     )
 
-    private val commandExecutionContext = CommandExecutionContextStub(
-        workingDirectory = WORKING_DIR,
-    )
+    private val commandExecutionContext =
+        CommandExecutionContextStub(
+            workingDirectory = WORKING_DIR,
+        )
 
     companion object {
         const val WORKING_DIR = "FOO"
 
         @JvmStatic
-        fun generateTestCases() = listOf(
-            TestCase(
-                runnerParameters = mapOf(
-                    StagingDirectoryParameter.name to "some-dir/some-sub-dir",
-                    UsePakParameter.name to true.toString(),
-                    CompressedContentParameter.name to true.toString(),
-                    PrerequisitesParameter.name to true.toString(),
+        fun generateTestCases() =
+            listOf(
+                TestCase(
+                    runnerParameters =
+                        mapOf(
+                            StagingDirectoryParameter.name to "some-dir/some-sub-dir",
+                            UsePakParameter.name to true.toString(),
+                            CompressedContentParameter.name to true.toString(),
+                            PrerequisitesParameter.name to true.toString(),
+                        ),
+                    expectedOptions =
+                        StageOptions(
+                            stagingDirectory = "some-dir/some-sub-dir",
+                            usePak = true,
+                            compressContent = true,
+                            installPrerequisites = true,
+                        ),
+                    shouldContainItems =
+                        listOf(
+                            "-stage",
+                            "-stagingdirectory=$WORKING_DIR/some-dir/some-sub-dir",
+                            "-pak",
+                            "-compressed",
+                            "-prereqs",
+                        ),
+                    shouldNotContainItems = emptyList(),
                 ),
-                expectedOptions = StageOptions(
-                    stagingDirectory = "some-dir/some-sub-dir",
-                    usePak = true,
-                    compressContent = true,
-                    installPrerequisites = true,
+                TestCase(
+                    runnerParameters = mapOf(),
+                    expectedOptions = StageOptions(),
+                    shouldContainItems = listOf("-stage"),
+                    shouldNotContainItems = listOf("-stagingdirectory", "-pak", "-compressed", "-prereqs"),
                 ),
-                shouldContainItems = listOf(
-                    "-stage",
-                    "-stagingdirectory=$WORKING_DIR/some-dir/some-sub-dir",
-                    "-pak",
-                    "-compressed",
-                    "-prereqs",
-                ),
-                shouldNotContainItems = emptyList(),
-            ),
-            TestCase(
-                runnerParameters = mapOf(),
-                expectedOptions = StageOptions(),
-                shouldContainItems = listOf("-stage"),
-                shouldNotContainItems = listOf("-stagingdirectory", "-pak", "-compressed", "-prereqs"),
-            ),
-        )
+            )
     }
 
     @ParameterizedTest
@@ -68,9 +73,10 @@ class StageOptionsTests {
     @ParameterizedTest
     @MethodSource("generateTestCases")
     fun `should generate a correct list of arguments`(case: TestCase) {
-        val arguments = with(commandExecutionContext) {
-            case.expectedOptions.toArguments()
-        }
+        val arguments =
+            with(commandExecutionContext) {
+                case.expectedOptions.toArguments()
+            }
 
         assertTrue(arguments.containsAll(case.shouldContainItems))
         assertTrue(case.shouldNotContainItems.all { !arguments.contains(it) })

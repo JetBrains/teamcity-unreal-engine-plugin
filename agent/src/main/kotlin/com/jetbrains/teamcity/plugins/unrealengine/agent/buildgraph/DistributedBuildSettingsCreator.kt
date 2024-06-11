@@ -21,7 +21,9 @@ sealed interface DistributedBuildSettings {
 }
 
 @JvmInline
-value class SettingsCreationError(val message: String)
+value class SettingsCreationError(
+    val message: String,
+)
 
 class DistributedBuildSettingsCreator(
     private val agentConfiguration: BuildAgentConfiguration,
@@ -33,12 +35,14 @@ class DistributedBuildSettingsCreator(
 
     context(Raise<SettingsCreationError>)
     fun from(runnerParameters: Map<String, String>): DistributedBuildSettings {
-        val runnerInternalSettings = json.runCatching {
-            BuildGraphRunnerInternalSettings.fromRunnerParameters(runnerParameters)
-        }.getOrElse {
-            logger.error("Runner internal settings are corrupted", it)
-            raise(SettingsCreationError("Unable to retrieve runner internal settings. See the agent logs for details"))
-        }
+        val runnerInternalSettings =
+            json
+                .runCatching {
+                    BuildGraphRunnerInternalSettings.fromRunnerParameters(runnerParameters)
+                }.getOrElse {
+                    logger.error("Runner internal settings are corrupted", it)
+                    raise(SettingsCreationError("Unable to retrieve runner internal settings. See the agent logs for details"))
+                }
 
         val sharedDirAgentParameter = "unreal-engine.build-graph.agent.shared-dir"
         val sharedStorageDir = agentConfiguration.configurationParameters[sharedDirAgentParameter]

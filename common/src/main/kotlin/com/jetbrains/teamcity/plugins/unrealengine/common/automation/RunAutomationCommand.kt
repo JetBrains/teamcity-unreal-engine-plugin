@@ -14,7 +14,9 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
 
 @JvmInline
-value class UnrealAutomationTest(val value: String)
+value class UnrealAutomationTest(
+    val value: String,
+)
 
 enum class RunFilterType {
     Engine,
@@ -26,8 +28,14 @@ enum class RunFilterType {
 
 sealed interface ExecCommand {
     data object RunAll : ExecCommand
-    data class RunFilter(val filter: RunFilterType) : ExecCommand
-    data class RunTests(val tests: List<UnrealAutomationTest>) : ExecCommand
+
+    data class RunFilter(
+        val filter: RunFilterType,
+    ) : ExecCommand
+
+    data class RunTests(
+        val tests: List<UnrealAutomationTest>,
+    ) : ExecCommand
 }
 
 data class RunAutomationCommand(
@@ -38,52 +46,54 @@ data class RunAutomationCommand(
 ) : UnrealCommand {
     companion object {
         context(Raise<NonEmptyList<ValidationError>>)
-        fun from(runnerParameters: Map<String, String>) = zipOrAccumulate(
-            { AutomationProjectPathParameter.parseProjectPath(runnerParameters) },
-            { AutomationExecCommandParameter.parse(runnerParameters) },
-            { AdditionalArgumentsParameter.parse(runnerParameters) },
-        ) { projectPath, command, extraArguments ->
-            val nullRHI = runnerParameters[NullRHIParameter.name].toBoolean()
+        fun from(runnerParameters: Map<String, String>) =
+            zipOrAccumulate(
+                { AutomationProjectPathParameter.parseProjectPath(runnerParameters) },
+                { AutomationExecCommandParameter.parse(runnerParameters) },
+                { AdditionalArgumentsParameter.parse(runnerParameters) },
+            ) { projectPath, command, extraArguments ->
+                val nullRHI = runnerParameters[NullRHIParameter.name].toBoolean()
 
-            RunAutomationCommand(
-                projectPath,
-                nullRHI,
-                command,
-                extraArguments,
-            )
-        }
+                RunAutomationCommand(
+                    projectPath,
+                    nullRHI,
+                    command,
+                    extraArguments,
+                )
+            }
     }
 
     context(CommandExecutionContext)
-    override fun toArguments(): Either<ArgumentsPreparationError, List<String>> = either {
-        buildList {
-            val resolvedProjectPath = concatPaths(workingDirectory, projectPath.value)
-            ensure(
-                fileExists(resolvedProjectPath),
-            ) { ArgumentsPreparationError("Could not find the specified project file. Path: $resolvedProjectPath") }
-            add("-project=$resolvedProjectPath")
+    override fun toArguments(): Either<ArgumentsPreparationError, List<String>> =
+        either {
+            buildList {
+                val resolvedProjectPath = concatPaths(workingDirectory, projectPath.value)
+                ensure(
+                    fileExists(resolvedProjectPath),
+                ) { ArgumentsPreparationError("Could not find the specified project file. Path: $resolvedProjectPath") }
+                add("-project=$resolvedProjectPath")
 
-            if (nullRHI) {
-                add("-nullrhi")
-            }
+                if (nullRHI) {
+                    add("-nullrhi")
+                }
 
-            add(
-                buildString {
-                    append("-ExecCmds=Automation ")
-                    when (execCommand) {
-                        is ExecCommand.RunAll -> append("RunAll;")
-                        is ExecCommand.RunFilter -> append("RunFilter ${execCommand.filter.name};")
-                        is ExecCommand.RunTests -> {
-                            append("RunTests ")
-                            append(execCommand.tests.joinToString(separator = "+") { it.value })
-                            append(";")
+                add(
+                    buildString {
+                        append("-ExecCmds=Automation ")
+                        when (execCommand) {
+                            is ExecCommand.RunAll -> append("RunAll;")
+                            is ExecCommand.RunFilter -> append("RunFilter ${execCommand.filter.name};")
+                            is ExecCommand.RunTests -> {
+                                append("RunTests ")
+                                append(execCommand.tests.joinToString(separator = "+") { it.value })
+                                append(";")
+                            }
                         }
-                    }
-                    append("Quit;")
-                },
-            )
+                        append("Quit;")
+                    },
+                )
 
-            addAll(extraArguments)
+                addAll(extraArguments)
+            }
         }
-    }
 }

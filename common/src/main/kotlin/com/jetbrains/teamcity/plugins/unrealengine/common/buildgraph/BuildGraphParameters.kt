@@ -54,10 +54,11 @@ object BuildGraphOptionsParameter : RunnerParameter {
     override val name = "build-graph-options"
     override val displayName = "Options"
     override val defaultValue = ""
-    val description = """
+    val description =
+        """
         The newline-delimited list of custom command-line options in the 'OPTION_NAME=OPTION_VALUE' format that
         should be passed to your BuildGraph script.
-    """.trimIndent()
+        """.trimIndent()
 
     context(Raise<ValidationError>)
     fun parseOptions(properties: Map<String, String>): List<BuildGraphOption> {
@@ -88,10 +89,11 @@ object BuildGraphOptionsParameter : RunnerParameter {
 object BuildGraphModeParameter : SelectParameter() {
     override val name = "build-graph-mode"
     override val displayName = "Mode"
-    override val description = """
+    override val description =
+        """
         ${BuildGraphMode.SingleMachine} - Executes all nodes sequentially on a single build agent. <br>
         ${BuildGraphMode.Distributed} - Distributes the process across multiple agents.
-    """.trimIndent()
+        """.trimIndent()
     override val defaultValue = BuildGraphMode.SingleMachine.toString()
     override val options = BuildGraphMode.entries.map { SelectOption(it.name) }
 

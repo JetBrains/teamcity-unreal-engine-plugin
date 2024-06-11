@@ -22,16 +22,20 @@ class RunComponent {
     val archiveBuild = ArchiveSwitchParameter
     val archiveDirectory = ArchiveDirectoryParameter
 
-    fun formatFlags(properties: Map<String, String>) = ComponentParametersFormatter
-        .formatFlags(
-            sequenceOf(
-                usePak,
-                compressedContent,
-                prerequisites,
-            ),
-            properties,
-        )
+    fun formatFlags(properties: Map<String, String>) =
+        ComponentParametersFormatter
+            .formatFlags(
+                sequenceOf(
+                    usePak,
+                    compressedContent,
+                    prerequisites,
+                ),
+                properties,
+            )
 
-    fun formatFlag(flag: CheckboxParameter, properties: Map<String, String>) = ComponentParametersFormatter
+    fun formatFlag(
+        flag: CheckboxParameter,
+        properties: Map<String, String>,
+    ) = ComponentParametersFormatter
         .formatFlag(flag, properties)
 }

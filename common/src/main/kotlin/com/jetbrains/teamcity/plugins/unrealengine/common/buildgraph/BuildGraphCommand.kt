@@ -21,38 +21,40 @@ data class BuildGraphCommand(
 ) : UnrealCommand {
     companion object {
         context(Raise<NonEmptyList<ValidationError>>)
-        fun from(runnerParameters: Map<String, String>): BuildGraphCommand = zipOrAccumulate(
-            { BuildGraphScriptPathParameter.parseScriptPath(runnerParameters) },
-            { BuildGraphTargetNodeParameter.parseTargetNode(runnerParameters) },
-            { BuildGraphOptionsParameter.parseOptions(runnerParameters) },
-        ) { path, target, options ->
-            BuildGraphCommand(
-                path,
-                target,
-                options,
-                BuildGraphModeParameter.parse(runnerParameters),
-                AdditionalArgumentsParameter.parse(runnerParameters),
-            )
-        }
+        fun from(runnerParameters: Map<String, String>): BuildGraphCommand =
+            zipOrAccumulate(
+                { BuildGraphScriptPathParameter.parseScriptPath(runnerParameters) },
+                { BuildGraphTargetNodeParameter.parseTargetNode(runnerParameters) },
+                { BuildGraphOptionsParameter.parseOptions(runnerParameters) },
+            ) { path, target, options ->
+                BuildGraphCommand(
+                    path,
+                    target,
+                    options,
+                    BuildGraphModeParameter.parse(runnerParameters),
+                    AdditionalArgumentsParameter.parse(runnerParameters),
+                )
+            }
     }
 
     context(CommandExecutionContext)
-    override fun toArguments(): Either<ArgumentsPreparationError, List<String>> = either {
-        buildList {
-            add("BuildGraph")
+    override fun toArguments(): Either<ArgumentsPreparationError, List<String>> =
+        either {
+            buildList {
+                add("BuildGraph")
 
-            val resolvedScriptPath = concatPaths(workingDirectory, scriptPath.value)
-            ensure(fileExists(resolvedScriptPath)) {
-                ArgumentsPreparationError("Could not find the specified BuildGraph script file. Path: $resolvedScriptPath")
+                val resolvedScriptPath = concatPaths(workingDirectory, scriptPath.value)
+                ensure(fileExists(resolvedScriptPath)) {
+                    ArgumentsPreparationError("Could not find the specified BuildGraph script file. Path: $resolvedScriptPath")
+                }
+
+                add("-script=$resolvedScriptPath")
+                add("-target=${target.value}")
+                options.forEach {
+                    add("-set:${it.name}=${it.value}")
+                }
+
+                addAll(extraArguments)
             }
-
-            add("-script=$resolvedScriptPath")
-            add("-target=${target.value}")
-            options.forEach {
-                add("-set:${it.name}=${it.value}")
-            }
-
-            addAll(extraArguments)
         }
-    }
 }

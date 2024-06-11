@@ -26,10 +26,11 @@ object UsePakParameter : CheckboxParameter {
     override val name = "build-cook-run-use-pak"
     override val displayName = "Pak"
     override val defaultValue = true.toString()
-    override val description = """
+    override val description =
+        """
         Put all assets into a single .pak file instead of copying out all the individual files.
         If your project uses a lot of asset files, then using a Pak file may make it easier to distribute as it reduces the amount of files you need to transfer.
-    """.trimIndent()
+        """.trimIndent()
     override val advanced = true
 }
 
@@ -45,9 +46,10 @@ object PrerequisitesParameter : CheckboxParameter {
     override val name = "build-cook-run-prerequisites"
     override val displayName = "Prerequisites"
     override val defaultValue = true.toString()
-    override val description = """
+    override val description =
+        """
         Specifies whether to include an installer for prerequisites of packaged games,
         such as redistributable operating system components, on platforms that support it.
-    """.trimIndent()
+        """.trimIndent()
     override val advanced = true
 }

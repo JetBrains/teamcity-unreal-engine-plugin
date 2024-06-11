@@ -10,11 +10,13 @@ import kotlin.test.Test
 
 class UnrealEngineProcessListenerTests {
     private val buildLoggerMock = mockk<BuildProgressLogger>(relaxed = true)
-    private val buildContext = UnrealBuildContextStub(
-        build = mockk<AgentRunningBuild> {
-            every { buildLogger } returns buildLoggerMock
-        },
-    )
+    private val buildContext =
+        UnrealBuildContextStub(
+            build =
+                mockk<AgentRunningBuild> {
+                    every { buildLogger } returns buildLoggerMock
+                },
+        )
 
     @Test
     fun `should write to build log without custom handlers`() {
@@ -35,9 +37,10 @@ class UnrealEngineProcessListenerTests {
         val handler1 = mockk<LogMessageHandler> { every { tryHandleMessage(any()) } returns false }
         val handler2 = mockk<LogMessageHandler> { every { tryHandleMessage(any()) } returns false }
         val handler3 = mockk<LogMessageHandler> { every { tryHandleMessage(any()) } returns false }
-        val listener = with(buildContext) {
-            UnrealEngineProcessListener.create(handler1, handler2, handler3)
-        }
+        val listener =
+            with(buildContext) {
+                UnrealEngineProcessListener.create(handler1, handler2, handler3)
+            }
 
         // act
         listener.onStandardOutput(message)
@@ -58,9 +61,10 @@ class UnrealEngineProcessListenerTests {
         val handler1 = mockk<LogMessageHandler> { every { tryHandleMessage(any()) } returns false }
         val handler2 = mockk<LogMessageHandler> { every { tryHandleMessage(any()) } returns true }
         val handler3 = mockk<LogMessageHandler> { every { tryHandleMessage(any()) } returns false }
-        val listener = with(buildContext) {
-            UnrealEngineProcessListener.create(handler1, handler2, handler3)
-        }
+        val listener =
+            with(buildContext) {
+                UnrealEngineProcessListener.create(handler1, handler2, handler3)
+            }
 
         // act
         listener.onStandardOutput(message)

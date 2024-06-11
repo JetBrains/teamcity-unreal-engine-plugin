@@ -25,12 +25,13 @@ class BuildGraphWorkflowCreator(
 
     context(Raise<WorkflowCreationError>, UnrealBuildContext)
     private suspend fun getCommands(): List<UnrealEngineCommandExecution> {
-        val command = either { BuildGraphCommand.from(runnerParameters) }.getOrElse {
-            it.forEach { error ->
-                logger.error("An error occurred during command creation: ${error.message}")
+        val command =
+            either { BuildGraphCommand.from(runnerParameters) }.getOrElse {
+                it.forEach { error ->
+                    logger.error("An error occurred during command creation: ${error.message}")
+                }
+                raise(WorkflowCreationError.CommandCreationError("Unable to create command from the given runner parameters"))
             }
-            raise(WorkflowCreationError.CommandCreationError("Unable to create command from the given runner parameters"))
-        }
 
         return when (command.mode) {
             BuildGraphMode.SingleMachine -> singleMachineExecutor.execute(command)

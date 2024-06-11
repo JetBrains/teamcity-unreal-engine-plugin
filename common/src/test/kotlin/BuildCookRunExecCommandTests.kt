@@ -25,8 +25,8 @@ class BuildCookRunExecCommandTests {
         private const val WORKING_DIR = "FOO"
 
         @JvmStatic
-        fun generateHappyPathTestCases(): List<HappyPathTestCase> {
-            return listOf(
+        fun generateHappyPathTestCases(): List<HappyPathTestCase> =
+            listOf(
                 HappyPathTestCase(
                     mapOf(
                         BuildCookRunProjectPathParameter.name to "some-path",
@@ -76,8 +76,15 @@ class BuildCookRunExecCommandTests {
                         extraArguments = listOf("-foo", "-bar"),
                     ),
                     listOf(
-                        "BuildCookRun", "-project=${WORKING_DIR}/some-path", "-build", "-configuration=Shipping",
-                        "-targetplatform=IOS", "-skipcook", "-skipstage", "-foo", "-bar",
+                        "BuildCookRun",
+                        "-project=${WORKING_DIR}/some-path",
+                        "-build",
+                        "-configuration=Shipping",
+                        "-targetplatform=IOS",
+                        "-skipcook",
+                        "-skipstage",
+                        "-foo",
+                        "-bar",
                     ),
                 ),
                 HappyPathTestCase(
@@ -101,9 +108,15 @@ class BuildCookRunExecCommandTests {
                         ),
                     ),
                     listOf(
-                        "BuildCookRun", "-project=${WORKING_DIR}/some-path", "-build", "-clientconfig=Shipping",
-                        "-targetplatform=IOS", "-serverconfig=Shipping", "-servertargetplatform=Linux+LinuxArm64",
-                        "-skipcook", "-skipstage",
+                        "BuildCookRun",
+                        "-project=${WORKING_DIR}/some-path",
+                        "-build",
+                        "-clientconfig=Shipping",
+                        "-targetplatform=IOS",
+                        "-serverconfig=Shipping",
+                        "-servertargetplatform=Linux+LinuxArm64",
+                        "-skipcook",
+                        "-skipstage",
                     ),
                 ),
                 HappyPathTestCase(
@@ -131,24 +144,23 @@ class BuildCookRunExecCommandTests {
                     ),
                 ),
             )
-        }
 
         @JvmStatic
-        fun generateInvalidDataTestCases(): List<UnhappyPathTestCase> {
-            return listOf(
+        fun generateInvalidDataTestCases(): List<UnhappyPathTestCase> =
+            listOf(
                 UnhappyPathTestCase(mapOf()),
                 UnhappyPathTestCase(
                     mapOf(
                         BuildCookRunProjectPathParameter.name to "some-path",
                         BuildConfigurationParameter.name to BuildConfigurationParameter.standalone.name,
-                        UnrealTargetConfigurationsParameter.Standalone.name to UnrealTargetConfigurationsParameter.joinConfigurations(
-                            listOf(UnrealTargetConfiguration.Shipping, UnrealTargetConfiguration.Development),
-                        ),
+                        UnrealTargetConfigurationsParameter.Standalone.name to
+                            UnrealTargetConfigurationsParameter.joinConfigurations(
+                                listOf(UnrealTargetConfiguration.Shipping, UnrealTargetConfiguration.Development),
+                            ),
                         UnrealTargetPlatformsParameter.Standalone.name to "",
                     ),
                 ),
             )
-        }
     }
 
     data class UnhappyPathTestCase(
@@ -184,17 +196,19 @@ class BuildCookRunExecCommandTests {
     @Test
     fun `should raise an error when converting to arguments with a non-existent specified project file`() {
         // arrange
-        val context = CommandExecutionContextStub(
-            fileExistsStub = { false },
-        )
+        val context =
+            CommandExecutionContextStub(
+                fileExistsStub = { false },
+            )
 
-        val command = BuildCookRunCommand(
-            UnrealProjectPath(""),
-            BuildConfiguration.Standalone(
-                nonEmptyListOf(UnrealTargetConfiguration.Development),
-                nonEmptyListOf(UnrealTargetPlatform.Mac),
-            ),
-        )
+        val command =
+            BuildCookRunCommand(
+                UnrealProjectPath(""),
+                BuildConfiguration.Standalone(
+                    nonEmptyListOf(UnrealTargetConfiguration.Development),
+                    nonEmptyListOf(UnrealTargetPlatform.Mac),
+                ),
+            )
 
         // act
         val error = with(context) { command.toArguments() }.leftOrNull()
@@ -207,16 +221,18 @@ class BuildCookRunExecCommandTests {
     @MethodSource("generateHappyPathTestCases")
     fun `should produce correct list of arguments`(case: HappyPathTestCase) {
         // act
-        val arguments = with(contextStub) {
-            case.parsedCommand.toArguments()
-        }.getOrNull()
+        val arguments =
+            with(contextStub) {
+                case.parsedCommand.toArguments()
+            }.getOrNull()
 
         // assert
         assertNotNull(arguments)
         assertTrue(arguments.containsAll(case.expectedArguments))
     }
 
-    private fun act(parameters: Map<String, String>) = either {
-        BuildCookRunCommand.from(parameters)
-    }
+    private fun act(parameters: Map<String, String>) =
+        either {
+            BuildCookRunCommand.from(parameters)
+        }
 }

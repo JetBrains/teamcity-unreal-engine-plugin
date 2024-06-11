@@ -8,8 +8,12 @@ import java.io.File
 
 sealed interface UnrealEngineCommandState {
     data object NotStarted : UnrealEngineCommandState
+
     data object Running : UnrealEngineCommandState
-    data class Finished(val exitCode: Int) : UnrealEngineCommandState
+
+    data class Finished(
+        val exitCode: Int,
+    ) : UnrealEngineCommandState
 }
 
 class UnrealEngineCommandExecution(
@@ -23,7 +27,10 @@ class UnrealEngineCommandExecution(
 
     override fun onErrorOutput(text: String) = listener.onErrorOutput(text)
 
-    override fun processStarted(programCommandLine: String, workingDirectory: File) {
+    override fun processStarted(
+        programCommandLine: String,
+        workingDirectory: File,
+    ) {
         state = UnrealEngineCommandState.Running
         listener.processStarted(programCommandLine, workingDirectory)
     }

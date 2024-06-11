@@ -24,37 +24,47 @@ class UnrealEngineBuildSessionFactory(
     private val buildGraphWorkflowCreator: BuildGraphWorkflowCreator,
     private val automationWorkflowCreator: RunAutomationWorkflowCreator,
 ) : MultiCommandBuildSessionFactory {
+    override fun createSession(runnerContext: BuildRunnerContext): MultiCommandBuildSession =
+        either {
+            val commandType = UnrealCommandTypeParameter.parse(runnerContext.runnerParameters)
 
-    override fun createSession(runnerContext: BuildRunnerContext): MultiCommandBuildSession = either {
-        val commandType = UnrealCommandTypeParameter.parse(runnerContext.runnerParameters)
+            val workflowCreator =
+                when (commandType) {
+                    UnrealCommandType.BuildCookRun -> buildCookRunWorkflowCreator
+                    UnrealCommandType.BuildGraph -> buildGraphWorkflowCreator
+                    UnrealCommandType.RunAutomation -> automationWorkflowCreator
+                }
 
-        val workflowCreator = when (commandType) {
-            UnrealCommandType.BuildCookRun -> buildCookRunWorkflowCreator
-            UnrealCommandType.BuildGraph -> buildGraphWorkflowCreator
-            UnrealCommandType.RunAutomation -> automationWorkflowCreator
+            UnrealEngineBuildSession(workflowCreator, createUnrealBuildContext(runnerContext))
+        }.getOrElse { throw RunBuildException("Unable to create build session. ${it.message}") }
+
+    override fun getBuildRunnerInfo(): AgentBuildRunnerInfo =
+        object : AgentBuildRunnerInfo {
+            override fun getType() = UnrealEngineRunner.RUN_TYPE
+
+            // since users might build the engine from source, there aren't any specific details we can rely on at this point
+            // to determine whether the runner can launch. Therefore, the simplest approach is to always answer "yes"
+            override fun canRun(agentConfiguration: BuildAgentConfiguration) = true
         }
 
-        UnrealEngineBuildSession(workflowCreator, createUnrealBuildContext(runnerContext))
-    }.getOrElse { throw RunBuildException("Unable to create build session. ${it.message}") }
-
-    override fun getBuildRunnerInfo(): AgentBuildRunnerInfo = object : AgentBuildRunnerInfo {
-        override fun getType() = UnrealEngineRunner.RUN_TYPE
-
-        // since users might build the engine from source, there aren't any specific details we can rely on at this point
-        // to determine whether the runner can launch. Therefore, the simplest approach is to always answer "yes"
-        override fun canRun(agentConfiguration: BuildAgentConfiguration) = true
-    }
-
-    private fun createUnrealBuildContext(runnerContext: BuildRunnerContext): UnrealBuildContext {
-        return object : UnrealBuildContext {
+    private fun createUnrealBuildContext(runnerContext: BuildRunnerContext): UnrealBuildContext =
+        object : UnrealBuildContext {
             override val workingDirectory = runnerContext.workingDirectory.canonicalPath
             override val agentTempDirectory = runnerContext.build.agentTempDirectory.canonicalPath
 
-            override fun concatPaths(root: String, path: String): String = Path(root).resolve(path).pathString
+            override fun concatPaths(
+                root: String,
+                path: String,
+            ): String = Path(root).resolve(path).pathString
+
             override fun fileExists(path: String) = Path(path).exists()
+
             override fun isAbsolute(path: String) = Path(path).isAbsolute
-            override fun createDirectory(root: String, vararg parts: String) =
-                Path(root, *parts).createDirectories().pathString
+
+            override fun createDirectory(
+                root: String,
+                vararg parts: String,
+            ) = Path(root, *parts).createDirectories().pathString
 
             override val buildParameters = runnerContext.buildParameters
             override val runnerParameters = runnerContext.runnerParameters
@@ -62,5 +72,4 @@ class UnrealEngineBuildSessionFactory(
             override val runnerId = runnerContext.id
             override val runnerName = runnerContext.name
         }
-    }
 }

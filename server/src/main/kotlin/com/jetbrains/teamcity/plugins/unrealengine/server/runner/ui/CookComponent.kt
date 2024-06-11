@@ -11,10 +11,11 @@ class CookComponent {
     val cultures = CookCulturesParameter
     val unversionedContent = UnversionedCookedContentParameter
 
-    fun formatFlags(properties: Map<String, String>) = ComponentParametersFormatter.formatFlags(
-        sequenceOf(
-            unversionedContent,
-        ),
-        properties,
-    )
+    fun formatFlags(properties: Map<String, String>) =
+        ComponentParametersFormatter.formatFlags(
+            sequenceOf(
+                unversionedContent,
+            ),
+            properties,
+        )
 }

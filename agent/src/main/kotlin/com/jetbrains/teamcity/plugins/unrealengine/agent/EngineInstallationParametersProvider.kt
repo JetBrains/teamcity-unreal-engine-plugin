@@ -31,15 +31,15 @@ private class InstallationInfoList(
     class InstallationInfo(
         @SerialName("InstallLocation")
         val installLocation: String,
-
         @SerialName("AppVersion")
         val appVersion: String,
     )
 
-    fun toUnrealEngineInfo(): List<UnrealEngineInstallation> = installationList.map {
-        // version usually looks like this: "5.1.0-23058290+++UE5+Release-5.1-2022.1.1-23428875-Mac"
-        UnrealEngineInstallation(it.installLocation, it.appVersion.takeWhile { char -> char != '-' })
-    }
+    fun toUnrealEngineInfo(): List<UnrealEngineInstallation> =
+        installationList.map {
+            // version usually looks like this: "5.1.0-23058290+++UE5+Release-5.1-2022.1.1-23428875-Mac"
+            UnrealEngineInstallation(it.installLocation, it.appVersion.takeWhile { char -> char != '-' })
+        }
 }
 
 class EngineInstallationParametersProvider(
@@ -54,53 +54,54 @@ class EngineInstallationParametersProvider(
     override suspend fun provide(): List<TeamCityParameter> = locateInstallations()
 
     private suspend fun locateInstallations(): List<TeamCityParameter> {
-        val results = resourceLocator.locateResources {
-            macos(
-                {
-                    file("${environment.homeDirectory}/Library/Application Support/Epic/UnrealEngineLauncher/LauncherInstalled.dat")
-                        .json<InstallationInfoList>(json)
-                        .map { it.toUnrealEngineInfo() }
-                },
-                {
-                    file("${environment.homeDirectory}/Library/Application Support/Epic/UnrealEngine/Install.ini")
-                        .ini("Installations")
-                        .map { it.map { entry -> entry.toUnrealEngineInfo() } }
-                },
-            )
-            linux(
-                {
-                    file("${environment.homeDirectory}/.config/Epic/UnrealEngineLauncher/LauncherInstalled.dat")
-                        .json<InstallationInfoList>(json)
-                        .map { it.toUnrealEngineInfo() }
-                },
-                {
-                    file("${environment.homeDirectory}/.config/Epic/UnrealEngine/Install.ini")
-                        .ini("Installations")
-                        .map { it.map { entry -> entry.toUnrealEngineInfo() } }
-                },
-            )
-            windows(
-                {
-                    file("${environment.programDataDirectory}/Epic/UnrealEngineLauncher/LauncherInstalled.dat")
-                        .json<InstallationInfoList>(json)
-                        .map { it.toUnrealEngineInfo() }
-                },
-                {
-                    registry(
-                        "HKEY_CURRENT_USER\\SOFTWARE\\Epic Games\\Unreal Engine\\Builds",
-                        object : WindowsRegistrySearchFilter {
-                            override fun accept(key: WindowsRegistryEntry.Key) = false
-                            override fun accept(value: WindowsRegistryEntry.Value) = true
-                        },
-                    )
-                        .map {
+        val results =
+            resourceLocator.locateResources {
+                macos(
+                    {
+                        file("${environment.homeDirectory}/Library/Application Support/Epic/UnrealEngineLauncher/LauncherInstalled.dat")
+                            .json<InstallationInfoList>(json)
+                            .map { it.toUnrealEngineInfo() }
+                    },
+                    {
+                        file("${environment.homeDirectory}/Library/Application Support/Epic/UnrealEngine/Install.ini")
+                            .ini("Installations")
+                            .map { it.map { entry -> entry.toUnrealEngineInfo() } }
+                    },
+                )
+                linux(
+                    {
+                        file("${environment.homeDirectory}/.config/Epic/UnrealEngineLauncher/LauncherInstalled.dat")
+                            .json<InstallationInfoList>(json)
+                            .map { it.toUnrealEngineInfo() }
+                    },
+                    {
+                        file("${environment.homeDirectory}/.config/Epic/UnrealEngine/Install.ini")
+                            .ini("Installations")
+                            .map { it.map { entry -> entry.toUnrealEngineInfo() } }
+                    },
+                )
+                windows(
+                    {
+                        file("${environment.programDataDirectory}/Epic/UnrealEngineLauncher/LauncherInstalled.dat")
+                            .json<InstallationInfoList>(json)
+                            .map { it.toUnrealEngineInfo() }
+                    },
+                    {
+                        registry(
+                            "HKEY_CURRENT_USER\\SOFTWARE\\Epic Games\\Unreal Engine\\Builds",
+                            object : WindowsRegistrySearchFilter {
+                                override fun accept(key: WindowsRegistryEntry.Key) = false
+
+                                override fun accept(value: WindowsRegistryEntry.Value) = true
+                            },
+                        ).map {
                             it
                                 .filterIsInstance<WindowsRegistryEntry.Value>()
                                 .map { entry -> entry.toUnrealEngineInfo() }
                         }
-                },
-            )
-        }
+                    },
+                )
+            }
 
         return results
             .flatMap { result ->
@@ -108,17 +109,17 @@ class EngineInstallationParametersProvider(
                     is ResourceLocationResult.Error -> {
                         when (result.exception) {
                             null -> logger.info("One of the location queries ended up with an error: ${result.message}")
-                            else -> logger.info(
-                                "One of the location queries ended up with an error: ${result.message}",
-                                result.exception,
-                            )
+                            else ->
+                                logger.info(
+                                    "One of the location queries ended up with an error: ${result.message}",
+                                    result.exception,
+                                )
                         }
                         emptyList()
                     }
                     is ResourceLocationResult.Success -> result.data
                 }
-            }
-            .map {
+            }.map {
                 logger.info("Discovered Unreal Engine installation. Identifier: ${it.identifier}, path: ${it.location}")
                 TeamCityParameter(
                     "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.${it.identifier}.path",
@@ -128,9 +129,7 @@ class EngineInstallationParametersProvider(
             }
     }
 
-    private fun WindowsRegistryEntry.Value.toUnrealEngineInfo(): UnrealEngineInstallation =
-        UnrealEngineInstallation(data, name)
+    private fun WindowsRegistryEntry.Value.toUnrealEngineInfo(): UnrealEngineInstallation = UnrealEngineInstallation(data, name)
 
-    private fun IniProperty.toUnrealEngineInfo(): UnrealEngineInstallation =
-        UnrealEngineInstallation(value, key)
+    private fun IniProperty.toUnrealEngineInfo(): UnrealEngineInstallation = UnrealEngineInstallation(value, key)
 }

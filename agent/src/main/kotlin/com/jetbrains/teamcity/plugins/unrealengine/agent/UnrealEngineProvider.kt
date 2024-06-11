@@ -30,20 +30,21 @@ class UnrealEngineProvider(
     suspend fun findEngine(runnerParameters: Map<String, String>): UnrealEngine {
         val mode = recover({ parseDetectionMode(runnerParameters) }) { raise(EngineLocationError(it.message)) }
 
-        val rootPath = when (mode) {
-            is EngineDetectionMode.Automatic -> {
-                findAmongAgentInstalledEngines(mode.identifier)
-            }
-            is EngineDetectionMode.Manual -> {
-                mode.engineRootPath.let {
-                    if (isAbsolute(it.value)) {
-                        it
-                    } else {
-                        UnrealEngineRootPath(concatPaths(workingDirectory, it.value))
+        val rootPath =
+            when (mode) {
+                is EngineDetectionMode.Automatic -> {
+                    findAmongAgentInstalledEngines(mode.identifier)
+                }
+                is EngineDetectionMode.Manual -> {
+                    mode.engineRootPath.let {
+                        if (isAbsolute(it.value)) {
+                            it
+                        } else {
+                            UnrealEngineRootPath(concatPaths(workingDirectory, it.value))
+                        }
                     }
                 }
             }
-        }
 
         val engineVersion = engineVersionDetector.detect(rootPath)
 
@@ -52,10 +53,11 @@ class UnrealEngineProvider(
 
     context(Raise<EngineLocationError>)
     private fun findAmongAgentInstalledEngines(engineIdentifier: UnrealEngineIdentifier): UnrealEngineRootPath {
-        val matchingEngineIdentifiers = agentConfiguration.configurationParameters.keys
-            .filter { it.isUnrealEnginePathParameter(engineIdentifier) }
-            .map { it.extractFullEngineIdentifier() }
-            .sortedDescending()
+        val matchingEngineIdentifiers =
+            agentConfiguration.configurationParameters.keys
+                .filter { it.isUnrealEnginePathParameter(engineIdentifier) }
+                .map { it.extractFullEngineIdentifier() }
+                .sortedDescending()
 
         ensure(matchingEngineIdentifiers.isNotEmpty()) {
             EngineLocationError("Specified identifier was not found among agent installed engines")
@@ -81,8 +83,9 @@ class UnrealEngineProvider(
 
     private fun String.toUnrealEnginePathParameter() = "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.$this.path"
 
-    private fun String.extractFullEngineIdentifier() = substring(
-        indexOfFirst { char -> char == '.' } + 1,
-        indexOfLast { char -> char == '.' },
-    )
+    private fun String.extractFullEngineIdentifier() =
+        substring(
+            indexOfFirst { char -> char == '.' } + 1,
+            indexOfLast { char -> char == '.' },
+        )
 }

@@ -21,8 +21,8 @@ object EngineDetectionModeParameter : SelectParameter() {
     override val options = listOf(automatic, manual)
 
     context(Raise<ValidationError>)
-    fun parseDetectionMode(properties: Map<String, String>): EngineDetectionMode {
-        return when (properties[name]) {
+    fun parseDetectionMode(properties: Map<String, String>): EngineDetectionMode =
+        when (properties[name]) {
             automatic.name -> {
                 val engineIdentifier = properties[UnrealEngineIdentifierParameter.name]
                 if (engineIdentifier.isNullOrEmpty()) {
@@ -41,16 +41,16 @@ object EngineDetectionModeParameter : SelectParameter() {
                 raise(ValidationError(name, "Unknown detection mode."))
             }
         }
-    }
 }
 
 object UnrealEngineIdentifierParameter : TextInputParameter {
     override val name = "engine-identifier"
     override val displayName = "Identifier"
     override val defaultValue = ""
-    override val description = "Choose a specific version of Unreal Engine that should be used. " +
-        "You can enter regular numeric identifiers (for example, \"5.2\" or \"5.3.4\") for default versions " +
-        "installed on agent machines, or custom identifiers for source-built versions."
+    override val description =
+        "Choose a specific version of Unreal Engine that should be used. " +
+            "You can enter regular numeric identifiers (for example, \"5.2\" or \"5.3.4\") for default versions " +
+            "installed on agent machines, or custom identifiers for source-built versions."
     override val required = true
     override val supportsVcsNavigation = false
     override val expandable = false

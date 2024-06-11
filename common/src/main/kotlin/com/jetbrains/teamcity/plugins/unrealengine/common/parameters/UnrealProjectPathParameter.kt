@@ -6,7 +6,9 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
 
 // identical parameters should have different names in different contexts (within build-cook-run or run-automation-tests),
 // since they are all on the same page at the same time
-class UnrealProjectPathParameter(override val name: String) : TextInputParameter {
+class UnrealProjectPathParameter(
+    override val name: String,
+) : TextInputParameter {
     override val displayName = "Project"
     override val description = null
     override val defaultValue = ""

@@ -13,13 +13,15 @@ import kotlin.test.assertEquals
 
 class UProjectDirsUnrealProjectDiscovererTests {
     private val ueProjectDiscovererMock = mockk<UprojectFileDiscoverer>()
-    private val uprojectDirsElementMock = mockk<Element> {
-        every { isContentAvailable } returns true
-        every { fullName } returns "foo.uprojectdirs"
-    }
-    private val directoryElementMock = mockk<Element> {
-        every { children } returns listOf(uprojectDirsElementMock)
-    }
+    private val uprojectDirsElementMock =
+        mockk<Element> {
+            every { isContentAvailable } returns true
+            every { fullName } returns "foo.uprojectdirs"
+        }
+    private val directoryElementMock =
+        mockk<Element> {
+            every { children } returns listOf(uprojectDirsElementMock)
+        }
 
     @Test
     fun `should correctly discover unreal projects`() {
@@ -36,10 +38,11 @@ class UProjectDirsUnrealProjectDiscovererTests {
         )
         val firstProjectElement = mockk<Element>(relaxed = true)
         val secondProjectElement = mockk<Element>(relaxed = true)
-        every { directoryElementMock.browser } returns mockk {
-            every { getElement(firstProjectPath) } returns firstProjectElement
-            every { getElement(secondProjectPath) } returns secondProjectElement
-        }
+        every { directoryElementMock.browser } returns
+            mockk {
+                every { getElement(firstProjectPath) } returns firstProjectElement
+                every { getElement(secondProjectPath) } returns secondProjectElement
+            }
         val firstExpectedProject = UnrealEngineProject(UnrealProjectPath(""), UnrealEngineIdentifier("foo"), emptyList())
         val secondExpectedProject = UnrealEngineProject(UnrealProjectPath(""), UnrealEngineIdentifier("foo"), emptyList())
         every { ueProjectDiscovererMock.discover(firstProjectElement) } returns listOf(firstExpectedProject)
@@ -67,9 +70,10 @@ class UProjectDirsUnrealProjectDiscovererTests {
         """,
         )
         val projectElement = mockk<Element>()
-        every { directoryElementMock.browser } returns mockk {
-            every { getElement(projectPath) } returns projectElement
-        }
+        every { directoryElementMock.browser } returns
+            mockk {
+                every { getElement(projectPath) } returns projectElement
+            }
         every {
             ueProjectDiscovererMock.discover(projectElement)
         } returns listOf(UnrealEngineProject(UnrealProjectPath(""), UnrealEngineIdentifier("foo"), emptyList()))
@@ -91,9 +95,10 @@ class UProjectDirsUnrealProjectDiscovererTests {
             bar
         """,
         )
-        every { directoryElementMock.browser } returns mockk {
-            every { getElement(any()) } returns null
-        }
+        every { directoryElementMock.browser } returns
+            mockk {
+                every { getElement(any()) } returns null
+            }
         val uProjectDirsDiscoverer = UprojectDirsFileDiscoverer(ueProjectDiscovererMock)
 
         // act

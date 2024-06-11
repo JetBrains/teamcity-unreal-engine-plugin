@@ -6,7 +6,9 @@ import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertTrue
 
 class BuildGraphExtensionTests {
-    data class DummyNode(val name: String)
+    data class DummyNode(
+        val name: String,
+    )
 
     companion object {
         private val node0 = DummyNode("node 0")
@@ -14,29 +16,32 @@ class BuildGraphExtensionTests {
         private val node2 = DummyNode("node 2")
         private val node3 = DummyNode("node 3")
 
-        private val firstBuildGraph = BuildGraph(
-            mapOf(
-                node0 to listOf(node2, node3),
-                node1 to listOf(node2),
-                node2 to listOf(node3),
-                node3 to listOf(),
-            ),
-        )
+        private val firstBuildGraph =
+            BuildGraph(
+                mapOf(
+                    node0 to listOf(node2, node3),
+                    node1 to listOf(node2),
+                    node2 to listOf(node3),
+                    node3 to listOf(),
+                ),
+            )
 
-        private val secondBuildGraph = BuildGraph(
-            mapOf(
-                node3 to listOf(node0, node1, node2),
-                node2 to listOf(node0, node1),
-                node1 to listOf(node0),
-                node0 to listOf(),
-            ),
-        )
+        private val secondBuildGraph =
+            BuildGraph(
+                mapOf(
+                    node3 to listOf(node0, node1, node2),
+                    node2 to listOf(node0, node1),
+                    node1 to listOf(node0),
+                    node0 to listOf(),
+                ),
+            )
 
         @JvmStatic
-        fun generateTopologicalSortTestCases(): Collection<TopologicalSortTestCase> = listOf(
-            TopologicalSortTestCase(firstBuildGraph),
-            TopologicalSortTestCase(secondBuildGraph),
-        )
+        fun generateTopologicalSortTestCases(): Collection<TopologicalSortTestCase> =
+            listOf(
+                TopologicalSortTestCase(firstBuildGraph),
+                TopologicalSortTestCase(secondBuildGraph),
+            )
     }
 
     data class TopologicalSortTestCase(

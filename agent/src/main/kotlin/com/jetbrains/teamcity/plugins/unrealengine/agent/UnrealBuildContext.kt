@@ -4,7 +4,9 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContex
 import jetbrains.buildServer.agent.AgentRunningBuild
 import jetbrains.buildServer.agent.BuildParametersMap
 
-interface UnrealBuildContext : TeamCityContext, CommandExecutionContext
+interface UnrealBuildContext :
+    TeamCityContext,
+    CommandExecutionContext
 
 interface TeamCityContext {
     val buildParameters: BuildParametersMap

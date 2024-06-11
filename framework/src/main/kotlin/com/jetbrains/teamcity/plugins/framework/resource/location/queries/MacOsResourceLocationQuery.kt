@@ -12,7 +12,7 @@ import com.jetbrains.teamcity.plugins.framework.resource.location.readFile
 import kotlinx.serialization.json.Json
 import java.io.Reader
 
-interface MacOsResourceLocationContext : FileSystem
+interface MacOsResourceLocationContext : FileSystem, ResourceLocationContext
 
 class MacOsResourceLocationQuery<T> @PublishedApi internal constructor (
     getValue: context(MacOsResourceLocationContext, Raise<ResourceLocationResult.Error>) () -> T

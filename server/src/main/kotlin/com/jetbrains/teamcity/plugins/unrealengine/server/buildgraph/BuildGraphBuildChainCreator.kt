@@ -25,7 +25,6 @@ class BuildGraphBuildChainCreator(
     private val buildQueue: BuildQueueEx,
     private val settings: BuildGraphSettings,
 ) : BuildServerAdapter() {
-
     companion object {
         private val logger = TeamCityLoggers.server<BuildGraphBuildChainCreator>()
     }
@@ -37,9 +36,10 @@ class BuildGraphBuildChainCreator(
             return
         }
 
-        val isBuildGraphSetup = buildType.isVirtual &&
-            runningBuild.buildPromotion.hasSingleDistributedBuildGraphStep() &&
-            buildType.name == settings.setupBuildName
+        val isBuildGraphSetup =
+            buildType.isVirtual &&
+                runningBuild.buildPromotion.hasSingleDistributedBuildGraphStep() &&
+                buildType.name == settings.setupBuildName
 
         if (!isBuildGraphSetup) {
             logger.debug("The running build \"${runningBuild.fullName}\" isn't a build graph setup build, skipping")
@@ -68,28 +68,35 @@ class BuildGraphBuildChainCreator(
         }
     }
 
-    private fun processExportedBuildGraph(buildGraph: InputStream, runningBuild: SRunningBuild) {
+    private fun processExportedBuildGraph(
+        buildGraph: InputStream,
+        runningBuild: SRunningBuild,
+    ) {
         val parseResult = either { buildGraphParser.parse(buildGraph) }
         when (parseResult) {
             is Either.Left -> {
                 logger.error("An error occurred while parsing exported build graph file", parseResult.value.exception)
                 throw parseResult.value.exception
             }
-            is Either.Right -> runCatching {
-                insertBuildGraph(
-                    (runningBuild.buildPromotion as BuildPromotionEx),
-                    parseResult.value,
-                )
-            }.getOrElse {
-                logger.error("An error occurred while trying to insert parsed BuildGraph into original build", it)
-                throw it
-            }
+            is Either.Right ->
+                runCatching {
+                    insertBuildGraph(
+                        (runningBuild.buildPromotion as BuildPromotionEx),
+                        parseResult.value,
+                    )
+                }.getOrElse {
+                    logger.error("An error occurred while trying to insert parsed BuildGraph into original build", it)
+                    throw it
+                }
         }
     }
 
     private fun BuildArtifact.isExportedBuildGraph() = name == settings.graphArtifactName && isFile
 
-    private fun insertBuildGraph(setupBuild: BuildPromotionEx, buildGraph: BuildGraph<BuildGraphNodeGroup>) {
+    private fun insertBuildGraph(
+        setupBuild: BuildPromotionEx,
+        buildGraph: BuildGraph<BuildGraphNodeGroup>,
+    ) {
         val originalBuild = setupBuild.dependedOnMe.single().dependent
         val buildChain = createChainFromGraph(buildGraph, originalBuild)
 
@@ -103,8 +110,7 @@ class BuildGraphBuildChainCreator(
         setupBuild.persist()
     }
 
-    private fun List<BuildPromotionEx>.toMapWithoutAgentRestrictions(): Map<BuildPromotionEx, SAgentRestrictor?> =
-        associateWith { null }
+    private fun List<BuildPromotionEx>.toMapWithoutAgentRestrictions(): Map<BuildPromotionEx, SAgentRestrictor?> = associateWith { null }
 
     private data class BuildChain(
         val builds: List<BuildPromotionEx>,
@@ -119,19 +125,21 @@ class BuildGraphBuildChainCreator(
     ): BuildChain {
         val groupDependencies = mutableMapOf<BuildGraphNodeGroup, MutableList<BuildPromotionEx>>()
 
-        val buildsToAdd = with(virtualBuildCreator.inContextOf(originalBuild)) {
-            buildGraph.topologicalSort()
-                .map {
-                    val build = createBuildForGroupOfNodes(it)
+        val buildsToAdd =
+            with(virtualBuildCreator.inContextOf(originalBuild)) {
+                buildGraph
+                    .topologicalSort()
+                    .map {
+                        val build = createBuildForGroupOfNodes(it)
 
-                    for (successor in buildGraph.adjacencyList[it]!!) {
-                        groupDependencies.computeIfAbsent(successor) { mutableListOf() }
-                        groupDependencies[successor]!!.add(build)
+                        for (successor in buildGraph.adjacencyList[it]!!) {
+                            groupDependencies.computeIfAbsent(successor) { mutableListOf() }
+                            groupDependencies[successor]!!.add(build)
+                        }
+                        build.addDependencies(groupDependencies[it].orEmpty())
+                        build
                     }
-                    build.addDependencies(groupDependencies[it].orEmpty())
-                    build
-                }
-        }
+            }
 
         return BuildChain(buildsToAdd)
     }
@@ -151,22 +159,22 @@ class BuildGraphBuildChainCreator(
     }
 
     context(BuildGraphVirtualBuildCreator.VirtualBuildCreationContext)
-    private fun createBuildForGroupOfNodes(
-        group: BuildGraphNodeGroup,
-    ): BuildPromotionEx {
+    private fun createBuildForGroupOfNodes(group: BuildGraphNodeGroup): BuildPromotionEx {
         val originalRunnerParameters = originalBuild.activeRunners().single().parameters
         val originalBuildId = originalBuild.id.toString()
 
         return virtualBuildCreator.create(group.name) {
             for (node in group.nodes) {
-                val parameters = originalRunnerParameters +
-                    mapOf(
-                        AdditionalArgumentsParameter.name to
-                            originalRunnerParameters[AdditionalArgumentsParameter.name] + " \"-SingleNode=${node.name}\"",
-                    ) +
-                    BuildGraphRunnerInternalSettings.RegularBuildSettings(
-                        originalBuildId,
-                    ).toMap()
+                val parameters =
+                    originalRunnerParameters +
+                        mapOf(
+                            AdditionalArgumentsParameter.name to
+                                originalRunnerParameters[AdditionalArgumentsParameter.name] + " \"-SingleNode=${node.name}\"",
+                        ) +
+                        BuildGraphRunnerInternalSettings
+                            .RegularBuildSettings(
+                                originalBuildId,
+                            ).toMap()
 
                 addUnrealRunner(node.name, parameters)
             }

@@ -12,10 +12,8 @@ import java.io.InputStream
 private data class ExportedNode(
     @SerialName("Name")
     val name: String,
-
     @SerialName("DependsOn")
     val dependsOn: String,
-
     /**
      * Whether to start this node as soon as its dependencies are satisfied, rather than waiting for all of its agent's dependencies to be met.
      */
@@ -27,14 +25,12 @@ private data class ExportedNode(
 private data class ExportedGroup(
     @SerialName("Name")
     val name: String,
-
     /**
      * Array of valid agent types that these nodes may run on. When running in the build system, this determines the class of machine that should
      * be selected to run these nodes. The first defined agent type for this branch will be used.
      */
     @SerialName("Agent Types")
     val agents: Collection<String>,
-
     @SerialName("Nodes")
     val nodes: Collection<ExportedNode>,
 )
@@ -57,11 +53,12 @@ class BuildGraphParser {
     context(Raise<BuildGraphParsingError>)
     @OptIn(ExperimentalSerializationApi::class)
     fun parse(stream: InputStream): BuildGraph<BuildGraphNodeGroup> {
-        val buildGraph = try {
-            json.decodeFromStream<ExportedBuildGraph>(stream)
-        } catch (e: Throwable) {
-            raise(BuildGraphParsingError(e))
-        }
+        val buildGraph =
+            try {
+                json.decodeFromStream<ExportedBuildGraph>(stream)
+            } catch (e: Throwable) {
+                raise(BuildGraphParsingError(e))
+            }
 
         val graph = buildGraph.groups.associateWith { mutableListOf<ExportedGroup>() }
         val nodeToGroup = buildGraph.groups.flatMap { group -> group.nodes.map { it.name to group } }.toMap()
@@ -81,9 +78,10 @@ class BuildGraphParser {
         }
 
         return BuildGraph(
-            graph.map { (group, successorGroup) ->
-                group.toNodeGroup() to successorGroup.map { it.toNodeGroup() }
-            }.toMap(),
+            graph
+                .map { (group, successorGroup) ->
+                    group.toNodeGroup() to successorGroup.map { it.toNodeGroup() }
+                }.toMap(),
         )
     }
 

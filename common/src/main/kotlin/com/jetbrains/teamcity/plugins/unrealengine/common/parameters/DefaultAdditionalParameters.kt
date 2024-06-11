@@ -28,15 +28,16 @@ object DefaultAdditionalParameters {
     // With this approach, our aim is to ensure a successful initial build.
     private const val NO_CODE_SIGN = "-NoCodeSign"
 
-    fun get() = listOf(
-        UTF8_OUTPUT,
-        BUILD_MACHINE,
-        UNATTENDED,
-        NO_P4,
-        NO_SPLASH,
-        STDOUT,
-        NO_CODE_SIGN,
-    )
+    fun get() =
+        listOf(
+            UTF8_OUTPUT,
+            BUILD_MACHINE,
+            UNATTENDED,
+            NO_P4,
+            NO_SPLASH,
+            STDOUT,
+            NO_CODE_SIGN,
+        )
 }
 
 fun DefaultAdditionalParameters.allToString() = get().joinToString(separator = " ")

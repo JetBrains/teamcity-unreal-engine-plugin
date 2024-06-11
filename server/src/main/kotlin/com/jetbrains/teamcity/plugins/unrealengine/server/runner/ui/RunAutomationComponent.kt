@@ -13,11 +13,12 @@ class RunAutomationComponent {
     val runFilter = AutomationFilterParameter
     val runTests = AutomationTestsParameter
 
-    fun describeFlags(properties: Map<String, String>) = ComponentParametersFormatter
-        .formatFlags(
-            sequenceOf(
-                nullRHI,
-            ),
-            properties,
-        )
+    fun describeFlags(properties: Map<String, String>) =
+        ComponentParametersFormatter
+            .formatFlags(
+                sequenceOf(
+                    nullRHI,
+                ),
+                properties,
+            )
 }

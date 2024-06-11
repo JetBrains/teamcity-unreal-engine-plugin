@@ -19,8 +19,8 @@ class UnrealEngineProgramCommandLineTests {
 
     companion object {
         @JvmStatic
-        fun generateArgumentsTestCases(): Collection<ArgumentsTestCase> {
-            return listOf(
+        fun generateArgumentsTestCases(): Collection<ArgumentsTestCase> =
+            listOf(
                 ArgumentsTestCase(
                     OSType.Windows,
                     listOf("-foo", "-LogCmds=\"LogDerivedDataCache Verbose\"", "-bar"),
@@ -52,7 +52,6 @@ class UnrealEngineProgramCommandLineTests {
                     listOf("-key=\"value1 value2\""),
                 ),
             )
-        }
     }
 
     @ParameterizedTest

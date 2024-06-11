@@ -24,26 +24,36 @@ class UnrealEngineRunnerDiscovererTests {
     companion object {
         @JvmStatic
         fun generateHappyPathTestCases(): Collection<TestCase> {
-            val defaultAndDiscoveredPropertiesIntersection = TestCase(
-                listOf(
-                    UnrealEngineProject(UnrealProjectPath("discovered.uproject"), null, listOf()),
-                ),
-                mapOf(
-                    BuildCookRunProjectPathParameter.name to "default",
-                ),
-                listOf(
-                    DiscoveredObject(UnrealEngineRunner.RUN_TYPE, mapOf(BuildCookRunProjectPathParameter.name to "discovered.uproject")),
-                ),
-            )
+            val defaultAndDiscoveredPropertiesIntersection =
+                TestCase(
+                    listOf(
+                        UnrealEngineProject(UnrealProjectPath("discovered.uproject"), null, listOf()),
+                    ),
+                    mapOf(
+                        BuildCookRunProjectPathParameter.name to "default",
+                    ),
+                    listOf(
+                        DiscoveredObject(
+                            UnrealEngineRunner.RUN_TYPE,
+                            mapOf(BuildCookRunProjectPathParameter.name to "discovered.uproject"),
+                        ),
+                    ),
+                )
 
-            val duplicatedProjects = TestCase(
-                listOf(
-                    UnrealEngineProject(UnrealProjectPath("foo.uproject"), null, listOf()),
-                    UnrealEngineProject(UnrealProjectPath("foo.uproject"), null, listOf()),
-                ),
-                emptyMap(),
-                listOf(DiscoveredObject(UnrealEngineRunner.RUN_TYPE, mapOf(BuildCookRunProjectPathParameter.name to "foo.uproject"))),
-            )
+            val duplicatedProjects =
+                TestCase(
+                    listOf(
+                        UnrealEngineProject(UnrealProjectPath("foo.uproject"), null, listOf()),
+                        UnrealEngineProject(UnrealProjectPath("foo.uproject"), null, listOf()),
+                    ),
+                    emptyMap(),
+                    listOf(
+                        DiscoveredObject(
+                            UnrealEngineRunner.RUN_TYPE,
+                            mapOf(BuildCookRunProjectPathParameter.name to "foo.uproject"),
+                        ),
+                    ),
+                )
 
             return listOf(
                 defaultAndDiscoveredPropertiesIntersection,
@@ -67,15 +77,17 @@ class UnrealEngineRunnerDiscovererTests {
         val discoverer = UnrealEngineRunnerDiscoverer(listOf(underlyingDiscovererMock), defaultPropertiesProvider)
 
         // act
-        val result = discoverer.discover(
-            mockk<BuildTypeSettings>(),
-            mockk<Browser> {
-                every { root } returns mockk<Element> {
-                    every { children } returns emptyList()
-                    every { fullName } returns "foo"
-                }
-            },
-        )
+        val result =
+            discoverer.discover(
+                mockk<BuildTypeSettings>(),
+                mockk<Browser> {
+                    every { root } returns
+                        mockk<Element> {
+                            every { children } returns emptyList()
+                            every { fullName } returns "foo"
+                        }
+                },
+            )
 
         // assert
         assertEquals(case.expectedDiscoveredObjects, result ?: emptyList())

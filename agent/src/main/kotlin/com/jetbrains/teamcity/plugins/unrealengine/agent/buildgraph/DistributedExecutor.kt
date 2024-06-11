@@ -18,15 +18,16 @@ class DistributedExecutor(
 ) {
     context(Raise<WorkflowCreationError>, UnrealBuildContext)
     suspend fun execute(command: BuildGraphCommand): List<UnrealEngineCommandExecution> {
-        val settings = either {
-            settingsCreator.from(runnerParameters)
-        }.getOrElse {
-            raise(
-                WorkflowCreationError.ExecutionPreparationError(
-                    "Unable to get distributed BuildGraph build settings. Error: ${it.message}",
-                ),
-            )
-        }
+        val settings =
+            either {
+                settingsCreator.from(runnerParameters)
+            }.getOrElse {
+                raise(
+                    WorkflowCreationError.ExecutionPreparationError(
+                        "Unable to get distributed BuildGraph build settings. Error: ${it.message}",
+                    ),
+                )
+            }
 
         return when (settings) {
             is DistributedBuildSettings.SetupBuildSettings -> {
@@ -51,14 +52,15 @@ class DistributedExecutor(
 
         return createUnrealCommandExecution(
             command.getArgumentsOrRaiseError(),
-            processListener = object : ProcessListener by UnrealEngineProcessListener.create() {
-                override fun processFinished(exitCode: Int) {
-                    if (exitCode == 0) {
-                        artifactsWatcher.addNewArtifactsPath(settings.exportedGraphPath)
-                        artifactsWatcher.waitForPublishingFinish()
+            processListener =
+                object : ProcessListener by UnrealEngineProcessListener.create() {
+                    override fun processFinished(exitCode: Int) {
+                        if (exitCode == 0) {
+                            artifactsWatcher.addNewArtifactsPath(settings.exportedGraphPath)
+                            artifactsWatcher.waitForPublishingFinish()
+                        }
                     }
-                }
-            },
+                },
         )
     }
 
@@ -70,10 +72,11 @@ class DistributedExecutor(
         val sharedDir = ensureSharedDirectoryForBuild(settings.networkShare, settings.compositeBuildId)
 
         return createUnrealCommandExecution(
-            command.getArgumentsOrRaiseError() + listOf(
-                "-SharedStorageDir=$sharedDir",
-                "-WriteToSharedStorage",
-            ),
+            command.getArgumentsOrRaiseError() +
+                listOf(
+                    "-SharedStorageDir=$sharedDir",
+                    "-WriteToSharedStorage",
+                ),
             UnrealEngineProcessListener.create(AutomationTestLogMessageHandler()),
         )
     }
@@ -82,8 +85,8 @@ class DistributedExecutor(
     private suspend fun createUnrealCommandExecution(
         arguments: List<String>,
         processListener: ProcessListener,
-    ): UnrealEngineCommandExecution {
-        return UnrealEngineCommandExecution(
+    ): UnrealEngineCommandExecution =
+        UnrealEngineCommandExecution(
             UnrealEngineProgramCommandLine(
                 environment,
                 buildParameters.environmentVariables,
@@ -93,9 +96,10 @@ class DistributedExecutor(
             ),
             processListener,
         )
-    }
 
     context(UnrealBuildContext)
-    private fun ensureSharedDirectoryForBuild(root: String, compositeBuildId: String) =
-        createDirectory(concatPaths(root, compositeBuildId))
+    private fun ensureSharedDirectoryForBuild(
+        root: String,
+        compositeBuildId: String,
+    ) = createDirectory(concatPaths(root, compositeBuildId))
 }

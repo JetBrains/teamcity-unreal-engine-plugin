@@ -12,7 +12,7 @@ import com.jetbrains.teamcity.plugins.framework.resource.location.readFile
 import kotlinx.serialization.json.Json
 import java.io.Reader
 
-interface UniversalResourceLocationContext : FileSystem
+interface UniversalResourceLocationContext : FileSystem, ResourceLocationContext
 
 class UniversalResourceLocationQuery<T> @PublishedApi internal constructor (
     getValue: context(UniversalResourceLocationContext, Raise<ResourceLocationResult.Error>) () -> T

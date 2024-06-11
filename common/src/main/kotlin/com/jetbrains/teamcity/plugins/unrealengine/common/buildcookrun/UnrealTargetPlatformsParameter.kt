@@ -13,8 +13,9 @@ object UnrealTargetPlatformsParameter {
 
     private const val SEPARATOR = "+"
 
-    fun joinPlatforms(platforms: Collection<UnrealTargetPlatform>) = platforms
-        .joinToString(separator = SEPARATOR) { it.value }
+    fun joinPlatforms(platforms: Collection<UnrealTargetPlatform>) =
+        platforms
+            .joinToString(separator = SEPARATOR) { it.value }
 
     object Standalone : MultiSelectParameter() {
         override val name = "target-platforms"
@@ -53,14 +54,18 @@ object UnrealTargetPlatformsParameter {
     }
 
     context(Raise<ValidationError>)
-    fun parseTargetPlatforms(properties: Map<String, String>, name: String): NonEmptyList<UnrealTargetPlatform> {
+    fun parseTargetPlatforms(
+        properties: Map<String, String>,
+        name: String,
+    ): NonEmptyList<UnrealTargetPlatform> {
         val platformsRaw = properties[name]
         ensureNotNull(platformsRaw) { ValidationError(name, "Target platform list is missing") }
 
-        val platforms = platformsRaw
-            .split(SEPARATOR)
-            .filter { it.isNotEmpty() }
-            .map { UnrealTargetPlatform(it) }
+        val platforms =
+            platformsRaw
+                .split(SEPARATOR)
+                .filter { it.isNotEmpty() }
+                .map { UnrealTargetPlatform(it) }
 
         if (platforms.isEmpty()) {
             raise(ValidationError(name, "At least one target platform must be specified"))

@@ -12,10 +12,11 @@ import kotlin.test.assertNotNull
 class BuildBuildGraphParserTests {
     companion object {
         @JvmStatic
-        fun generateHappyPathTestCases(): Collection<TestCase> = buildList {
-            add(
-                TestCase(
-                    """
+        fun generateHappyPathTestCases(): Collection<TestCase> =
+            buildList {
+                add(
+                    TestCase(
+                        """
 {
 	"Groups": [
 		{
@@ -42,40 +43,43 @@ class BuildBuildGraphParserTests {
 	"Reports": [
 	]
 }
-                    """.trimIndent(),
-                    BuildGraph(
-                        mapOf(
-                            BuildGraphNodeGroup(
-                                "AB Group",
-                                listOf("AB Agent"),
-                                listOf(
-                                    BuildGraphNode("A", listOf()),
-                                    BuildGraphNode("B", listOf("A")),
-                                ),
-                            ) to listOf(),
+                        """.trimIndent(),
+                        BuildGraph(
+                            mapOf(
+                                BuildGraphNodeGroup(
+                                    "AB Group",
+                                    listOf("AB Agent"),
+                                    listOf(
+                                        BuildGraphNode("A", listOf()),
+                                        BuildGraphNode("B", listOf("A")),
+                                    ),
+                                ) to listOf(),
+                            ),
                         ),
                     ),
-                ),
-            )
+                )
 
-            val groupA = BuildGraphNodeGroup(
-                "A Group",
-                listOf("A Agent 1", "A Agent 2"),
-                listOf(BuildGraphNode("A", listOf())),
-            )
-            val groupB = BuildGraphNodeGroup(
-                "B Group",
-                listOf("B Agent"),
-                listOf(BuildGraphNode("B", listOf("A"))),
-            )
-            val groupC = BuildGraphNodeGroup(
-                "C Group",
-                listOf("C Agent"),
-                listOf(BuildGraphNode("C", listOf("B"))),
-            )
-            add(
-                TestCase(
-                    """
+                val groupA =
+                    BuildGraphNodeGroup(
+                        "A Group",
+                        listOf("A Agent 1", "A Agent 2"),
+                        listOf(BuildGraphNode("A", listOf())),
+                    )
+                val groupB =
+                    BuildGraphNodeGroup(
+                        "B Group",
+                        listOf("B Agent"),
+                        listOf(BuildGraphNode("B", listOf("A"))),
+                    )
+                val groupC =
+                    BuildGraphNodeGroup(
+                        "C Group",
+                        listOf("C Agent"),
+                        listOf(BuildGraphNode("C", listOf("B"))),
+                    )
+                add(
+                    TestCase(
+                        """
 {
 	"Groups": [
 		{
@@ -124,30 +128,32 @@ class BuildBuildGraphParserTests {
 	"Reports": [
 	]
 }
-                    """.trimIndent(),
-                    BuildGraph(
-                        mapOf(
-                            groupA to listOf(groupB),
-                            groupB to listOf(groupC),
-                            groupC to listOf(),
+                        """.trimIndent(),
+                        BuildGraph(
+                            mapOf(
+                                groupA to listOf(groupB),
+                                groupB to listOf(groupC),
+                                groupC to listOf(),
+                            ),
                         ),
                     ),
-                ),
-            )
+                )
 
-            val groupD = BuildGraphNodeGroup(
-                "D Group",
-                listOf("D Agent"),
-                listOf(BuildGraphNode("D", listOf())),
-            )
-            val groupE = BuildGraphNodeGroup(
-                "E Group",
-                listOf("E Agent"),
-                listOf(BuildGraphNode("E", listOf("A", "D"))),
-            )
-            add(
-                TestCase(
-                    """
+                val groupD =
+                    BuildGraphNodeGroup(
+                        "D Group",
+                        listOf("D Agent"),
+                        listOf(BuildGraphNode("D", listOf())),
+                    )
+                val groupE =
+                    BuildGraphNodeGroup(
+                        "E Group",
+                        listOf("E Agent"),
+                        listOf(BuildGraphNode("E", listOf("A", "D"))),
+                    )
+                add(
+                    TestCase(
+                        """
 {
 	"Groups": [
 		{
@@ -196,17 +202,17 @@ class BuildBuildGraphParserTests {
 	"Reports": [
 	]
 }
-                    """.trimIndent(),
-                    BuildGraph(
-                        mapOf(
-                            groupA to listOf(groupE),
-                            groupD to listOf(groupE),
-                            groupE to listOf(),
+                        """.trimIndent(),
+                        BuildGraph(
+                            mapOf(
+                                groupA to listOf(groupE),
+                                groupD to listOf(groupE),
+                                groupE to listOf(),
+                            ),
                         ),
                     ),
-                ),
-            )
-        }
+                )
+            }
     }
 
     data class TestCase(

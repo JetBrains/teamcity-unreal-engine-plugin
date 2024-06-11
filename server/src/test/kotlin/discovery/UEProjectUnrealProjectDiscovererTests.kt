@@ -16,60 +16,60 @@ import kotlin.test.assertEquals
 class UEProjectUnrealProjectDiscovererTests {
     private val discoverer = UprojectFileDiscoverer()
     private val childElementMock = mockk<Element>()
-    private val parentElementMock = mockk<Element> {
-        every { children } returns listOf(childElementMock)
-    }
+    private val parentElementMock =
+        mockk<Element> {
+            every { children } returns listOf(childElementMock)
+        }
 
     companion object {
         @JvmStatic
-        fun generateHappyPathTestCases(): Collection<HappyPathTestCase> {
-            return listOf(
+        fun generateHappyPathTestCases(): Collection<HappyPathTestCase> =
+            listOf(
                 HappyPathTestCase(
                     "5.1",
                     listOf(UnrealTargetPlatform.IOS, UnrealTargetPlatform.TVOS),
                     """
-                {
-                    "FileVersion": 3,
-                    "EngineAssociation": "5.1",
-                    "Category": "",
-                    "Description": "",
-                    "Modules": [],
-                    "Plugins": [],
-                    "TargetPlatforms": [${listOf(
+                    {
+                        "FileVersion": 3,
+                        "EngineAssociation": "5.1",
+                        "Category": "",
+                        "Description": "",
+                        "Modules": [],
+                        "Plugins": [],
+                        "TargetPlatforms": [${listOf(
                         UnrealTargetPlatform.IOS.value,
                         UnrealTargetPlatform.TVOS.value,
                     ).joinToString { "\"${it}\"" }}]
-                }
+                    }
                     """.trimIndent(),
                 ),
                 HappyPathTestCase(
                     "4.2",
                     listOf(),
                     """
-                {
-                    "FileVersion": 3,
-                    "EngineAssociation": "4.2",
-                    "Category": "",
-                    "Description": "",
-                    "Modules": [],
-                    "Plugins": []
-                }
+                    {
+                        "FileVersion": 3,
+                        "EngineAssociation": "4.2",
+                        "Category": "",
+                        "Description": "",
+                        "Modules": [],
+                        "Plugins": []
+                    }
                     """.trimIndent(),
                 ),
                 HappyPathTestCase(
                     null,
                     listOf(),
                     """
-                {
-                    "FileVersion": 3,
-                    "Description": "",
-                    "Modules": [],
-                    "Plugins": []
-                }
+                    {
+                        "FileVersion": 3,
+                        "Description": "",
+                        "Modules": [],
+                        "Plugins": []
+                    }
                     """.trimIndent(),
                 ),
             )
-        }
     }
 
     data class HappyPathTestCase(

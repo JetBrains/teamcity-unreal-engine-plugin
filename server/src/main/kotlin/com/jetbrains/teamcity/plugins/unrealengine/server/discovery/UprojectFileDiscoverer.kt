@@ -19,26 +19,25 @@ import kotlinx.serialization.json.decodeFromStream
 private data class UnrealEngineProjectDescriptor(
     @SerialName("EngineAssociation")
     val engineAssociation: String? = null,
-
     @SerialName("TargetPlatforms")
     val targetPlatforms: Collection<String>? = null,
 )
 
 class UprojectFileDiscoverer : UnrealProjectDiscoverer {
-
     companion object {
-        private const val projectExtension = ".uproject"
+        private const val PROJECT_EXTENSION = ".uproject"
         private val logger = TeamCityLoggers.server<UprojectFileDiscoverer>()
     }
 
-    override fun discover(directory: Element): Collection<UnrealEngineProject> = directory.children?.let { children ->
-        children
-            .filter { it.isContentAvailable && it.fullName.endsWith(projectExtension) }
-            .mapNotNull {
-                logger.debug("File ${it.fullName} seems to be an Unreal project file, trying to read it")
-                deserialize(it)
-            }
-    } ?: emptyList()
+    override fun discover(directory: Element): Collection<UnrealEngineProject> =
+        directory.children?.let { children ->
+            children
+                .filter { it.isContentAvailable && it.fullName.endsWith(PROJECT_EXTENSION) }
+                .mapNotNull {
+                    logger.debug("File ${it.fullName} seems to be an Unreal project file, trying to read it")
+                    deserialize(it)
+                }
+        } ?: emptyList()
 
     @OptIn(ExperimentalSerializationApi::class)
     private fun deserialize(element: Element): UnrealEngineProject? {

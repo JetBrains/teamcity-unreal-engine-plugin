@@ -1,7 +1,9 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common
 
 @JvmInline
-value class UnrealEngineIdentifier(val value: String)
+value class UnrealEngineIdentifier(
+    val value: String,
+)
 
 data class UnrealEngineVersion(
     val major: Int,
@@ -25,10 +27,14 @@ data class UnrealEngineVersion(
 }
 
 @JvmInline
-value class UnrealProjectPath(val value: String)
+value class UnrealProjectPath(
+    val value: String,
+)
 
 @JvmInline
-value class UnrealEngineRootPath(val value: String)
+value class UnrealEngineRootPath(
+    val value: String,
+)
 
 data class UnrealEngineProject(
     val location: UnrealProjectPath,

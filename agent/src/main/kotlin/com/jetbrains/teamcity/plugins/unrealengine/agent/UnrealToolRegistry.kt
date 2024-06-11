@@ -67,9 +67,10 @@ class UnrealToolRegistry(
             OSType.Windows -> "${engine.path.value}\\Engine\\Binaries\\Win64\\$editorName.exe"
             OSType.MacOs -> "${engine.path.value}/Engine/Binaries/Mac/$editorName.app/Contents/MacOS/$editorName"
             OSType.Linux -> "${engine.path.value}/Engine/Binaries/Linux/$editorName"
-            OSType.Unknown -> raise(
-                WorkflowCreationError.ExecutionPreparationError("Unknown operating system. Unable to get a path to the Editor"),
-            )
+            OSType.Unknown ->
+                raise(
+                    WorkflowCreationError.ExecutionPreparationError("Unknown operating system. Unable to get a path to the Editor"),
+                )
         }
     }
 }

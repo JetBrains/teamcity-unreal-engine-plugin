@@ -21,22 +21,25 @@ class UnrealCommandCreatorTests {
 
     companion object {
         @JvmStatic
-        fun generateTestCases() = listOf(
-            TestCase(
-                runnerParameters = mapOf(
-                    UnrealCommandTypeParameter.name to UnrealCommandType.BuildCookRun.name,
-                    BuildCookRunProjectPathParameter.name to "some-path",
-                    BuildConfigurationParameter.name to "StandaloneGame",
-                    UnrealTargetConfigurationsParameter.Standalone.name to "Shipping+Development",
-                    UnrealTargetPlatformsParameter.Standalone.name to "Mac+IOS",
+        fun generateTestCases() =
+            listOf(
+                TestCase(
+                    runnerParameters =
+                        mapOf(
+                            UnrealCommandTypeParameter.name to UnrealCommandType.BuildCookRun.name,
+                            BuildCookRunProjectPathParameter.name to "some-path",
+                            BuildConfigurationParameter.name to "StandaloneGame",
+                            UnrealTargetConfigurationsParameter.Standalone.name to "Shipping+Development",
+                            UnrealTargetPlatformsParameter.Standalone.name to "Mac+IOS",
+                        ),
                 ),
-            ),
-            TestCase(
-                runnerParameters = mapOf(
-                    UnrealCommandTypeParameter.name to UnrealCommandType.BuildGraph.name,
-                ) + buildGraphHappyPathCaseParams,
-            ),
-        )
+                TestCase(
+                    runnerParameters =
+                        mapOf(
+                            UnrealCommandTypeParameter.name to UnrealCommandType.BuildGraph.name,
+                        ) + buildGraphHappyPathCaseParams,
+                ),
+            )
     }
 
     @ParameterizedTest
@@ -65,13 +68,14 @@ class UnrealCommandCreatorTests {
     fun `should raise an error when the command type is unknown`() {
         val sut = UnrealCommandCreator()
 
-        val result = either {
-            sut.create(
-                mapOf(
-                    UnrealCommandTypeParameter.name to "foo",
-                ),
-            )
-        }
+        val result =
+            either {
+                sut.create(
+                    mapOf(
+                        UnrealCommandTypeParameter.name to "foo",
+                    ),
+                )
+            }
         val errors = result.leftOrNull()
         assertNotNull(errors)
         assertTrue {

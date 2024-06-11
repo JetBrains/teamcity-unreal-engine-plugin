@@ -20,35 +20,46 @@ class CookOptionsTests {
 
     companion object {
         @JvmStatic
-        fun generateTestCases() = listOf(
-            TestCase(
-                runnerParameters = mapOf(
-                    MapsToCookParameter.name to "Map1+Map2+Map3",
-                    CookCulturesParameter.name to "Culture1+Culture2",
-                    UnversionedCookedContentParameter.name to true.toString(),
+        fun generateTestCases() =
+            listOf(
+                TestCase(
+                    runnerParameters =
+                        mapOf(
+                            MapsToCookParameter.name to "Map1+Map2+Map3",
+                            CookCulturesParameter.name to "Culture1+Culture2",
+                            UnversionedCookedContentParameter.name to true.toString(),
+                        ),
+                    expectedOptions =
+                        CookOptions(
+                            mapsToCook =
+                                listOf(
+                                    CookMap("Map1"),
+                                    CookMap("Map2"),
+                                    CookMap("Map3"),
+                                ),
+                            cookCultures =
+                                listOf(
+                                    CookCulture("Culture1"),
+                                    CookCulture("Culture2"),
+                                ),
+                            unversionedContent = true,
+                        ),
+                    shouldContainItems =
+                        listOf(
+                            "-cook",
+                            "-map=Map1+Map2+Map3",
+                            "-cookcultures=Culture1+Culture2",
+                            "-unversionedcookedcontent",
+                        ),
+                    shouldNotContainItems = emptyList(),
                 ),
-                expectedOptions = CookOptions(
-                    mapsToCook = listOf(
-                        CookMap("Map1"),
-                        CookMap("Map2"),
-                        CookMap("Map3"),
-                    ),
-                    cookCultures = listOf(
-                        CookCulture("Culture1"),
-                        CookCulture("Culture2"),
-                    ),
-                    unversionedContent = true,
+                TestCase(
+                    runnerParameters = mapOf(),
+                    expectedOptions = CookOptions(),
+                    shouldContainItems = listOf("-cook"),
+                    shouldNotContainItems = listOf("-map", "-cookcultures", "-unversionedcookedcontent"),
                 ),
-                shouldContainItems = listOf("-cook", "-map=Map1+Map2+Map3", "-cookcultures=Culture1+Culture2", "-unversionedcookedcontent"),
-                shouldNotContainItems = emptyList(),
-            ),
-            TestCase(
-                runnerParameters = mapOf(),
-                expectedOptions = CookOptions(),
-                shouldContainItems = listOf("-cook"),
-                shouldNotContainItems = listOf("-map", "-cookcultures", "-unversionedcookedcontent"),
-            ),
-        )
+            )
     }
 
     @ParameterizedTest

@@ -28,18 +28,20 @@ class RunAutomationWorkflowCreator(
     override suspend fun create(): Workflow = Workflow(getCommands())
 
     context(Raise<WorkflowCreationError>, UnrealBuildContext)
-    private suspend fun getCommands() = listOf(
-        runAutomation(),
-    )
+    private suspend fun getCommands() =
+        listOf(
+            runAutomation(),
+        )
 
     context(Raise<WorkflowCreationError>, UnrealBuildContext)
     private suspend fun runAutomation(): UnrealEngineCommandExecution {
-        val command = either { RunAutomationCommand.from(runnerParameters) }.getOrElse {
-            it.forEach { error ->
-                logger.error("An error occurred during command creation: ${error.message}")
+        val command =
+            either { RunAutomationCommand.from(runnerParameters) }.getOrElse {
+                it.forEach { error ->
+                    logger.error("An error occurred during command creation: ${error.message}")
+                }
+                raise(WorkflowCreationError.CommandCreationError("Unable to create command from the given runner parameters"))
             }
-            raise(WorkflowCreationError.CommandCreationError("Unable to create command from the given runner parameters"))
-        }
 
         val arguments = command.toArguments().getOrElse { raise(WorkflowCreationError.ExecutionPreparationError(it.message)) }
 

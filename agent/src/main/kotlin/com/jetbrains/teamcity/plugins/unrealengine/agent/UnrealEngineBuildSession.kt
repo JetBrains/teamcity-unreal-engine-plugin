@@ -13,7 +13,6 @@ class UnrealEngineBuildSession(
     private val workflowCreator: WorkflowCreator,
     private val unrealBuildContext: UnrealBuildContext,
 ) : MultiCommandBuildSession {
-
     companion object {
         private val logger = TeamCityLoggers.agent<UnrealEngineBuildSession>()
     }
@@ -23,17 +22,19 @@ class UnrealEngineBuildSession(
     private val executingCommands = ArrayDeque<UnrealEngineCommandExecution>(1)
     private val exitCodes = mutableListOf<Int>()
 
-    override fun sessionStarted() = runBlocking {
-        with(unrealBuildContext) {
-            workflow = when (val result = either { workflowCreator.create() }) {
-                is Either.Left -> {
-                    logger.error("There was an error during workflow construction: ${result.value.message}")
-                    throw RunBuildException("Workflow cannot be created. Error: ${result.value.message}")
-                }
-                is Either.Right -> result.value
+    override fun sessionStarted() =
+        runBlocking {
+            with(unrealBuildContext) {
+                workflow =
+                    when (val result = either { workflowCreator.create() }) {
+                        is Either.Left -> {
+                            logger.error("There was an error during workflow construction: ${result.value.message}")
+                            throw RunBuildException("Workflow cannot be created. Error: ${result.value.message}")
+                        }
+                        is Either.Right -> result.value
+                    }
             }
         }
-    }
 
     override fun getNextCommand(): CommandExecution? {
         processPreviousCommandCompletion()

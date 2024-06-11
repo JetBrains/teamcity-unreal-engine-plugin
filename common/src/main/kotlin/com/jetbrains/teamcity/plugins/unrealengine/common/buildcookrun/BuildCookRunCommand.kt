@@ -22,86 +22,91 @@ data class BuildCookRunCommand(
     val archiveOptions: ArchiveOptions? = null,
     val extraArguments: List<String> = emptyList(),
 ) : UnrealCommand {
-
     companion object {
         context(Raise<NonEmptyList<ValidationError>>)
-        fun from(runnerParameters: Map<String, String>) = zipOrAccumulate(
-            { BuildCookRunProjectPathParameter.parseProjectPath(runnerParameters) },
-            { parseBuildConfiguration(runnerParameters) },
-        ) { projectPath, buildConfiguration ->
-            val cookOptions = runnerParameters[CookStageSwitchParameter.name]?.let {
-                return@let if (it.toBoolean()) {
-                    CookOptions.from(runnerParameters)
-                } else {
-                    null
-                }
+        fun from(runnerParameters: Map<String, String>) =
+            zipOrAccumulate(
+                { BuildCookRunProjectPathParameter.parseProjectPath(runnerParameters) },
+                { parseBuildConfiguration(runnerParameters) },
+            ) { projectPath, buildConfiguration ->
+                val cookOptions =
+                    runnerParameters[CookStageSwitchParameter.name]?.let {
+                        return@let if (it.toBoolean()) {
+                            CookOptions.from(runnerParameters)
+                        } else {
+                            null
+                        }
+                    }
+
+                val stageOptions =
+                    runnerParameters[StageStageSwitchParameter.name]?.let {
+                        return@let if (it.toBoolean()) {
+                            StageOptions.from(runnerParameters)
+                        } else {
+                            null
+                        }
+                    }
+
+                val archiveOptions =
+                    runnerParameters[ArchiveSwitchParameter.name]?.let {
+                        return@let if (it.toBoolean()) {
+                            ArchiveOptions.from(runnerParameters)
+                        } else {
+                            null
+                        }
+                    }
+
+                val additionalOptions =
+                    buildList {
+                        if (runnerParameters[PackageStageSwitchParameter.name].toBoolean()) {
+                            add("-package")
+                        }
+
+                        addAll(AdditionalArgumentsParameter.parse(runnerParameters))
+                    }
+
+                BuildCookRunCommand(
+                    projectPath,
+                    buildConfiguration,
+                    cookOptions,
+                    stageOptions,
+                    archiveOptions,
+                    additionalOptions,
+                )
             }
-
-            val stageOptions = runnerParameters[StageStageSwitchParameter.name]?.let {
-                return@let if (it.toBoolean()) {
-                    StageOptions.from(runnerParameters)
-                } else {
-                    null
-                }
-            }
-
-            val archiveOptions = runnerParameters[ArchiveSwitchParameter.name]?.let {
-                return@let if (it.toBoolean()) {
-                    ArchiveOptions.from(runnerParameters)
-                } else {
-                    null
-                }
-            }
-
-            val additionalOptions = buildList {
-                if (runnerParameters[PackageStageSwitchParameter.name].toBoolean()) {
-                    add("-package")
-                }
-
-                addAll(AdditionalArgumentsParameter.parse(runnerParameters))
-            }
-
-            BuildCookRunCommand(
-                projectPath,
-                buildConfiguration,
-                cookOptions,
-                stageOptions,
-                archiveOptions,
-                additionalOptions,
-            )
-        }
     }
 
     context(CommandExecutionContext)
-    override fun toArguments(): Either<ArgumentsPreparationError, List<String>> = either {
-        buildList {
-            add("BuildCookRun")
+    override fun toArguments(): Either<ArgumentsPreparationError, List<String>> =
+        either {
+            buildList {
+                add("BuildCookRun")
 
-            val resolvedProjectPath = concatPaths(workingDirectory, projectPath.value)
-            ensure(
-                fileExists(resolvedProjectPath),
-            ) { ArgumentsPreparationError("Could not find the specified project file. Path: $resolvedProjectPath") }
-            add("-project=$resolvedProjectPath")
+                val resolvedProjectPath = concatPaths(workingDirectory, projectPath.value)
+                ensure(
+                    fileExists(resolvedProjectPath),
+                ) { ArgumentsPreparationError("Could not find the specified project file. Path: $resolvedProjectPath") }
+                add("-project=$resolvedProjectPath")
 
-            addAll(buildType.arguments)
+                addAll(buildType.arguments)
 
-            if (cookOptions != null) {
-                addAll(cookOptions.arguments)
-            } else {
-                add("-skipcook")
+                if (cookOptions != null) {
+                    addAll(cookOptions.arguments)
+                } else {
+                    add("-skipcook")
+                }
+
+                if (stageOptions != null) {
+                    addAll(stageOptions.toArguments())
+                } else {
+                    add("-skipstage")
+                }
+
+                if (archiveOptions != null) {
+                    addAll(archiveOptions.toArguments())
+                }
+
+                addAll(extraArguments)
             }
-
-            if (stageOptions != null) {
-                addAll(stageOptions.toArguments())
-            } else {
-                add("-skipstage")
-            }
-
-            if (archiveOptions != null) {
-                addAll(archiveOptions.toArguments())
-            }
-
-            addAll(extraArguments)
         }
-    }
 }

@@ -16,10 +16,11 @@ object CookCulturesParameter : TextInputParameter {
     override val displayName = "Cook cultures"
     override val defaultValue = ""
     override val required = false
-    override val description = """
+    override val description =
+        """
         The list of localization cultures (separated by '+') that should be included. For example, 'en-US + de-DE'.
         If none are specified, cultures from the CulturesToStage section of project settings are used.
-    """.trimIndent()
+        """.trimIndent()
     override val supportsVcsNavigation = false
     override val expandable = true
     override val advanced = true
@@ -30,10 +31,11 @@ object MapsToCookParameter : TextInputParameter {
     override val displayName = "Maps to cook"
     override val defaultValue = ""
     override val required = false
-    override val description = """
+    override val description =
+        """
         The list of map names (separated by '+') to include.
         If this list is empty, maps specified in the project settings will be used.
-    """.trimIndent()
+        """.trimIndent()
     override val supportsVcsNavigation = false
     override val expandable = true
     override val advanced = true

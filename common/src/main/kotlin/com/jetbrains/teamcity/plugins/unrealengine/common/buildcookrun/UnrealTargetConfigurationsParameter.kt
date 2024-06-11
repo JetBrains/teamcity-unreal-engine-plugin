@@ -13,9 +13,10 @@ object UnrealTargetConfigurationsParameter {
     private val options = UnrealTargetConfiguration.knownConfigurations.map { SelectOption(it.value) }
     private const val SEPARATOR = "+"
 
-    fun joinConfigurations(configurations: Collection<UnrealTargetConfiguration>) = configurations.joinToString(separator = SEPARATOR) {
-        it.value
-    }
+    fun joinConfigurations(configurations: Collection<UnrealTargetConfiguration>) =
+        configurations.joinToString(separator = SEPARATOR) {
+            it.value
+        }
 
     object Standalone : MultiSelectParameter() {
         override val name = "target-configurations"
@@ -51,17 +52,21 @@ object UnrealTargetConfigurationsParameter {
     }
 
     context(Raise<ValidationError>)
-    fun parseTargetConfigurations(properties: Map<String, String>, name: String): NonEmptyList<UnrealTargetConfiguration> {
+    fun parseTargetConfigurations(
+        properties: Map<String, String>,
+        name: String,
+    ): NonEmptyList<UnrealTargetConfiguration> {
         val configurationsRaw = properties[name]
         ensureNotNull(configurationsRaw) { ValidationError(name, "Target configuration list is missing") }
 
-        val configurations = configurationsRaw
-            .split(SEPARATOR)
-            .map { UnrealTargetConfiguration(it) }
-            .filter { configuration ->
-                UnrealTargetConfiguration.knownConfigurations.contains(configuration) ||
-                    ReferencesResolverUtil.isReference(configuration.value)
-            }
+        val configurations =
+            configurationsRaw
+                .split(SEPARATOR)
+                .map { UnrealTargetConfiguration(it) }
+                .filter { configuration ->
+                    UnrealTargetConfiguration.knownConfigurations.contains(configuration) ||
+                        ReferencesResolverUtil.isReference(configuration.value)
+                }
         if (configurations.isEmpty()) {
             raise(
                 ValidationError(

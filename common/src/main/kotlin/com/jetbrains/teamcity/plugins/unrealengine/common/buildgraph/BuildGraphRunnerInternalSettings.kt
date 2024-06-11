@@ -11,14 +11,15 @@ import kotlinx.serialization.properties.decodeFromStringMap
 import kotlinx.serialization.properties.encodeToStringMap
 
 @OptIn(ExperimentalSerializationApi::class)
-private val properties = Properties(
-    SerializersModule {
-        polymorphic(BuildGraphRunnerInternalSettings::class) {
-            subclass(BuildGraphRunnerInternalSettings.SetupBuildSettings::class)
-            subclass(BuildGraphRunnerInternalSettings.RegularBuildSettings::class)
-        }
-    },
-)
+private val properties =
+    Properties(
+        SerializersModule {
+            polymorphic(BuildGraphRunnerInternalSettings::class) {
+                subclass(BuildGraphRunnerInternalSettings.SetupBuildSettings::class)
+                subclass(BuildGraphRunnerInternalSettings.RegularBuildSettings::class)
+            }
+        },
+    )
 
 private const val PROPERTY_KEY_PREFIX = "build-graph.internal-settings."
 
@@ -26,11 +27,12 @@ sealed interface BuildGraphRunnerInternalSettings {
     companion object {
         @OptIn(ExperimentalSerializationApi::class)
         fun fromRunnerParameters(parametersMap: Map<String, String>): BuildGraphRunnerInternalSettings {
-            val settingsSubMap = parametersMap
-                .filter { it.key.startsWith(PROPERTY_KEY_PREFIX) }
-                .mapKeys {
-                    it.key.substring(PROPERTY_KEY_PREFIX.length)
-                }
+            val settingsSubMap =
+                parametersMap
+                    .filter { it.key.startsWith(PROPERTY_KEY_PREFIX) }
+                    .mapKeys {
+                        it.key.substring(PROPERTY_KEY_PREFIX.length)
+                    }
 
             return properties.decodeFromStringMap<BuildGraphRunnerInternalSettings>(settingsSubMap)
         }
@@ -51,7 +53,9 @@ sealed interface BuildGraphRunnerInternalSettings {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-fun BuildGraphRunnerInternalSettings.toMap() = properties.encodeToStringMap(this)
-    .mapKeys {
-        "${PROPERTY_KEY_PREFIX}${it.key}"
-    }
+fun BuildGraphRunnerInternalSettings.toMap() =
+    properties
+        .encodeToStringMap(this)
+        .mapKeys {
+            "${PROPERTY_KEY_PREFIX}${it.key}"
+        }

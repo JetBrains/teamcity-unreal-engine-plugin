@@ -21,7 +21,6 @@ class BuildGraphDistributionConfigurer(
     private val virtualBuildCreator: BuildGraphVirtualBuildCreator,
     private val settings: BuildGraphSettings,
 ) : ProcessVirtualConfigurations {
-
     companion object {
         private val logger = TeamCityLoggers.server<BuildGraphDistributionConfigurer>()
     }
@@ -39,44 +38,45 @@ class BuildGraphDistributionConfigurer(
     private fun BuildPromotionEx.ensureChangeCollectionWhileInQueue() =
         setAttribute(BuildAttributes.FREEZE_REQUIRES_COLLECTED_CHANGES, true.toString())
 
-    override fun freeze(build: BuildPromotion): MutableList<BuildPromotion> = runCatching {
-        distributeBuild(build as BuildPromotionEx).toMutableList()
-    }
-        .getOrElse {
+    override fun freeze(build: BuildPromotion): MutableList<BuildPromotion> =
+        runCatching {
+            distributeBuild(build as BuildPromotionEx).toMutableList()
+        }.getOrElse {
             logger.error("An error occurred while trying to set up BuildGraph build distribution", it)
             mutableListOf()
         }
 
-    private fun distributeBuild(build: BuildPromotionEx) = sequence<BuildPromotion> {
-        if (!shouldDistributeBuild(build)) {
-            logger.debug(
-                """
-                Build won't be distributed because it doesn't satisfy some of the distribution criteria.
-                It is either already virtual, doesn't contain a single active Unreal build step,
-                or doesn't have any VCS roots attached
-                """.trimIndent(),
-            )
-            return@sequence
-        }
-
-        logger.info(
-            "Build graph build ${build.toLogString()} is " +
-                "eligible for distribution across multiple machines",
-        )
-
-        when (val result = setupBuildDistribution(build)) {
-            is Either.Left -> {
-                logger.error(
-                    "An error occurred while setting up a distribution of the build " +
-                        "${build.toLogString()}. Proceeding with the default setup",
+    private fun distributeBuild(build: BuildPromotionEx) =
+        sequence<BuildPromotion> {
+            if (!shouldDistributeBuild(build)) {
+                logger.debug(
+                    """
+                    Build won't be distributed because it doesn't satisfy some of the distribution criteria.
+                    It is either already virtual, doesn't contain a single active Unreal build step,
+                    or doesn't have any VCS roots attached
+                    """.trimIndent(),
                 )
                 return@sequence
             }
-            is Either.Right -> {
-                yield(result.value)
+
+            logger.info(
+                "Build graph build ${build.toLogString()} is " +
+                    "eligible for distribution across multiple machines",
+            )
+
+            when (val result = setupBuildDistribution(build)) {
+                is Either.Left -> {
+                    logger.error(
+                        "An error occurred while setting up a distribution of the build " +
+                            "${build.toLogString()}. Proceeding with the default setup",
+                    )
+                    return@sequence
+                }
+                is Either.Right -> {
+                    yield(result.value)
+                }
             }
         }
-    }
 
     override fun getType() = "UnrealEngine_BuildGraph"
 
@@ -87,53 +87,57 @@ class BuildGraphDistributionConfigurer(
         return build.vcsRootEntries.isNotEmpty() && !isVirtual && isDistributedBuildGraph
     }
 
-    private fun setupBuildDistribution(
-        originalBuild: BuildPromotionEx,
-    ): Either<BuildGraphConfigurationError, BuildPromotionEx> = either {
-        val originalBuildParentProjectId = originalBuild.projectId
-        ensure(originalBuildParentProjectId != null) {
-            logger.debug("The build ${originalBuild.toLogString()} has no parent project, skipping")
-            BuildGraphConfigurationError("Build is missing its parent project")
+    private fun setupBuildDistribution(originalBuild: BuildPromotionEx): Either<BuildGraphConfigurationError, BuildPromotionEx> =
+        either {
+            val originalBuildParentProjectId = originalBuild.projectId
+            ensure(originalBuildParentProjectId != null) {
+                logger.debug("The build ${originalBuild.toLogString()} has no parent project, skipping")
+                BuildGraphConfigurationError("Build is missing its parent project")
+            }
+
+            originalBuild.markAsComposite()
+            val setupBuild = createBuildGraphSetupBuild(originalBuild)
+            originalBuild.persist()
+
+            buildQueue.addToQueue(mapOf(setupBuild to null), originalBuild.asTriggeredBy())
+
+            logger.info(
+                "Build ${originalBuild.toLogString()} has been successfully converted into a " +
+                    "composite build with a graph generation setup build",
+            )
+
+            setupBuild
         }
-
-        originalBuild.markAsComposite()
-        val setupBuild = createBuildGraphSetupBuild(originalBuild)
-        originalBuild.persist()
-
-        buildQueue.addToQueue(mapOf(setupBuild to null), originalBuild.asTriggeredBy())
-
-        logger.info(
-            "Build ${originalBuild.toLogString()} has been successfully converted into a " +
-                "composite build with a graph generation setup build",
-        )
-
-        setupBuild
-    }
 
     private fun BuildPromotionEx.markAsComposite() = setAttribute(BuildAttributes.COMPOSITE_BUILD, true.toString())
 
     private fun createBuildGraphSetupBuild(originalBuild: BuildPromotionEx): BuildPromotionEx {
         val originalRunnerParameters = originalBuild.activeRunners().single().parameters
 
-        val setupBuild = with(virtualBuildCreator.inContextOf(originalBuild)) {
-            virtualBuildCreator.create(settings.setupBuildName) {
-                val graphExportPath =
-                    "%${AgentRuntimeProperties.BUILD_CHECKOUT_DIR}%/${settings.graphArtifactName}"
+        val setupBuild =
+            with(virtualBuildCreator.inContextOf(originalBuild)) {
+                virtualBuildCreator.create(settings.setupBuildName) {
+                    val graphExportPath =
+                        "%${AgentRuntimeProperties.BUILD_CHECKOUT_DIR}%/${settings.graphArtifactName}"
 
-                val setupRunnerParameters = originalRunnerParameters + mapOf(
-                    AdditionalArgumentsParameter.name to
-                        originalRunnerParameters[AdditionalArgumentsParameter.name] + " \"-Export=$graphExportPath\"",
-                ) + BuildGraphRunnerInternalSettings.SetupBuildSettings(
-                    graphExportPath,
-                    originalBuild.id.toString(),
-                ).toMap()
+                    val setupRunnerParameters =
+                        originalRunnerParameters +
+                            mapOf(
+                                AdditionalArgumentsParameter.name to
+                                    originalRunnerParameters[AdditionalArgumentsParameter.name] + " \"-Export=$graphExportPath\"",
+                            ) +
+                            BuildGraphRunnerInternalSettings
+                                .SetupBuildSettings(
+                                    graphExportPath,
+                                    originalBuild.id.toString(),
+                                ).toMap()
 
-                addUnrealRunner(
-                    settings.setupBuildName,
-                    setupRunnerParameters,
-                )
+                    addUnrealRunner(
+                        settings.setupBuildName,
+                        setupRunnerParameters,
+                    )
+                }
             }
-        }
 
         val dependencyOptions = DependencyOptionSupportImpl().default()
         originalBuild.addDependency(setupBuild, dependencyOptions)

@@ -41,9 +41,10 @@ abstract class MultiSelectParameter : SelectParameter() {
         val selectedValues = properties[name]?.split(separator).orEmpty()
         val knownSelectedOptions = options.filter { selectedValues.contains(it.name) }
 
-        val customSelectedOptions = selectedValues
-            .filter { !knownSelectedOptions.any { option -> option.name == it } }
-            .map { SelectOption(it, it) }
+        val customSelectedOptions =
+            selectedValues
+                .filter { !knownSelectedOptions.any { option -> option.name == it } }
+                .map { SelectOption(it, it) }
 
         val selectedOptions = knownSelectedOptions + customSelectedOptions
 
@@ -73,7 +74,8 @@ object AdditionalArgumentsParameter : TextInputParameter {
 
     fun parse(runnerParameters: Map<String, String>): List<String> =
         runnerParameters[name]?.let { argumentString ->
-            StringUtil.splitCommandArgumentsAndUnquote(argumentString)
+            StringUtil
+                .splitCommandArgumentsAndUnquote(argumentString)
                 .filter { !it.isNullOrBlank() }
         } ?: emptyList()
 }

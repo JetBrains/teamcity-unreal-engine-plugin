@@ -21,21 +21,26 @@ class BuildGraphVirtualBuildCreator(
         }
 
     context(VirtualBuildCreationContext)
-    fun create(name: String, configureSettings: BuildTypeSettings.() -> Unit): BuildPromotionEx {
+    fun create(
+        name: String,
+        configureSettings: BuildTypeSettings.() -> Unit,
+    ): BuildPromotionEx {
         val buildCreator = buildGeneratorFactory.create(originalBuild)
 
-        val virtualBuildTypeSettings = VirtualBuildTypeSettings(
-            originalBuild.generateIdForVirtualBuild(name).toExternalId(),
-            name,
-        ).setParameters(
-            originalBuild.buildParameters.map { SimpleParameter(it.key, it.value) },
-        )
+        val virtualBuildTypeSettings =
+            VirtualBuildTypeSettings(
+                originalBuild.generateIdForVirtualBuild(name).toExternalId(),
+                name,
+            ).setParameters(
+                originalBuild.buildParameters.map { SimpleParameter(it.key, it.value) },
+            )
 
-        val build = buildCreator.getOrCreate(virtualBuildTypeSettings) { buildConfiguration, _ ->
-            configureSettings(buildConfiguration)
-            val changed = true
-            changed
-        } as BuildPromotionEx
+        val build =
+            buildCreator.getOrCreate(virtualBuildTypeSettings) { buildConfiguration, _ ->
+                configureSettings(buildConfiguration)
+                val changed = true
+                changed
+            } as BuildPromotionEx
 
         build.setRevisionsFrom(originalBuild)
 

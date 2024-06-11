@@ -12,17 +12,18 @@ class HtmlUtilsTests {
 
     companion object {
         @JvmStatic
-        fun testData() = listOf(
-            TestCase("", ""),
-            TestCase(
-                "This is a test string without any special characters.",
-                "This is a test string without any special characters.",
-            ),
-            TestCase("This & that", "This &amp; that"),
-            TestCase("This < that", "This &lt; that"),
-            TestCase("This > that", "This &gt; that"),
-            TestCase("&<>", "&amp;&lt;&gt;"),
-        )
+        fun testData() =
+            listOf(
+                TestCase("", ""),
+                TestCase(
+                    "This is a test string without any special characters.",
+                    "This is a test string without any special characters.",
+                ),
+                TestCase("This & that", "This &amp; that"),
+                TestCase("This < that", "This &lt; that"),
+                TestCase("This > that", "This &gt; that"),
+                TestCase("&<>", "&amp;&lt;&gt;"),
+            )
     }
 
     @ParameterizedTest

@@ -7,23 +7,24 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.enumValueOfOrNull
 
 object UnrealCommandTypeParameter : SelectParameter() {
-    val commands = listOf(
-        UnrealCommand(
-            SelectOption(UnrealCommandType.BuildCookRun.name),
-            "editBuildCookRunProperties.jsp",
-            "viewBuildCookRunProperties.jsp",
-        ),
-        UnrealCommand(
-            SelectOption(UnrealCommandType.BuildGraph.name),
-            "editBuildGraphProperties.jsp",
-            "viewBuildGraphProperties.jsp",
-        ),
-        UnrealCommand(
-            SelectOption(UnrealCommandType.RunAutomation.name),
-            "editRunAutomationProperties.jsp",
-            "viewRunAutomationProperties.jsp",
-        ),
-    )
+    val commands =
+        listOf(
+            UnrealCommand(
+                SelectOption(UnrealCommandType.BuildCookRun.name),
+                "editBuildCookRunProperties.jsp",
+                "viewBuildCookRunProperties.jsp",
+            ),
+            UnrealCommand(
+                SelectOption(UnrealCommandType.BuildGraph.name),
+                "editBuildGraphProperties.jsp",
+                "viewBuildGraphProperties.jsp",
+            ),
+            UnrealCommand(
+                SelectOption(UnrealCommandType.RunAutomation.name),
+                "editRunAutomationProperties.jsp",
+                "viewRunAutomationProperties.jsp",
+            ),
+        )
     override val description = null
     override val options = commands.map { it.option }
 

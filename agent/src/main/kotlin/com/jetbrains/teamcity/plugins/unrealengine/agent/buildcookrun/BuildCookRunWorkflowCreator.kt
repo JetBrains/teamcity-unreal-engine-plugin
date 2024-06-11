@@ -20,18 +20,20 @@ class BuildCookRunWorkflowCreator(
     override suspend fun create(): Workflow = Workflow(getCommands())
 
     context(Raise<WorkflowCreationError>, UnrealBuildContext)
-    private suspend fun getCommands() = listOf(
-        buildCookRun(),
-    )
+    private suspend fun getCommands() =
+        listOf(
+            buildCookRun(),
+        )
 
     context(Raise<WorkflowCreationError>, UnrealBuildContext)
     private suspend fun buildCookRun(): UnrealEngineCommandExecution {
-        val command = either { BuildCookRunCommand.from(runnerParameters) }.getOrElse {
-            it.forEach { error ->
-                logger.error("An error occurred during command creation: ${error.message}")
+        val command =
+            either { BuildCookRunCommand.from(runnerParameters) }.getOrElse {
+                it.forEach { error ->
+                    logger.error("An error occurred during command creation: ${error.message}")
+                }
+                raise(WorkflowCreationError.CommandCreationError("Unable to create command from the given runner parameters"))
             }
-            raise(WorkflowCreationError.CommandCreationError("Unable to create command from the given runner parameters"))
-        }
 
         val arguments = command.toArguments().getOrElse { raise(WorkflowCreationError.ExecutionPreparationError(it.message)) }
 
