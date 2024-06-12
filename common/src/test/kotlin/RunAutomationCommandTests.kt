@@ -6,8 +6,11 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.automation.RunFilterTy
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.UnrealAutomationTest
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class RunAutomationCommandTests {
     private val commandExecutionContext = CommandExecutionContextStub()
@@ -17,7 +20,7 @@ class RunAutomationCommandTests {
 
         data class TestCase(
             val description: String,
-            val preset: RunAutomationCommand,
+            val automationCommand: RunAutomationCommand,
             val expectedExecCmds: String,
         )
 
@@ -54,10 +57,30 @@ class RunAutomationCommandTests {
     @MethodSource("generateHappyPathTestCases")
     fun `should correctly construct ExecCmds argument`(case: TestCase) {
         // act
-        val result = with(commandExecutionContext) { case.preset.toArguments() }.getOrNull()
+        val result = with(commandExecutionContext) { case.automationCommand.toArguments() }.getOrNull()
 
         // assert
         assertNotNull(result)
         assertContains(result, case.expectedExecCmds, "Failed to " + case.description)
+    }
+
+    @Test
+    fun `should pass project as a first argument`() {
+        // arrange
+        val command =
+            RunAutomationCommand(
+                testProject,
+                nullRHI = true,
+                execCommand = ExecCommand.RunAll,
+            )
+        val context = CommandExecutionContextStub(workingDirectory = "")
+
+        // act
+        val result = with(context) { command.toArguments() }.getOrNull()
+
+        // assert
+        assertNotNull(result)
+        assertTrue { result.isNotEmpty() }
+        assertEquals(testProject.value, result.first())
     }
 }

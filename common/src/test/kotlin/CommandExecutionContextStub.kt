@@ -4,7 +4,11 @@ class CommandExecutionContextStub(
     override val workingDirectory: String = "foo",
     override val agentTempDirectory: String = "bar",
     val fileExistsStub: (String) -> Boolean = { true },
-    val concatPathsStub: (String, String) -> String = { root, path -> "$root/$path" },
+    val concatPathsStub: (String, String) -> String = { root, path ->
+        sequenceOf(root, path)
+            .filter { it.isNotEmpty() }
+            .joinToString(separator = "/")
+    },
     val isAbsoluteStub: (String) -> Boolean = { true },
 ) : CommandExecutionContext {
     override fun concatPaths(

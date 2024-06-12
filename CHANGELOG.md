@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
+- The way the project parameter is passed to the Editor when running automation tests has been changed
+(The previous one caused problems on some versions of the Engine) [TW-87924](https://youtrack.jetbrains.com/issue/TW-87924)
 
 ## 1.0.1 - 2024-05-22
 

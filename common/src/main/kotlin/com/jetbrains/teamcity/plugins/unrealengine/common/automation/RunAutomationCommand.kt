@@ -71,7 +71,7 @@ data class RunAutomationCommand(
                 ensure(
                     fileExists(resolvedProjectPath),
                 ) { ArgumentsPreparationError("Could not find the specified project file. Path: $resolvedProjectPath") }
-                add("-project=$resolvedProjectPath")
+                add(resolvedProjectPath)
 
                 if (nullRHI) {
                     add("-nullrhi")
