@@ -1,4 +1,4 @@
-
+package buildgraph
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraph
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.topologicalSort
 import org.junit.jupiter.params.ParameterizedTest

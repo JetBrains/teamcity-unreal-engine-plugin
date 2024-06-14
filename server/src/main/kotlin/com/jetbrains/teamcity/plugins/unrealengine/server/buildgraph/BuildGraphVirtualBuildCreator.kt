@@ -37,6 +37,8 @@ class BuildGraphVirtualBuildCreator(
 
         val build =
             buildCreator.getOrCreate(virtualBuildTypeSettings) { buildConfiguration, _ ->
+                buildConfiguration.checkoutDirectory = originalBuild.checkoutDirectory
+                buildConfiguration.checkoutType = originalBuild.buildSettings.checkoutType
                 configureSettings(buildConfiguration)
                 val changed = true
                 changed

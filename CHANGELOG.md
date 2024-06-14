@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+* Checkout settings (directory and mode) are now synced with the original build for generated BuildGraph configurations
+[TW-87894](https://youtrack.jetbrains.com/issue/TW-87894)
 
 ### Fixed
 - The way the project parameter is passed to the Editor when running automation tests has been changed

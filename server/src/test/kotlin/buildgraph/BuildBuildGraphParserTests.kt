@@ -1,4 +1,4 @@
-
+package buildgraph
 import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraph
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphNode
