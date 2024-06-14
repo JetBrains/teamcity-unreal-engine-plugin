@@ -9,10 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-* Checkout settings (directory and mode) are now synced with the original build for generated BuildGraph configurations
+
+### Fixed
+
+## 1.0.2 - 2024-06-14
+
+### Changed
+
+- Checkout settings (directory and mode) are now synced with the original build for generated BuildGraph configurations
 [TW-87894](https://youtrack.jetbrains.com/issue/TW-87894)
 
 ### Fixed
+
 - The way the project parameter is passed to the Editor when running automation tests has been changed
 (The previous one caused problems on some versions of the Engine) [TW-87924](https://youtrack.jetbrains.com/issue/TW-87924)
 
