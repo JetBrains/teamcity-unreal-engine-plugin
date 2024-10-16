@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+- Generated BuildGraph builds (in distributed mode) now inherit the build number from the "parent" build [TW-90184](https://youtrack.jetbrains.com/issue/TW-90184/)
 - Configuration parameters are now propagated to the generated BuildGraph virtual builds as well [TW-90185](https://youtrack.jetbrains.com/issue/TW-90185)
 
 ### Fixed

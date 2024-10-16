@@ -179,6 +179,10 @@ class BuildGraphBuildChainCreator(
                 addUnrealRunner(node.name, parameters)
             }
 
+            // This cast is safe because we're operating on a finishing build (Setup),
+            // which already has its build number resolved.
+            buildNumberPattern = (originalBuild.associatedBuild as SRunningBuild).buildNumber
+
             if (group.agents.any()) {
                 addRequirement(
                     Requirement(
