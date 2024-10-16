@@ -32,13 +32,14 @@ class BuildGraphVirtualBuildCreator(
                 originalBuild.generateIdForVirtualBuild(name).toExternalId(),
                 name,
             ).setParameters(
-                originalBuild.buildParameters.map { SimpleParameter(it.key, it.value) },
+                originalBuild.parameters.map { SimpleParameter(it.key, it.value) },
             )
 
         val build =
             buildCreator.getOrCreate(virtualBuildTypeSettings) { buildConfiguration, _ ->
                 buildConfiguration.checkoutDirectory = originalBuild.checkoutDirectory
                 buildConfiguration.checkoutType = originalBuild.buildSettings.checkoutType
+
                 configureSettings(buildConfiguration)
                 val changed = true
                 changed
