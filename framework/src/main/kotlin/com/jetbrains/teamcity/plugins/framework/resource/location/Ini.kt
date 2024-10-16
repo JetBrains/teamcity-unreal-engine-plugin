@@ -29,7 +29,9 @@ internal fun Reader.parseIni(sectionName: String? = null): List<IniProperty> {
         .keys
         .asSequence()
         .map {
-            IniProperty(it, targetSection.getProperty(it).toString())
+            IniProperty(parseIniKey(it), targetSection.getProperty(it).toString())
         }
         .toList()
 }
+
+private fun parseIniKey(key: String): String = key.replace("..", ".").removePrefix("{").removeSuffix("}")

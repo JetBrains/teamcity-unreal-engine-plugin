@@ -15,6 +15,10 @@ internal class ParseIniTests {
     var1 = foo
     var2 = bar
 
+    [specialSection]
+    5.4.2 = version
+    4F3F4B57-1DC0-4F18-8949-7F881E66BF2F = uuid
+
     [emptySection]
     """.trimIndent()
 
@@ -44,5 +48,16 @@ internal class ParseIniTests {
         assertEquals(2, propertyList.size)
         assertNotNull(propertyList.find { it.key == "var1" && it.value == "foo" })
         assertNotNull(propertyList.find { it.key == "var2" && it.value == "bar" })
+    }
+
+    @Test
+    fun `should return specially parsed entries under specified section`() {
+        val result = either { StringReader(content).parseIni("specialSection")  }
+
+        val propertyList = result.getOrNull()
+        assertNotNull(propertyList)
+        assertEquals(2, propertyList.size)
+        assertNotNull(propertyList.find { it.key == "5.4.2" && it.value == "version" })
+        assertNotNull(propertyList.find { it.key == "4F3F4B57-1DC0-4F18-8949-7F881E66BF2F" && it.value == "uuid" })
     }
 }
