@@ -111,7 +111,13 @@ class BuildGraphExecCommandTests {
             )
 
         val command =
-            BuildGraphCommand(BuildGraphScriptPath(""), BuildGraphTargetNode(""), emptyList(), BuildGraphMode.SingleMachine, emptyList())
+            BuildGraphCommand(
+                BuildGraphScriptPath(""),
+                BuildGraphTargetNode(""),
+                emptyList(),
+                BuildGraphMode.SingleMachine,
+                emptyList(),
+            )
 
         // act
         val error = with(context) { command.toArguments() }.leftOrNull()

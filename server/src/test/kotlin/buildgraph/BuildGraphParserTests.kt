@@ -1,15 +1,23 @@
 package buildgraph
 import arrow.core.raise.either
+import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildState
+import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.Badge
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraph
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphNode
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphNodeGroup
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphParser
+import io.kotest.matchers.maps.beEmpty
+import io.kotest.matchers.shouldNotBe
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.properties.Properties
+import kotlinx.serialization.properties.encodeToStringMap
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class BuildBuildGraphParserTests {
+class BuildGraphParserTests {
     companion object {
         @JvmStatic
         fun generateHappyPathTestCases(): Collection<TestCase> =
@@ -55,6 +63,7 @@ class BuildBuildGraphParserTests {
                                     ),
                                 ) to listOf(),
                             ),
+                            listOf(),
                         ),
                     ),
                 )
@@ -135,6 +144,7 @@ class BuildBuildGraphParserTests {
                                 groupB to listOf(groupC),
                                 groupC to listOf(),
                             ),
+                            listOf(),
                         ),
                     ),
                 )
@@ -209,6 +219,42 @@ class BuildBuildGraphParserTests {
                                 groupD to listOf(groupE),
                                 groupE to listOf(),
                             ),
+                            listOf(),
+                        ),
+                    ),
+                )
+                add(
+                    TestCase(
+                        """
+{
+	"Groups": [
+	],
+	"Badges": [
+		{
+			"Name": "BuildProject",
+			"Project": "Project",
+			"AllDependencies": "Compile Mac Client;Cook Mac Client;Archive Mac Client;Publish Mac Client",
+			"DirectDependencies": "Publish Mac Client;"
+		}
+	],
+	"Reports": [
+	]
+}
+                        """.trimIndent(),
+                        BuildGraph(
+                            mapOf(),
+                            listOf(
+                                Badge(
+                                    "BuildProject",
+                                    "Project",
+                                    listOf(
+                                        "Compile Mac Client",
+                                        "Cook Mac Client",
+                                        "Archive Mac Client",
+                                        "Publish Mac Client",
+                                    ),
+                                ),
+                            ),
                         ),
                     ),
                 )
@@ -232,5 +278,37 @@ class BuildBuildGraphParserTests {
         // assert
         assertNotNull(result)
         assertEquals(case.expectedBuildGraph, result)
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Test
+    fun `debug test`() {
+        val state =
+            DistributedBuildState(
+                listOf(
+                    DistributedBuildState.Build(
+                        "foo",
+                        mutableListOf(
+                            DistributedBuildState.BuildStep(
+                                "foo 1",
+                                DistributedBuildState.BuildStepState.Pending,
+                            ),
+                        ),
+                    ),
+                    DistributedBuildState.Build(
+                        "bar",
+                        mutableListOf(
+                            DistributedBuildState.BuildStep(
+                                "bar 1",
+                                DistributedBuildState.BuildStepState.Pending,
+                            ),
+                        ),
+                    ),
+                ),
+            )
+
+        val result = Properties.encodeToStringMap(state)
+
+        result shouldNotBe beEmpty()
     }
 }

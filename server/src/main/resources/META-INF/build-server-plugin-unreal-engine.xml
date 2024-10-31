@@ -26,10 +26,26 @@
 
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphDistributionConfigurer"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphParser"/>
-    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphBuildChainCreator"/>
-    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphSettings"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphDistributedBuildCreator"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphSetupBuildListener"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphVirtualBuildCreator"/>
 
-    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.ServerLifecycleListenerRegistration" init-method="register"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.ServerExtensionPointsRegistration" init-method="register"/>
 
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsCommitStatusPublisherSettings"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsParametersParser"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsComponent"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsMetadataServerClient" factory-method="createInstance"/>
+
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.agent.AgentBuildEventReceiver"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphBadgePublisher"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateTracker"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateChangedEventBus">
+        <constructor-arg index="0" ref="backgroundJobsScope"/>
+    </bean>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildEventBusSettings"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateStorage"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.state.SkippedBuildMonitor"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.build.state.AgentBuildStateEventMonitor"/>
+    <bean id="backgroundJobsScope" class="com.jetbrains.teamcity.plugins.unrealengine.server.BackgroundJobsScope"/>
 </beans>

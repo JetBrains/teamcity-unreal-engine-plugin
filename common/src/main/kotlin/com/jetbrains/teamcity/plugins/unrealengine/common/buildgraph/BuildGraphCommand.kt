@@ -8,8 +8,8 @@ import arrow.core.raise.ensure
 import arrow.core.raise.zipOrAccumulate
 import com.jetbrains.teamcity.plugins.unrealengine.common.ArgumentsPreparationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
+import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommand
-import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
 
 data class BuildGraphCommand(
@@ -20,18 +20,19 @@ data class BuildGraphCommand(
     val extraArguments: List<String> = emptyList(),
 ) : UnrealCommand {
     companion object {
-        context(Raise<NonEmptyList<ValidationError>>)
+        context(Raise<NonEmptyList<PropertyValidationError>>)
         fun from(runnerParameters: Map<String, String>): BuildGraphCommand =
             zipOrAccumulate(
                 { BuildGraphScriptPathParameter.parseScriptPath(runnerParameters) },
                 { BuildGraphTargetNodeParameter.parseTargetNode(runnerParameters) },
                 { BuildGraphOptionsParameter.parseOptions(runnerParameters) },
-            ) { path, target, options ->
+                { BuildGraphModeParameter.parse(runnerParameters) },
+            ) { path, target, options, modeSettings ->
                 BuildGraphCommand(
                     path,
                     target,
                     options,
-                    BuildGraphModeParameter.parse(runnerParameters),
+                    modeSettings,
                     AdditionalArgumentsParameter.parse(runnerParameters),
                 )
             }

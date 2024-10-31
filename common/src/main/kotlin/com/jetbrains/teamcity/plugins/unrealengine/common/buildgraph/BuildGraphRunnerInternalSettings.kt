@@ -41,13 +41,16 @@ sealed interface BuildGraphRunnerInternalSettings {
     @Serializable
     @SerialName("setup")
     data class SetupBuildSettings(
+        @SerialName("exported-graph-path")
         val exportedGraphPath: String,
+        @SerialName("composite-build-id")
         val compositeBuildId: String,
     ) : BuildGraphRunnerInternalSettings
 
     @Serializable
     @SerialName("regular")
     data class RegularBuildSettings(
+        @SerialName("composite-build-id")
         val compositeBuildId: String,
     ) : BuildGraphRunnerInternalSettings
 }

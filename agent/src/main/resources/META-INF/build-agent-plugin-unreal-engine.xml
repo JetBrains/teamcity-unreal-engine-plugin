@@ -20,4 +20,7 @@
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.DistributedExecutor"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineSourceVersionDetector"/>
 
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.build.events.BuildStepExecutionMonitor"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.AgentExtensionPointsRegistration" init-method="register"/>
+
 </beans>

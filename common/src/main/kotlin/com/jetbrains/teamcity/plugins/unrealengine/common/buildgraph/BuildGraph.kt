@@ -1,5 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph
 
+import com.jetbrains.teamcity.plugins.unrealengine.common.ugs.UgsMetadataServerUrl
+
 @JvmInline
 value class BuildGraphScriptPath(
     val value: String,
@@ -15,7 +17,10 @@ data class BuildGraphOption(
     val value: String,
 )
 
-enum class BuildGraphMode {
-    SingleMachine,
-    Distributed,
+sealed interface BuildGraphMode {
+    data object SingleMachine : BuildGraphMode
+
+    data class Distributed(
+        val metadataServerUrl: UgsMetadataServerUrl? = null,
+    ) : BuildGraphMode
 }

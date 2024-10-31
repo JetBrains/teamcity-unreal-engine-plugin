@@ -44,7 +44,7 @@ private fun SBuildRunnerDescriptor.isDistributedBuildGraph() =
     either {
         val unrealRunner = runType.type == UnrealEngineRunner.RUN_TYPE
         val buildGraph = UnrealCommandTypeParameter.parse(parameters) == UnrealCommandType.BuildGraph
-        val distributed = BuildGraphModeParameter.parse(parameters) == BuildGraphMode.Distributed
+        val distributed = BuildGraphModeParameter.parse(parameters) is BuildGraphMode.Distributed
         unrealRunner && buildGraph && distributed
     }.getOrElse { false }
 
@@ -62,3 +62,11 @@ fun BuildTypeSettings.addUnrealRunner(
     name: String,
     parameters: Map<String, String>,
 ) = addBuildRunner(name, UnrealEngineRunner.RUN_TYPE, parameters)
+
+fun BuildPromotionEx.markAsGeneratedBy(another: BuildPromotionEx) =
+    setAttribute("teamcity.build.unreal-engine.build-graph.generated-by", another.id)
+
+fun BuildPromotionEx.getGeneratedById() =
+    this.getAttribute("teamcity.build.unreal-engine.build-graph.generated-by").toString().toLongOrNull()
+
+fun BuildPromotion.asBuildPromotionEx(): BuildPromotionEx = this as BuildPromotionEx

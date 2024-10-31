@@ -4,7 +4,9 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphRunnerInternalSettings
+import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphSettings
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.toMap
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
 import jetbrains.buildServer.agent.AgentRuntimeProperties
@@ -25,22 +27,22 @@ class BuildGraphDistributionConfigurer(
         private val logger = TeamCityLoggers.server<BuildGraphDistributionConfigurer>()
     }
 
-    override fun addToQueue(build: BuildPromotion): MutableList<BuildPromotion> {
-        if (shouldDistributeBuild((build as BuildPromotionEx))) {
-            // Since changes haven't been collected at this moment, we aren't creating anything and are merely
-            // indicating that this is required for the later split stage (freeze)
-            build.ensureChangeCollectionWhileInQueue()
-        }
-
-        return mutableListOf()
-    }
+    override fun addToQueue(build: BuildPromotion): MutableList<BuildPromotion> =
+        build
+            .asBuildPromotionEx()
+            .let {
+                if (shouldDistributeBuild(it)) {
+                    it.ensureChangeCollectionWhileInQueue()
+                }
+                mutableListOf()
+            }
 
     private fun BuildPromotionEx.ensureChangeCollectionWhileInQueue() =
         setAttribute(BuildAttributes.FREEZE_REQUIRES_COLLECTED_CHANGES, true.toString())
 
     override fun freeze(build: BuildPromotion): MutableList<BuildPromotion> =
         runCatching {
-            distributeBuild(build as BuildPromotionEx).toMutableList()
+            distributeBuild(build.asBuildPromotionEx()).toMutableList()
         }.getOrElse {
             logger.error("An error occurred while trying to set up BuildGraph build distribution", it)
             mutableListOf()
@@ -80,23 +82,24 @@ class BuildGraphDistributionConfigurer(
 
     override fun getType() = "UnrealEngine_BuildGraph"
 
-    private fun shouldDistributeBuild(build: BuildPromotion): Boolean {
+    private fun shouldDistributeBuild(build: BuildPromotionEx): Boolean {
         val isVirtual = build.buildType?.isVirtual ?: false
         val isDistributedBuildGraph = build.hasSingleDistributedBuildGraphStep()
 
         return build.vcsRootEntries.isNotEmpty() && !isVirtual && isDistributedBuildGraph
     }
 
-    private fun setupBuildDistribution(originalBuild: BuildPromotionEx): Either<BuildGraphConfigurationError, BuildPromotionEx> =
+    private fun setupBuildDistribution(originalBuild: BuildPromotionEx): Either<GenericError, BuildPromotionEx> =
         either {
             val originalBuildParentProjectId = originalBuild.projectId
             ensure(originalBuildParentProjectId != null) {
                 logger.debug("The build ${originalBuild.toLogString()} has no parent project, skipping")
-                BuildGraphConfigurationError("Build is missing its parent project")
+                raise(GenericError("Build is missing its parent project"))
             }
 
             originalBuild.markAsComposite()
             val setupBuild = createBuildGraphSetupBuild(originalBuild)
+            originalBuild.setAttribute(settings.buildGraphGeneratedMarker, true)
             originalBuild.persist()
 
             buildQueue.addToQueue(mapOf(setupBuild to null), originalBuild.asTriggeredBy())

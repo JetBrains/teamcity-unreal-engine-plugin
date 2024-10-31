@@ -1,12 +1,14 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph
 
 import arrow.core.raise.Raise
-import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
-import com.jetbrains.teamcity.plugins.unrealengine.common.enumValueOfOrNull
+import arrow.core.raise.ensure
+import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
+import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.CheckboxParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.RunnerParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.SelectOption
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.SelectParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.TextInputParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.ugs.UgsMetadataServerUrl
 
 object BuildGraphScriptPathParameter : TextInputParameter {
     override val name = "build-graph-script-path"
@@ -18,11 +20,11 @@ object BuildGraphScriptPathParameter : TextInputParameter {
     override val expandable = false
     override val advanced = false
 
-    context(Raise<ValidationError>)
+    context(Raise<PropertyValidationError>)
     fun parseScriptPath(properties: Map<String, String>): BuildGraphScriptPath {
         val scriptPath = properties[name]
         if (scriptPath.isNullOrEmpty()) {
-            raise(ValidationError(name, "The path to the script is not set."))
+            raise(PropertyValidationError(name, "The path to the script is not set."))
         }
 
         return BuildGraphScriptPath(scriptPath)
@@ -39,11 +41,11 @@ object BuildGraphTargetNodeParameter : TextInputParameter {
     override val expandable = false
     override val advanced = false
 
-    context(Raise<ValidationError>)
+    context(Raise<PropertyValidationError>)
     fun parseTargetNode(properties: Map<String, String>): BuildGraphTargetNode {
         val targetNode = properties[name]
         if (targetNode.isNullOrEmpty()) {
-            raise(ValidationError(name, "The target node name is not set."))
+            raise(PropertyValidationError(name, "The target node name is not set."))
         }
 
         return BuildGraphTargetNode(targetNode)
@@ -60,7 +62,7 @@ object BuildGraphOptionsParameter : RunnerParameter {
         should be passed to your BuildGraph script.
         """.trimIndent()
 
-    context(Raise<ValidationError>)
+    context(Raise<PropertyValidationError>)
     fun parseOptions(properties: Map<String, String>): List<BuildGraphOption> {
         val optionsString = properties[name]
         if (optionsString.isNullOrEmpty()) {
@@ -73,12 +75,12 @@ object BuildGraphOptionsParameter : RunnerParameter {
             .map { optionString ->
                 val nameAndValue = optionString.split("=")
                 if (nameAndValue.size != 2) {
-                    raise(ValidationError(name, "Make sure all options are in the required 'OPTION_NAME=OPTION_VALUE' format."))
+                    raise(PropertyValidationError(name, "Make sure all options are in the required 'OPTION_NAME=OPTION_VALUE' format."))
                 }
 
                 val name = nameAndValue.first()
                 if (name.isEmpty()) {
-                    raise(ValidationError(BuildGraphOptionsParameter.name, "All options must have a name."))
+                    raise(PropertyValidationError(BuildGraphOptionsParameter.name, "All options must have a name."))
                 }
 
                 BuildGraphOption(name, nameAndValue.last())
@@ -87,21 +89,59 @@ object BuildGraphOptionsParameter : RunnerParameter {
 }
 
 object BuildGraphModeParameter : SelectParameter() {
+    val distributed = SelectOption("Distributed")
+    private val singleMachine = SelectOption("SingleMachine")
+
     override val name = "build-graph-mode"
     override val displayName = "Mode"
     override val description =
         """
-        ${BuildGraphMode.SingleMachine} - Executes all nodes sequentially on a single build agent. <br>
-        ${BuildGraphMode.Distributed} - Distributes the process across multiple agents.
+        ${singleMachine.name} - Executes all nodes sequentially on a single build agent.
+        ${distributed.name} - Distributes the process across multiple agents.
         """.trimIndent()
-    override val defaultValue = BuildGraphMode.SingleMachine.toString()
-    override val options = BuildGraphMode.entries.map { SelectOption(it.name) }
+    override val defaultValue = singleMachine.name
+    override val options = listOf(singleMachine, distributed)
 
+    context(Raise<PropertyValidationError>)
     fun parse(properties: Map<String, String>): BuildGraphMode {
-        val defaultMode = BuildGraphMode.SingleMachine
+        val modeRaw = properties[name] ?: return BuildGraphMode.SingleMachine
 
-        val modeRaw = properties[name] ?: return defaultMode
-
-        return enumValueOfOrNull<BuildGraphMode>(modeRaw) ?: defaultMode
+        return when (modeRaw) {
+            singleMachine.name -> BuildGraphMode.SingleMachine
+            distributed.name -> {
+                val postBadges = properties[PostBadgesFromGraphParameter.name].toBoolean()
+                val metadataServerUrl = properties[UgsMetadataServerUrlParameter.name]
+                if (postBadges) {
+                    ensure(!metadataServerUrl.isNullOrBlank()) {
+                        PropertyValidationError(UgsMetadataServerUrlParameter.name, "Metadata server URL should not be empty")
+                    }
+                }
+                BuildGraphMode.Distributed(if (postBadges) UgsMetadataServerUrl(metadataServerUrl!!) else null)
+            }
+            else -> raise(PropertyValidationError(name, "Unknown BuildGraph mode value $modeRaw"))
+        }
     }
+}
+
+object PostBadgesFromGraphParameter : CheckboxParameter {
+    override val description = "Enables posting of badges defined in the build graph"
+    override val advanced = false
+    override val name = "build-graph-post-badges"
+    override val displayName = "Post badges"
+    override val defaultValue = false.toString()
+}
+
+object UgsMetadataServerUrlParameter : TextInputParameter {
+    override val description =
+        """
+        Specify the metadata server address where badges will be posted.
+        Example: http://localhost:1111/ugs-metadata-server
+        """.trimIndent()
+    override val supportsVcsNavigation = false
+    override val expandable = false
+    override val required = true
+    override val advanced = false
+    override val name = "ugs-metadata-server"
+    override val displayName = "Metadata server"
+    override val defaultValue = ""
 }

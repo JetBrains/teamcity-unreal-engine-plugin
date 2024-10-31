@@ -3,8 +3,8 @@ package com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
 import arrow.core.raise.ensureNotNull
+import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealTargetPlatform
-import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.MultiSelectParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.SelectOption
 
@@ -53,13 +53,13 @@ object UnrealTargetPlatformsParameter {
         override val options = UnrealTargetPlatformsParameter.options
     }
 
-    context(Raise<ValidationError>)
+    context(Raise<PropertyValidationError>)
     fun parseTargetPlatforms(
         properties: Map<String, String>,
         name: String,
     ): NonEmptyList<UnrealTargetPlatform> {
         val platformsRaw = properties[name]
-        ensureNotNull(platformsRaw) { ValidationError(name, "Target platform list is missing") }
+        ensureNotNull(platformsRaw) { PropertyValidationError(name, "Target platform list is missing") }
 
         val platforms =
             platformsRaw
@@ -68,7 +68,7 @@ object UnrealTargetPlatformsParameter {
                 .map { UnrealTargetPlatform(it) }
 
         if (platforms.isEmpty()) {
-            raise(ValidationError(name, "At least one target platform must be specified"))
+            raise(PropertyValidationError(name, "At least one target platform must be specified"))
         } else {
             return NonEmptyList(platforms.first(), platforms.drop(1))
         }

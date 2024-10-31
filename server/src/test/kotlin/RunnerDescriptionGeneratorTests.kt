@@ -2,7 +2,6 @@
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommandType
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationProjectPathParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCookRunProjectPathParameter
-import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphMode
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphModeParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphScriptPathParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphTargetNodeParameter
@@ -40,7 +39,7 @@ class RunnerDescriptionGeneratorTests {
                             UnrealCommandTypeParameter.name to UnrealCommandType.BuildGraph.name,
                             BuildGraphScriptPathParameter.name to "foo/BuildGraph.xml",
                             BuildGraphTargetNodeParameter.name to "FooBar",
-                            BuildGraphModeParameter.name to BuildGraphMode.Distributed.name,
+                            BuildGraphModeParameter.name to BuildGraphModeParameter.distributed.name,
                         ),
                         "Command: BuildGraph, Script path: foo/BuildGraph.xml, " +
                             "Target: FooBar, Mode: Distributed, Engine detection mode: Auto, Engine identifier: 5.3",

@@ -6,6 +6,7 @@
 <jsp:useBean id="propertiesBean" scope="request" type="jetbrains.buildServer.controllers.BasePropertiesBean"/>
 <jsp:useBean id="component" class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.UnrealRunnerComponent"/>
 <jsp:useBean id="teamcityPluginResourcesPath" scope="request" type="java.lang.String"/>
+
 <script type="text/javascript">
     BS.UnrealRunner = BS.UnrealRunner || {
         updateContentBasedOnCheckbox(checkboxId, contentValueClass) {
@@ -75,4 +76,5 @@
 
 <script>
     BS.UnrealRunner.updateContentBasedOnSelect('${component.commandType.name}', ${component.commandType.optionNamesAsJsArray});
+    <%@ include file="js/ensure-dependencies.js" %>
 </script>

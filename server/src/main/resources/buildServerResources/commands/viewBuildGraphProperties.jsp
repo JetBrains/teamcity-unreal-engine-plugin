@@ -22,3 +22,19 @@
 <div class="parameter">
     ${buildGraphComponent.mode.displayName}: <props:displayValue name="${buildGraphComponent.mode.name}"/>
 </div>
+
+<c:set var="buildGraphMode" value="${propertiesBean.properties[buildGraphComponent.mode.name]}"/>
+<c:choose>
+    <c:when test="${buildGraphMode == buildGraphComponent.mode.distributed.name}">
+        <c:set var="postBadges" value="${propertiesBean.properties[buildGraphComponent.postBadges.name]}"/>
+        <c:if test="${postBadges}">
+            <div class="parameter">
+                ${buildGraphComponent.postBadges.displayName}: <strong>Yes</strong>
+            </div>
+
+            <div class="parameter">
+                ${buildGraphComponent.ugsMetadataServer.displayName}: <props:displayValue name="${buildGraphComponent.ugsMetadataServer.name}"/>
+            </div>
+        </c:if>
+    </c:when>
+</c:choose>

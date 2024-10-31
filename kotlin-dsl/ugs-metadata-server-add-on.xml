@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<dsl-add-on kind="buildFeature">
+    <extends>
+        <dsl type="commit-status-publisher"/>
+    </extends>
+
+    <params>
+        <param name="publisherId" type="compound" dslName="publisher">
+            <option name="ugsMetadataServer" value="ugs-metadata-server">
+                <description>
+                    Publish build statuses to the UGS metadata server
+                </description>
+
+                <param name="ugs-metadata-server-server-url" dslName="serverUrl" type="string" mandatory="true">
+                    <description>
+                        The metadata server address
+                        Example: http://metadata-server
+                    </description>
+                </param>
+                <param name="ugs-metadata-server-badge-name" dslName="badge" type="string" mandatory="true">
+                    <description>
+                        The public badge name displayed in UGS
+                    </description>
+                </param>
+                <param name="ugs-metadata-server-project-path" dslName="project" type="string" mandatory="true">
+                    <description>
+                        The depot path to the project that should be decorated with this badge. The path should point to a directory, not a .uproject file.
+                        Example: //UE5/Main/Samples/Games/Lyra
+                    </description>
+                </param>
+            </option>
+        </param>
+    </params>
+</dsl-add-on>

@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.0.0"
 coroutines = "1.8.1"
-teamcity = "2024.03"
+teamcity = "2024.07"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }

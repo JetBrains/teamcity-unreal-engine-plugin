@@ -3,6 +3,7 @@
 
 # Ignore Gradle build output directory
 build
+!**/src/**/build
 
 .idea
 
@@ -11,3 +12,6 @@ build
 
 # OS specific files
 *.DS_Store
+
+# locally installed TeamCity environments
+/server/teamcity/

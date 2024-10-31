@@ -8,9 +8,9 @@ import arrow.core.raise.ensure
 import arrow.core.raise.zipOrAccumulate
 import com.jetbrains.teamcity.plugins.unrealengine.common.ArgumentsPreparationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
+import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
-import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildConfigurationParameter.parseBuildConfiguration
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
 
@@ -23,7 +23,7 @@ data class BuildCookRunCommand(
     val extraArguments: List<String> = emptyList(),
 ) : UnrealCommand {
     companion object {
-        context(Raise<NonEmptyList<ValidationError>>)
+        context(Raise<NonEmptyList<PropertyValidationError>>)
         fun from(runnerParameters: Map<String, String>) =
             zipOrAccumulate(
                 { BuildCookRunProjectPathParameter.parseProjectPath(runnerParameters) },

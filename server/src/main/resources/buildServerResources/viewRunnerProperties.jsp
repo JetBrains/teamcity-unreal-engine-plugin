@@ -22,3 +22,7 @@
         ${component.additionalArguments.displayName}: <props:displayValue name="${component.additionalArguments.name}"/>
     </div>
 </c:if>
+
+<script>
+    <%@ include file="js/ensure-dependencies.js" %>
+</script>

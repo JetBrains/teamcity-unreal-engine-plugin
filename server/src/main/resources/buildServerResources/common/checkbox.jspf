@@ -6,7 +6,7 @@
 <%--@elvariable id="noBorder" type="java.lang.Boolean"--%>
 <%--@elvariable id="cssClass" type="java.lang.String"--%>
 
-<tr class="${cssClass} <c:if test="${parameter.advanced}">advancedSetting</c:if>">
+<tr class="unreal-parameter ${cssClass} <c:if test="${parameter.advanced}">advancedSetting</c:if>">
     <th class="${noBorder ? "noBorder" : ""}">
         <label for="${parameter.name}">
             ${parameter.displayName}
@@ -16,9 +16,7 @@
         <props:checkboxProperty name="${parameter.name}" onclick="${onclick}"/>
 
         <c:if test = "${not empty parameter.description}">
-            <span class="smallNote" style="display: inline" id="${parameter.name}-hint">
-                    ${parameter.description}
-            </span>
+            <span class="smallNote preserve-line-breaks" style="display: inline" id="${parameter.name}-hint">${parameter.description}</span>
         </c:if>
     </td>
 </tr>

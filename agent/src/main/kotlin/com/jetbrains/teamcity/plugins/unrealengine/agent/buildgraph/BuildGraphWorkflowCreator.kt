@@ -34,8 +34,8 @@ class BuildGraphWorkflowCreator(
             }
 
         return when (command.mode) {
-            BuildGraphMode.SingleMachine -> singleMachineExecutor.execute(command)
-            BuildGraphMode.Distributed -> distributedExecutor.execute(command)
+            is BuildGraphMode.SingleMachine -> singleMachineExecutor.execute(command)
+            is BuildGraphMode.Distributed -> distributedExecutor.execute(command)
         }
     }
 }

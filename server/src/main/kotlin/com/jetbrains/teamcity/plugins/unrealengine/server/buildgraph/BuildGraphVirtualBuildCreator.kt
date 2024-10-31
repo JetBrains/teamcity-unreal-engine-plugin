@@ -1,5 +1,6 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph
 
+import jetbrains.buildServer.serverSide.BuildPromotion
 import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.BuildTypeSettings
 import jetbrains.buildServer.serverSide.SimpleParameter
@@ -11,14 +12,12 @@ class BuildGraphVirtualBuildCreator(
 ) {
     private val restrictedIdCharactersRegex = "[^A-Za-z0-9_]".toRegex()
 
-    interface VirtualBuildCreationContext {
-        val originalBuild: BuildPromotionEx
-    }
+    data class VirtualBuildCreationContext(
+        val originalBuild: BuildPromotionEx,
+    )
 
-    fun inContextOf(originalBuild: BuildPromotionEx): VirtualBuildCreationContext =
-        object : VirtualBuildCreationContext {
-            override val originalBuild = originalBuild
-        }
+    fun inContextOf(originalBuild: BuildPromotion): VirtualBuildCreationContext =
+        VirtualBuildCreationContext(originalBuild.asBuildPromotionEx())
 
     context(VirtualBuildCreationContext)
     fun create(
@@ -36,16 +35,17 @@ class BuildGraphVirtualBuildCreator(
             )
 
         val build =
-            buildCreator.getOrCreate(virtualBuildTypeSettings) { buildConfiguration, _ ->
-                buildConfiguration.checkoutDirectory = originalBuild.checkoutDirectory
-                buildConfiguration.checkoutType = originalBuild.buildSettings.checkoutType
-
-                configureSettings(buildConfiguration)
-                val changed = true
-                changed
-            } as BuildPromotionEx
+            buildCreator
+                .getOrCreate(virtualBuildTypeSettings) { buildConfiguration, _ ->
+                    buildConfiguration.checkoutDirectory = originalBuild.checkoutDirectory
+                    buildConfiguration.checkoutType = originalBuild.buildSettings.checkoutType
+                    configureSettings(buildConfiguration)
+                    val changed = true
+                    changed
+                }.asBuildPromotionEx()
 
         build.setRevisionsFrom(originalBuild)
+        build.markAsGeneratedBy(originalBuild)
 
         return build
     }

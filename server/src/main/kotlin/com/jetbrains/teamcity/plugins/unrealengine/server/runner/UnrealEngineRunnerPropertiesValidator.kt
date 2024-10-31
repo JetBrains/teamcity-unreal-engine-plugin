@@ -3,8 +3,8 @@ package com.jetbrains.teamcity.plugins.unrealengine.server.runner
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.zipOrAccumulate
+import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommandCreator
-import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.EngineDetectionModeParameter.parseDetectionMode
 import jetbrains.buildServer.serverSide.InvalidProperty
 import jetbrains.buildServer.serverSide.PropertiesProcessor
@@ -17,7 +17,7 @@ class UnrealEngineRunnerPropertiesValidator(
 
         val result =
             either {
-                zipOrAccumulate<ValidationError, Any, Any, Unit>(
+                zipOrAccumulate<PropertyValidationError, Any, Any, Unit>(
                     { parseDetectionMode(properties) },
                     { commandCreator.create(properties) },
                 ) { _, _ -> }

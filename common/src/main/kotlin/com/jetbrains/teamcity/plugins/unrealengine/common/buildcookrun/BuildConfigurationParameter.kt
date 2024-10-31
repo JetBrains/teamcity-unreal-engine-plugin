@@ -4,7 +4,7 @@ import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
 import arrow.core.raise.Raise
 import arrow.core.raise.zipOrAccumulate
-import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
+import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.UnrealBuildTargetParameter.parseBuildTargets
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.UnrealTargetConfigurationsParameter.parseTargetConfigurations
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.UnrealTargetPlatformsParameter.parseTargetPlatforms
@@ -37,7 +37,7 @@ object BuildConfigurationParameter : SelectParameter() {
             clientAndServer,
         )
 
-    context(Raise<NonEmptyList<ValidationError>>)
+    context(Raise<NonEmptyList<PropertyValidationError>>)
     fun parseBuildConfiguration(properties: Map<String, String>) =
         when (properties[name]) {
             standalone.name -> parseStandalone(properties)
@@ -45,32 +45,32 @@ object BuildConfigurationParameter : SelectParameter() {
             server.name -> parseServer(properties)
             clientAndServer.name -> parseClientAndServer(properties)
             else -> {
-                raise(nonEmptyListOf(ValidationError(name, "Unknown build configuration type.")))
+                raise(nonEmptyListOf(PropertyValidationError(name, "Unknown build configuration type.")))
             }
         }
 
-    context(Raise<NonEmptyList<ValidationError>>)
+    context(Raise<NonEmptyList<PropertyValidationError>>)
     private fun parseStandalone(properties: Map<String, String>) =
         zipOrAccumulate(
             { parseTargetConfigurations(properties, UnrealTargetConfigurationsParameter.Standalone.name) },
             { parseTargetPlatforms(properties, UnrealTargetPlatformsParameter.Standalone.name) },
         ) { configuration, platforms -> BuildConfiguration.Standalone(configuration, platforms, parseBuildTargets(properties)) }
 
-    context(Raise<NonEmptyList<ValidationError>>)
+    context(Raise<NonEmptyList<PropertyValidationError>>)
     private fun parseClient(properties: Map<String, String>) =
         zipOrAccumulate(
             { parseTargetConfigurations(properties, UnrealTargetConfigurationsParameter.Client.name) },
             { parseTargetPlatforms(properties, UnrealTargetPlatformsParameter.Client.name) },
         ) { configuration, platforms -> BuildConfiguration.Client(configuration, platforms, parseBuildTargets(properties)) }
 
-    context(Raise<NonEmptyList<ValidationError>>)
+    context(Raise<NonEmptyList<PropertyValidationError>>)
     private fun parseServer(properties: Map<String, String>) =
         zipOrAccumulate(
             { parseTargetConfigurations(properties, UnrealTargetConfigurationsParameter.Server.name) },
             { parseTargetPlatforms(properties, UnrealTargetPlatformsParameter.Server.name) },
         ) { configuration, platforms -> BuildConfiguration.Server(configuration, platforms, parseBuildTargets(properties)) }
 
-    context(Raise<NonEmptyList<ValidationError>>)
+    context(Raise<NonEmptyList<PropertyValidationError>>)
     private fun parseClientAndServer(properties: Map<String, String>) =
         zipOrAccumulate(
             { parseClient(properties) },

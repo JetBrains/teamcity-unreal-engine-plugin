@@ -9,7 +9,7 @@
 <%--@elvariable id="cssClass" type="java.lang.String"--%>
 <%--@elvariable id="noBorder" type="java.lang.Boolean"--%>
 
-<tr id="${rowId}" class="${cssClass}">
+<tr id="${rowId}" class="unreal-parameter ${cssClass}">
     <th class="${noBorder ? "noBorder" : ""}">
         <label for="${parameter.name}">
             ${parameter.displayName}:
@@ -30,9 +30,7 @@
 
         <span class="error" id="error_${parameter.name}"></span>
         <c:if test = "${not empty parameter.description}">
-            <span class="smallNote" id="${parameter.name}-hint">
-                ${parameter.escapeHTML(parameter.description)}
-            </span>
+            <span class="smallNote preserve-line-breaks" id="${parameter.name}-hint">${parameter.description}</span>
         </c:if>
     </td>
 </tr>

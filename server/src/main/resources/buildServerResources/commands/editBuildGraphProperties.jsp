@@ -30,4 +30,22 @@
 </tr>
 
 <c:set var="parameter" value="${component.mode}"/>
+<c:set var="onChange" value="BS.UnrealRunner.updateContentBasedOnSelect('${component.mode.name}', ${component.mode.optionNamesAsJsArray})"/>
 <%@ include file="../common/selectField.jspf"%>
+
+<tbody id="${component.mode.distributed.name}">
+    <c:set var="parameter" value="${component.postBadges}"/>
+    <c:set var="onclick" value="BS.UnrealRunner.updateContentBasedOnCheckbox('${component.postBadges.name}', '.post-badges-settings')"/>
+    <%@ include file="../common/checkbox.jspf"%>
+    <c:set var="onclick" value=""/>
+
+    <c:set var="cssClass" value="post-badges-settings"/>
+    <c:set var="parameter" value="${component.ugsMetadataServer}"/>
+    <%@ include file="../common/textField.jspf"%>
+    <c:set var="cssClass" value=""/>
+</tbody>
+
+<script type="text/javascript">
+    BS.UnrealRunner.updateContentBasedOnSelect('${component.mode.name}', ${component.mode.optionNamesAsJsArray})
+    BS.UnrealRunner.updateContentBasedOnCheckbox('${component.postBadges.name}', '.post-badges-settings');
+</script>

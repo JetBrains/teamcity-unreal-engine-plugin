@@ -26,8 +26,8 @@ class DistributedBuildSettingsCreatorTests {
                     runnerParameters =
                         mapOf(
                             "type" to "setup",
-                            "exportedGraphPath" to "foo",
-                            "compositeBuildId" to "1",
+                            "exported-graph-path" to "foo",
+                            "composite-build-id" to "1",
                         ).prependInternalPrefixToKeys(),
                     agentParameters =
                         mapOf(
@@ -44,7 +44,8 @@ class DistributedBuildSettingsCreatorTests {
                     runnerParameters =
                         mapOf(
                             "type" to "regular",
-                            "compositeBuildId" to "1",
+                            "composite-build-id" to "1",
+                            "node-execution-notification.enabled" to "true",
                         ).prependInternalPrefixToKeys(),
                     agentParameters =
                         mapOf(

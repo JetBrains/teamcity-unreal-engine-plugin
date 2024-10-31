@@ -3,7 +3,6 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph
 import arrow.core.raise.Raise
 import arrow.core.raise.ensureNotNull
 import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
-import com.jetbrains.teamcity.plugins.unrealengine.common.JsonEncoder
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphRunnerInternalSettings
 import jetbrains.buildServer.agent.BuildAgentConfiguration
 
@@ -30,19 +29,17 @@ class DistributedBuildSettingsCreator(
 ) {
     companion object {
         private val logger = TeamCityLoggers.agent<DistributedBuildSettingsCreator>()
-        private val json = JsonEncoder.instance
     }
 
     context(Raise<SettingsCreationError>)
     fun from(runnerParameters: Map<String, String>): DistributedBuildSettings {
         val runnerInternalSettings =
-            json
-                .runCatching {
-                    BuildGraphRunnerInternalSettings.fromRunnerParameters(runnerParameters)
-                }.getOrElse {
-                    logger.error("Runner internal settings are corrupted", it)
-                    raise(SettingsCreationError("Unable to retrieve runner internal settings. See the agent logs for details"))
-                }
+            runCatching {
+                BuildGraphRunnerInternalSettings.fromRunnerParameters(runnerParameters)
+            }.getOrElse {
+                logger.error("Runner internal settings are corrupted", it)
+                raise(SettingsCreationError("Unable to retrieve runner internal settings. See the agent logs for details"))
+            }
 
         val sharedDirAgentParameter = "unreal-engine.build-graph.agent.shared-dir"
         val sharedStorageDir = agentConfiguration.configurationParameters[sharedDirAgentParameter]

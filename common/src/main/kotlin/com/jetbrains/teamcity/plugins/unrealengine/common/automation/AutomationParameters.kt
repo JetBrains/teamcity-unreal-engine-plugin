@@ -1,7 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.automation
 
 import arrow.core.raise.Raise
-import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
+import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.ExecCommand.*
 import com.jetbrains.teamcity.plugins.unrealengine.common.enumValueOfOrNull
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.CheckboxParameter
@@ -31,9 +31,9 @@ object AutomationExecCommandParameter : SelectParameter() {
     override val options: List<SelectOption>
         get() = listOf(all, filter, list)
 
-    context(Raise<ValidationError>)
+    context(Raise<PropertyValidationError>)
     fun parse(properties: Map<String, String>): ExecCommand {
-        val type = properties[name] ?: raise(ValidationError(name, "Automation exec command is missing."))
+        val type = properties[name] ?: raise(PropertyValidationError(name, "Automation exec command is missing."))
 
         return when (type) {
             all.name -> RunAll
@@ -41,7 +41,7 @@ object AutomationExecCommandParameter : SelectParameter() {
             filter.name ->
                 RunFilter(
                     AutomationFilterParameter.parse(properties)
-                        ?: raise(ValidationError(AutomationFilterParameter.name, "Empty test filter.")),
+                        ?: raise(PropertyValidationError(AutomationFilterParameter.name, "Empty test filter.")),
                 )
 
             list.name -> {
@@ -51,12 +51,12 @@ object AutomationExecCommandParameter : SelectParameter() {
                     if (tests.any()) {
                         tests
                     } else {
-                        raise(ValidationError(AutomationTestsParameter.name, "Empty list of test names."))
+                        raise(PropertyValidationError(AutomationTestsParameter.name, "Empty list of test names."))
                     },
                 )
             }
 
-            else -> raise(ValidationError(name, "Unknown automation test run mode."))
+            else -> raise(PropertyValidationError(name, "Unknown automation test run mode."))
         }
     }
 }

@@ -11,7 +11,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphC
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealCommandTypeParameter
 
 class UnrealCommandCreator {
-    context(Raise<NonEmptyList<ValidationError>>)
+    context(Raise<NonEmptyList<PropertyValidationError>>)
     fun create(runnerParameters: Map<String, String>): UnrealCommand =
         when (val result = either { UnrealCommandTypeParameter.parse(runnerParameters) }) {
             is Either.Left -> raise(nonEmptyListOf(result.value))

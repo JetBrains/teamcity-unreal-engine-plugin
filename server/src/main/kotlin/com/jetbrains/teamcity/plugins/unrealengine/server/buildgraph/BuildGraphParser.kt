@@ -1,7 +1,9 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph
 
 import arrow.core.raise.Raise
+import com.jetbrains.teamcity.plugins.unrealengine.common.Error
 import com.jetbrains.teamcity.plugins.unrealengine.common.JsonEncoder
+import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -36,13 +38,23 @@ private data class ExportedGroup(
 )
 
 @Serializable
+private data class ExportedBadge(
+    @SerialName("Name")
+    val name: String,
+    @SerialName("Project")
+    val project: String,
+    @SerialName("AllDependencies")
+    val allDependencies: String,
+    @SerialName("DirectDependencies")
+    val directDependencies: String,
+)
+
+@Serializable
 private data class ExportedBuildGraph(
     @SerialName("Groups")
     val groups: Collection<ExportedGroup>,
-)
-
-data class BuildGraphParsingError(
-    val exception: Throwable,
+    @SerialName("Badges")
+    val badges: Collection<ExportedBadge>,
 )
 
 class BuildGraphParser {
@@ -50,14 +62,14 @@ class BuildGraphParser {
         private val json = JsonEncoder.instance
     }
 
-    context(Raise<BuildGraphParsingError>)
+    context(Raise<Error>)
     @OptIn(ExperimentalSerializationApi::class)
     fun parse(stream: InputStream): BuildGraph<BuildGraphNodeGroup> {
         val buildGraph =
             try {
                 json.decodeFromStream<ExportedBuildGraph>(stream)
             } catch (e: Throwable) {
-                raise(BuildGraphParsingError(e))
+                raise("An error occurred while parsing exported build graph file", e)
             }
 
         val graph = buildGraph.groups.associateWith { mutableListOf<ExportedGroup>() }
@@ -82,8 +94,16 @@ class BuildGraphParser {
                 .map { (group, successorGroup) ->
                     group.toNodeGroup() to successorGroup.map { it.toNodeGroup() }
                 }.toMap(),
+            buildGraph.badges.map { it.toBadge() },
         )
     }
+
+    private fun ExportedBadge.toBadge() =
+        Badge(
+            name,
+            project,
+            allDependencies.split(';').filter { it.isNotEmpty() },
+        )
 
     private fun ExportedNode.dependencies(): List<String> = dependsOn.split(';').filter { it.isNotEmpty() }
 

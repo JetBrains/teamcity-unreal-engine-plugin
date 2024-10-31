@@ -1,6 +1,6 @@
 
 import arrow.core.raise.either
-import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
+import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationExecCommandParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationFilterParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationTestsParameter
@@ -60,7 +60,7 @@ class AutomationExecCommandTests {
         data class UnhappyTestCase(
             val description: String,
             val runnerParameters: Map<String, String>,
-            val expectedError: ValidationError,
+            val expectedError: PropertyValidationError,
         )
 
         @JvmStatic
@@ -69,12 +69,12 @@ class AutomationExecCommandTests {
                 UnhappyTestCase(
                     "return expected error when command is RunTests but the list of tests is empty",
                     mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.list.name),
-                    ValidationError(AutomationTestsParameter.name, "Empty list of test names."),
+                    PropertyValidationError(AutomationTestsParameter.name, "Empty list of test names."),
                 ),
                 UnhappyTestCase(
                     "return expected error when command is RunFilter but the filter is empty",
                     mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.filter.name),
-                    ValidationError(AutomationFilterParameter.name, "Empty test filter."),
+                    PropertyValidationError(AutomationFilterParameter.name, "Empty test filter."),
                 ),
             )
     }

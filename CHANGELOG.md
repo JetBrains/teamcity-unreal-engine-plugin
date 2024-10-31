@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- UGS metadata server integration, implemented as an extension to the existing Commit Status Publisher feature and
+within dynamically generated BuildGraph builds [TW-88798](https://youtrack.jetbrains.com/issue/TW-88798)
 
 ### Changed
 - Generated BuildGraph builds (in distributed mode) now inherit the build number from the "parent" build [TW-90184](https://youtrack.jetbrains.com/issue/TW-90184/)

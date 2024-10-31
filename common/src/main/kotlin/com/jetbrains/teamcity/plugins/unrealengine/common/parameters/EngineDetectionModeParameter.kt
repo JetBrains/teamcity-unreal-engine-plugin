@@ -2,9 +2,9 @@ package com.jetbrains.teamcity.plugins.unrealengine.common.parameters
 
 import arrow.core.raise.Raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.EngineDetectionMode
+import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineIdentifier
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRootPath
-import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
 
 object EngineDetectionModeParameter : SelectParameter() {
     @Suppress("MayBeConstant", "RedundantSuppression") // constants aren't accessible from JSP
@@ -20,25 +20,25 @@ object EngineDetectionModeParameter : SelectParameter() {
 
     override val options = listOf(automatic, manual)
 
-    context(Raise<ValidationError>)
+    context(Raise<PropertyValidationError>)
     fun parseDetectionMode(properties: Map<String, String>): EngineDetectionMode =
         when (properties[name]) {
             automatic.name -> {
                 val engineIdentifier = properties[UnrealEngineIdentifierParameter.name]
                 if (engineIdentifier.isNullOrEmpty()) {
-                    raise(ValidationError(UnrealEngineIdentifierParameter.name, "The engine version cannot be empty."))
+                    raise(PropertyValidationError(UnrealEngineIdentifierParameter.name, "The engine version cannot be empty."))
                 }
                 EngineDetectionMode.Automatic(UnrealEngineIdentifier(engineIdentifier))
             }
             manual.name -> {
                 val engineRootDirectory = properties[UnrealEngineRootParameter.name]
                 if (engineRootDirectory.isNullOrEmpty()) {
-                    raise(ValidationError(UnrealEngineRootParameter.name, "The engine root path must be set."))
+                    raise(PropertyValidationError(UnrealEngineRootParameter.name, "The engine root path must be set."))
                 }
                 EngineDetectionMode.Manual(UnrealEngineRootPath(engineRootDirectory))
             }
             else -> {
-                raise(ValidationError(name, "Unknown detection mode."))
+                raise(PropertyValidationError(name, "Unknown detection mode."))
             }
         }
 }

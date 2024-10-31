@@ -24,6 +24,7 @@ class BuildGraphExtensionTests {
                     node2 to listOf(node3),
                     node3 to listOf(),
                 ),
+                listOf(),
             )
 
         private val secondBuildGraph =
@@ -34,6 +35,7 @@ class BuildGraphExtensionTests {
                     node1 to listOf(node0),
                     node0 to listOf(),
                 ),
+                listOf(),
             )
 
         @JvmStatic

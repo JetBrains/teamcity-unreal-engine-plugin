@@ -6,7 +6,7 @@
 <%--@elvariable id="parameter" type="com.jetbrains.teamcity.plugins.unrealengine.common.parameters.TextInputParameter"--%>
 <%--@elvariable id="noBorder" type="java.lang.Boolean"--%>
 <%--@elvariable id="cssClass" type="java.lang.String"--%>
-<tr class="${cssClass} <c:if test="${parameter.advanced}">advancedSetting</c:if>">
+<tr class="unreal-parameter ${cssClass} <c:if test="${parameter.advanced}">advancedSetting</c:if>">
     <th class="${noBorder ? "noBorder" : ""}">
         <label for="${parameter.name}">
             ${parameter.displayName}: <c:if test = "${parameter.required}"> <l:star/> </c:if>
@@ -23,9 +23,7 @@
 
         <span class="error" id="error_${parameter.name}"></span>
         <c:if test = "${not empty parameter.description}">
-            <span class="smallNote" id="${parameter.name}-hint">
-                ${parameter.description}
-            </span>
+            <span class="smallNote preserve-line-breaks" id="${parameter.name}-hint">${parameter.description}</span>
         </c:if>
     </td>
 </tr>

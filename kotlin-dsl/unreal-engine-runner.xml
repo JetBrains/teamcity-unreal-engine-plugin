@@ -217,12 +217,42 @@
                         Provide a list of key/value pairs in the format OPTION_NAME=OPTION_VALUE, with each option on a new line.
                     </description>
                 </param>
+
                 <param name="build-graph-mode" dslName="mode" type="BuildGraphMode">
                     <description>
                         Allows you to specify the BuildGraph script execution mode:
                         "SingleMachine" — Executes all nodes sequentially on the single build agent.
                         "Distributed" — Distributes the process across multiple agents.
                     </description>
+                    <deprecated replaceWith="executionMode">
+                        Use `executionMode` property instead
+                    </deprecated>
+                </param>
+
+                <param name="build-graph-mode" dslName="executionMode" type="compound">
+                    <description>
+                        Allows you to specify the BuildGraph script execution mode:
+                        "singleMachine" — Executes all nodes sequentially on the single build agent.
+                        "distributed" — Distributes the process across multiple agents.
+                    </description>
+                    <option name="singleMachine" value="SingleMachine"/>
+                    <option name="distributed" value="Distributed">
+                        <param name="build-graph-post-badges" dslName="badges" type="compound">
+                            <description>
+                                Enables posting of badges defined in the build graph
+                            </description>
+                            <option name="enableBadges" value="true">
+                                <param name="ugs-metadata-server" dslName="metadataServer" type="string" mandatory="true">
+                                    <description>
+                                        Allows to specify the metadata server address where badges will be posted.
+                                        Example: http://localhost:1111/ugs-metadata-server
+                                    </description>
+                                </param>
+                            </option>
+                            <option name="skipBadges" value="false"/>
+                        </param>
+                    </option>
+
                 </param>
             </option>
 
@@ -271,6 +301,8 @@
             <description>
                 Runs the specified "foo-project/build.xml" BuildGraph script located in the root of a checkout directory,
                 executing the node "BuildProject" in a distributed fashion (converting graph of nodes into a proper TeamCity build chain).
+                It also parses all the badges defined in the script and posts their status to the specified metadata server
+                (http://localhost:1111/ugs-metadata-server).
 
                 The root folder that contains "Engine" is expected to be located within the "engine-root"
                 folder of a checkout directory. Essentially, it assumes that the engine is in the source code.
@@ -287,7 +319,11 @@
                             Option1=Value1
                             Option2=Value2
                         """.trimIndent()
-                        mode = UnrealEngine.BuildGraphMode.Distributed
+                        executionMode = distributed {
+                            badges = enableBadges {
+                                metadataServer = "http://localhost:1111/ugs-metadata-server"
+                            }
+                        }
                     }
                 }
             </code>
@@ -350,6 +386,30 @@
                         }
                     }
                     additionalArguments = "-utf8output -buildmachine -unattended -noP4 -nosplash -stdout -NoCodeSign"
+                }
+            </code>
+        </example>
+
+        <example>
+            <description>
+                Build feature example.
+                Adds build status publication to the specified UGS metadata server.
+                Note that this is only applicable for Perforce VCS roots, all other VCS roots will be ignored.
+            </description>
+            <code>
+                buildType {
+                    // Other Build Type settings ...
+                    features {
+                        // Other Build Features ...
+                        commitStatusPublisher {
+                            vcsRootExtId = "${&lt;VCS root object>.id}" // optional, publishes for all attached VCS roots if omitted
+                            publisher = ugsMetadataServer {
+                                serverUrl = "http://metadata-server"
+                                badge = "Foo Badge"
+                                project = "//depot/stream/Project"
+                            }
+                        }
+                    }
                 }
             </code>
         </example>

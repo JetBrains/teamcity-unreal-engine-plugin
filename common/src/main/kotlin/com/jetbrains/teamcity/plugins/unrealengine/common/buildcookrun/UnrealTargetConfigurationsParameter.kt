@@ -3,8 +3,8 @@ package com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
 import arrow.core.raise.ensureNotNull
+import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealTargetConfiguration
-import com.jetbrains.teamcity.plugins.unrealengine.common.ValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.MultiSelectParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.SelectOption
 import jetbrains.buildServer.parameters.ReferencesResolverUtil
@@ -51,13 +51,13 @@ object UnrealTargetConfigurationsParameter {
         override val separator = SEPARATOR
     }
 
-    context(Raise<ValidationError>)
+    context(Raise<PropertyValidationError>)
     fun parseTargetConfigurations(
         properties: Map<String, String>,
         name: String,
     ): NonEmptyList<UnrealTargetConfiguration> {
         val configurationsRaw = properties[name]
-        ensureNotNull(configurationsRaw) { ValidationError(name, "Target configuration list is missing") }
+        ensureNotNull(configurationsRaw) { PropertyValidationError(name, "Target configuration list is missing") }
 
         val configurations =
             configurationsRaw
@@ -69,7 +69,7 @@ object UnrealTargetConfigurationsParameter {
                 }
         if (configurations.isEmpty()) {
             raise(
-                ValidationError(
+                PropertyValidationError(
                     name,
                     "At least one target configuration must be specified. " +
                         "Valid values are: ${UnrealTargetConfiguration.knownConfigurations.joinToString()}",

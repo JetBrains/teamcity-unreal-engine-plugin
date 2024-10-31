@@ -1,3 +1,4 @@
+
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphRunnerInternalSettings
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.toMap
 import org.junit.jupiter.params.ParameterizedTest
@@ -10,18 +11,20 @@ class BuildGraphRunnerInternalSettingsTests {
         fun generateHappyPathTestCases(): List<TestCase> =
             listOf(
                 TestCase(
-                    BuildGraphRunnerInternalSettings.RegularBuildSettings("1"),
+                    BuildGraphRunnerInternalSettings.RegularBuildSettings(
+                        "1",
+                    ),
                     mapOf(
                         "build-graph.internal-settings.type" to "regular",
-                        "build-graph.internal-settings.compositeBuildId" to "1",
+                        "build-graph.internal-settings.composite-build-id" to "1",
                     ),
                 ),
                 TestCase(
                     BuildGraphRunnerInternalSettings.SetupBuildSettings("/foo/bar", "1"),
                     mapOf(
                         "build-graph.internal-settings.type" to "setup",
-                        "build-graph.internal-settings.exportedGraphPath" to "/foo/bar",
-                        "build-graph.internal-settings.compositeBuildId" to "1",
+                        "build-graph.internal-settings.exported-graph-path" to "/foo/bar",
+                        "build-graph.internal-settings.composite-build-id" to "1",
                     ),
                 ),
             )
