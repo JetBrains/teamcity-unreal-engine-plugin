@@ -12,7 +12,6 @@ import jetbrains.buildServer.serverSide.SBuildType
 import jetbrains.buildServer.virtualConfiguration.generator.VirtualBuildTypeSettings
 import jetbrains.buildServer.virtualConfiguration.generator.VirtualPromotionGeneratorFactory
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.function.BiFunction
@@ -22,7 +21,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BuildGraphVirtualBuildCreatorTests {
     private val originalBuild = mockk<BuildPromotionEx>(relaxed = true)
     private val buildGeneratorFactory = mockk<VirtualPromotionGeneratorFactory>()

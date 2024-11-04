@@ -9,6 +9,11 @@ object StageStageSwitchParameter : CheckboxParameter {
     override val displayName = "Stage"
     override val defaultValue = true.toString()
     override val advanced = false
+
+    fun parseStageOptions(runnerParameters: Map<String, String>) =
+        runnerParameters[name]?.toBooleanStrictOrNull()?.let {
+            StageOptions.from(runnerParameters)
+        }
 }
 
 object StagingDirectoryParameter : TextInputParameter {

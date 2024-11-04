@@ -22,7 +22,7 @@ dependencies {
     implementation(libs.kotlin.serialization.properties)
     implementation(libs.arrow.core)
     implementation(libs.kotlin.coroutines.core)
-    implementation(project(":framework"))
+    implementation(project(":plugin-sdk-core"))
     implementation(project(":common"))
 
     provided("org.jetbrains.teamcity.internal:agent:${teamcity.version}")
@@ -34,6 +34,7 @@ dependencies {
     }
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.mockk)
     testImplementation(libs.junit.jupiter)

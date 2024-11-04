@@ -32,20 +32,20 @@ object AutomationExecCommandParameter : SelectParameter() {
         get() = listOf(all, filter, list)
 
     context(Raise<PropertyValidationError>)
-    fun parse(properties: Map<String, String>): ExecCommand {
-        val type = properties[name] ?: raise(PropertyValidationError(name, "Automation exec command is missing."))
+    fun parse(runnerParameters: Map<String, String>): ExecCommand {
+        val type = runnerParameters[name] ?: raise(PropertyValidationError(name, "Automation exec command is missing."))
 
         return when (type) {
             all.name -> RunAll
 
             filter.name ->
                 RunFilter(
-                    AutomationFilterParameter.parse(properties)
+                    AutomationFilterParameter.parse(runnerParameters)
                         ?: raise(PropertyValidationError(AutomationFilterParameter.name, "Empty test filter.")),
                 )
 
             list.name -> {
-                val tests = AutomationTestsParameter.parse(properties)
+                val tests = AutomationTestsParameter.parse(runnerParameters)
 
                 RunTests(
                     if (tests.any()) {
@@ -69,7 +69,7 @@ object AutomationFilterParameter : SelectParameter() {
     override val options: List<SelectOption>
         get() = RunFilterType.entries.map { SelectOption(it.name) }
 
-    fun parse(properties: Map<String, String>): RunFilterType? = properties[name]?.let { enumValueOfOrNull<RunFilterType>(it) }
+    fun parse(runnerParameters: Map<String, String>): RunFilterType? = runnerParameters[name]?.let { enumValueOfOrNull<RunFilterType>(it) }
 }
 
 object AutomationTestsParameter : RunnerParameter {
@@ -81,8 +81,8 @@ object AutomationTestsParameter : RunnerParameter {
         A newline-delimited list of test names. Supports both full and partial hierarchical test names.
         """.trimIndent()
 
-    fun parse(properties: Map<String, String>): List<UnrealAutomationTest> {
-        val testsString = properties[name]
+    fun parse(runnerParameters: Map<String, String>): List<UnrealAutomationTest> {
+        val testsString = runnerParameters[name]
         if (testsString.isNullOrEmpty()) {
             return emptyList()
         }

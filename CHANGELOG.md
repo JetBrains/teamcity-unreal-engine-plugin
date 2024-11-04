@@ -15,6 +15,8 @@ within dynamically generated BuildGraph builds [TW-88798](https://youtrack.jetbr
 - Configuration parameters are now propagated to the generated BuildGraph virtual builds as well [TW-90185](https://youtrack.jetbrains.com/issue/TW-90185)
 
 ### Fixed
+- Custom identifiers for Unreal Engine installations on agents are now correctly provisioned as agent parameters,
+  with no duplicate dots (if present) and without curly braces (in the case of auto-generated source build IDs)
 
 ## 1.0.2 - 2024-06-14
 

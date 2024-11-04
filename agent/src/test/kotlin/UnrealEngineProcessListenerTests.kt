@@ -1,25 +1,28 @@
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProcessListener
 import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.LogMessageHandler
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jetbrains.buildServer.agent.AgentRunningBuild
 import jetbrains.buildServer.agent.BuildProgressLogger
+import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 
 class UnrealEngineProcessListenerTests {
     private val buildLoggerMock = mockk<BuildProgressLogger>(relaxed = true)
-    private val buildContext =
-        UnrealBuildContextStub(
-            build =
-                mockk<AgentRunningBuild> {
-                    every { buildLogger } returns buildLoggerMock
-                },
-        )
+    private val buildContext = UnrealBuildContextStub(build = mockk<AgentRunningBuild>())
+
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+
+        every { buildContext.build.buildLogger } returns buildLoggerMock
+    }
 
     @Test
-    fun `should write to build log without custom handlers`() {
+    fun `writes to build log without custom handlers`() {
         // arrange
         val listener = with(buildContext) { UnrealEngineProcessListener.create() }
 
@@ -31,7 +34,7 @@ class UnrealEngineProcessListenerTests {
     }
 
     @Test
-    fun `should write to the build log if none of the handlers processed the message`() {
+    fun `writes to the build log if none of the handlers processed the message`() {
         // arrange
         val message = "test-message"
         val handler1 = mockk<LogMessageHandler> { every { tryHandleMessage(any()) } returns false }
@@ -55,7 +58,7 @@ class UnrealEngineProcessListenerTests {
     }
 
     @Test
-    fun `should find matching message handler`() {
+    fun `finds matching message handler`() {
         // arrange
         val message = "test-message"
         val handler1 = mockk<LogMessageHandler> { every { tryHandleMessage(any()) } returns false }

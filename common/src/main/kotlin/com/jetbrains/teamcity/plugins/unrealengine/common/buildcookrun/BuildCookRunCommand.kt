@@ -1,17 +1,15 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun
 
-import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
-import arrow.core.raise.either
-import arrow.core.raise.ensure
 import arrow.core.raise.zipOrAccumulate
-import com.jetbrains.teamcity.plugins.unrealengine.common.ArgumentsPreparationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildConfigurationParameter.parseBuildConfiguration
+import com.jetbrains.teamcity.plugins.unrealengine.common.ensure
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
 
 data class BuildCookRunCommand(
@@ -29,32 +27,9 @@ data class BuildCookRunCommand(
                 { BuildCookRunProjectPathParameter.parseProjectPath(runnerParameters) },
                 { parseBuildConfiguration(runnerParameters) },
             ) { projectPath, buildConfiguration ->
-                val cookOptions =
-                    runnerParameters[CookStageSwitchParameter.name]?.let {
-                        return@let if (it.toBoolean()) {
-                            CookOptions.from(runnerParameters)
-                        } else {
-                            null
-                        }
-                    }
-
-                val stageOptions =
-                    runnerParameters[StageStageSwitchParameter.name]?.let {
-                        return@let if (it.toBoolean()) {
-                            StageOptions.from(runnerParameters)
-                        } else {
-                            null
-                        }
-                    }
-
-                val archiveOptions =
-                    runnerParameters[ArchiveSwitchParameter.name]?.let {
-                        return@let if (it.toBoolean()) {
-                            ArchiveOptions.from(runnerParameters)
-                        } else {
-                            null
-                        }
-                    }
+                val cookOptions = CookStageSwitchParameter.parseCookOptions(runnerParameters)
+                val stageOptions = StageStageSwitchParameter.parseStageOptions(runnerParameters)
+                val archiveOptions = ArchiveSwitchParameter.parseArchiveOptions(runnerParameters)
 
                 val additionalOptions =
                     buildList {
@@ -76,37 +51,24 @@ data class BuildCookRunCommand(
             }
     }
 
-    context(CommandExecutionContext)
-    override fun toArguments(): Either<ArgumentsPreparationError, List<String>> =
-        either {
-            buildList {
-                add("BuildCookRun")
+    context(Raise<GenericError>, CommandExecutionContext)
+    override fun toArguments() =
+        buildList {
+            add("BuildCookRun")
 
-                val resolvedProjectPath = concatPaths(workingDirectory, projectPath.value)
-                ensure(
-                    fileExists(resolvedProjectPath),
-                ) { ArgumentsPreparationError("Could not find the specified project file. Path: $resolvedProjectPath") }
-                add("-project=$resolvedProjectPath")
+            val resolvedProjectPath = concatPaths(workingDirectory, projectPath.value)
+            ensure(
+                fileExists(resolvedProjectPath),
+                "Could not find the specified project file. Path: $resolvedProjectPath",
+            )
+            add("-project=$resolvedProjectPath")
 
-                addAll(buildType.arguments)
+            addAll(buildType.arguments)
 
-                if (cookOptions != null) {
-                    addAll(cookOptions.arguments)
-                } else {
-                    add("-skipcook")
-                }
+            cookOptions?.let { addAll(cookOptions.arguments) } ?: add("-skipcook")
+            stageOptions?.let { addAll(stageOptions.toArguments()) } ?: add("-skipstage")
+            archiveOptions?.let { addAll(archiveOptions.toArguments()) }
 
-                if (stageOptions != null) {
-                    addAll(stageOptions.toArguments())
-                } else {
-                    add("-skipstage")
-                }
-
-                if (archiveOptions != null) {
-                    addAll(archiveOptions.toArguments())
-                }
-
-                addAll(extraArguments)
-            }
+            addAll(extraArguments)
         }
 }

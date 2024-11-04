@@ -7,84 +7,79 @@ import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealBuildContext
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealTool
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolRegistry
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolType
-import com.jetbrains.teamcity.plugins.unrealengine.agent.WorkflowCreationError
 import com.jetbrains.teamcity.plugins.unrealengine.agent.runautomation.RunAutomationWorkflowCreator
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationExecCommandParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationProjectPathParameter
-import io.mockk.called
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldNotBe
+import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import jetbrains.buildServer.agent.AgentRunningBuild
+import jetbrains.buildServer.agent.BuildParametersMap
 import jetbrains.buildServer.agent.BuildProgressLogger
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class RunAutomationWorkflowCreatorTests {
-    private val buildLoggerMock = mockk<BuildProgressLogger>(relaxed = true)
-    private val environmentMock =
-        mockk<Environment> {
-            every { osType } returns OSType.MacOs
-        }
+    private val buildLogger = mockk<BuildProgressLogger>(relaxed = true)
+    private val buildParameters = mockk<BuildParametersMap>(relaxed = true)
+    private val runningBuild = mockk<AgentRunningBuild>()
+    private val environment = mockk<Environment>()
+    private val toolRegistry = mockk<UnrealToolRegistry>()
 
-    private val toolRegistryMock =
-        mockk<UnrealToolRegistry> {
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+
+        with(toolRegistry) {
             coEvery {
                 with(any<UnrealBuildContext>()) {
-                    with(any<Raise<WorkflowCreationError>>()) {
+                    with(any<Raise<GenericError>>()) {
                         editor(any())
                     }
                 }
             } returns UnrealTool("/foo/bar", UnrealToolType.AutomationTool)
         }
 
-    private val buildContext =
-        UnrealBuildContextStub(
-            runnerParameters =
-                mapOf(
-                    AutomationExecCommandParameter.name to AutomationExecCommandParameter.all.name,
-                    AutomationProjectPathParameter.name to "foo.uproject",
-                ),
-            build =
-                mockk<AgentRunningBuild> {
-                    every { buildLogger } returns buildLoggerMock
-                },
-        )
+        with(environment) {
+            every { osType } returns OSType.MacOs
+        }
+
+        every { runningBuild.buildLogger } returns buildLogger
+    }
 
     @Test
-    fun `should contain a single command in the workflow`() =
+    fun `contains a single command in the workflow`() =
         runTest {
             // arrange
-            val creator = RunAutomationWorkflowCreator(toolRegistryMock, environmentMock)
+            val creator = RunAutomationWorkflowCreator(toolRegistry, environment)
 
             // act
-            val workflow = with(buildContext) { either { creator.create() } }.getOrNull()
+            val workflow = with(createContext()) { either { creator.create() } }.getOrNull()
 
             // assert
-            assertNotNull(workflow)
-            assertEquals(1, workflow.commands.count())
+            workflow shouldNotBe null
+            workflow!!.commands shouldHaveSize 1
         }
 
     @Test
-    fun `do not import test report if no file was generated`() =
+    fun `does not import test report if no file was generated`() =
         runTest {
             // arrange
-            val creator = RunAutomationWorkflowCreator(toolRegistryMock, environmentMock)
+            val creator = RunAutomationWorkflowCreator(toolRegistry, environment)
 
             val buildContext =
-                UnrealBuildContextStub(
+                createContext(
                     runnerParameters =
                         mapOf(
                             AutomationProjectPathParameter.name to "foo.uproject",
                         ),
-                    build =
-                        mockk<AgentRunningBuild> {
-                            every { buildLogger } returns buildLoggerMock
-                        },
-                    fileExistsStub = { false },
+                    generateReport = false,
                 )
 
             // act
@@ -92,6 +87,21 @@ class RunAutomationWorkflowCreatorTests {
             workflow?.commands?.single()?.processFinished(255)
 
             // assert
-            verify { buildLoggerMock wasNot called }
+            confirmVerified(buildLogger)
         }
+
+    private fun createContext(
+        runnerParameters: Map<String, String> =
+            mapOf(
+                AutomationExecCommandParameter.name to AutomationExecCommandParameter.all.name,
+                AutomationProjectPathParameter.name to "foo.uproject",
+            ),
+        generateReport: Boolean = true,
+    ): UnrealBuildContext =
+        UnrealBuildContextStub(
+            buildParameters = buildParameters,
+            runnerParameters = runnerParameters,
+            build = runningBuild,
+            fileExistsStub = { generateReport },
+        )
 }

@@ -1,16 +1,17 @@
 package com.jetbrains.teamcity.plugins.unrealengine.agent
 
 import arrow.core.raise.Raise
-import arrow.core.raise.ensure
 import arrow.core.raise.recover
 import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
-import com.jetbrains.teamcity.plugins.unrealengine.agent.WorkflowCreationError.EngineLocationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.EngineDetectionMode
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineIdentifier
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRootPath
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRunner
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineVersion
+import com.jetbrains.teamcity.plugins.unrealengine.common.ensure
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.EngineDetectionModeParameter.parseDetectionMode
+import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 import jetbrains.buildServer.agent.BuildAgentConfiguration
 
 data class UnrealEngine(
@@ -26,9 +27,9 @@ class UnrealEngineProvider(
         private val logger = TeamCityLoggers.agent<UnrealEngineProvider>()
     }
 
-    context(UnrealBuildContext, Raise<EngineLocationError>)
+    context(UnrealBuildContext, Raise<GenericError>)
     suspend fun findEngine(runnerParameters: Map<String, String>): UnrealEngine {
-        val mode = recover({ parseDetectionMode(runnerParameters) }) { raise(EngineLocationError(it.message)) }
+        val mode = recover({ parseDetectionMode(runnerParameters) }) { raise(it.message) }
 
         val rootPath =
             when (mode) {
@@ -51,7 +52,7 @@ class UnrealEngineProvider(
         return UnrealEngine(rootPath, engineVersion)
     }
 
-    context(Raise<EngineLocationError>)
+    context(Raise<GenericError>)
     private fun findAmongAgentInstalledEngines(engineIdentifier: UnrealEngineIdentifier): UnrealEngineRootPath {
         val matchingEngineIdentifiers =
             agentConfiguration.configurationParameters.keys
@@ -59,9 +60,7 @@ class UnrealEngineProvider(
                 .map { it.extractFullEngineIdentifier() }
                 .sortedDescending()
 
-        ensure(matchingEngineIdentifiers.isNotEmpty()) {
-            EngineLocationError("Specified identifier was not found among agent installed engines")
-        }
+        ensure(matchingEngineIdentifiers.isNotEmpty(), "Specified identifier was not found among agent installed engines")
 
         if (matchingEngineIdentifiers.size > 1) {
             logger.info(

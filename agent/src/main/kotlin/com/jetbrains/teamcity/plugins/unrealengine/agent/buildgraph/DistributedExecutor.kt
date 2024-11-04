@@ -4,9 +4,15 @@ import arrow.core.getOrElse
 import arrow.core.raise.Raise
 import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.framework.common.Environment
-import com.jetbrains.teamcity.plugins.unrealengine.agent.*
+import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealBuildContext
+import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineCommandExecution
+import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProcessListener
+import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProgramCommandLine
+import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolRegistry
 import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.AutomationTestLogMessageHandler
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphCommand
+import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 import jetbrains.buildServer.agent.impl.artifacts.ArtifactsWatcherEx
 import jetbrains.buildServer.agent.runner.ProcessListener
 
@@ -16,17 +22,13 @@ class DistributedExecutor(
     private val artifactsWatcher: ArtifactsWatcherEx,
     private val settingsCreator: DistributedBuildSettingsCreator,
 ) {
-    context(Raise<WorkflowCreationError>, UnrealBuildContext)
+    context(Raise<GenericError>, UnrealBuildContext)
     suspend fun execute(command: BuildGraphCommand): List<UnrealEngineCommandExecution> {
         val settings =
             either {
                 settingsCreator.from(runnerParameters)
             }.getOrElse {
-                raise(
-                    WorkflowCreationError.ExecutionPreparationError(
-                        "Unable to get distributed BuildGraph build settings. Error: ${it.message}",
-                    ),
-                )
+                raise("Unable to get distributed BuildGraph build settings. Error: ${it.message}")
             }
 
         return when (settings) {
@@ -43,7 +45,7 @@ class DistributedExecutor(
         }
     }
 
-    context(Raise<WorkflowCreationError>, UnrealBuildContext)
+    context(Raise<GenericError>, UnrealBuildContext)
     private suspend fun setupCommand(
         settings: DistributedBuildSettings.SetupBuildSettings,
         command: BuildGraphCommand,
@@ -51,7 +53,7 @@ class DistributedExecutor(
         ensureSharedDirectoryForBuild(settings.networkShare, settings.compositeBuildId)
 
         return createUnrealCommandExecution(
-            command.getArgumentsOrRaiseError(),
+            command.toArguments(),
             processListener =
                 object : ProcessListener by UnrealEngineProcessListener.create() {
                     override fun processFinished(exitCode: Int) {
@@ -64,7 +66,7 @@ class DistributedExecutor(
         )
     }
 
-    context(Raise<WorkflowCreationError>, UnrealBuildContext)
+    context(Raise<GenericError>, UnrealBuildContext)
     private suspend fun executeCommand(
         settings: DistributedBuildSettings.RegularBuildSettings,
         command: BuildGraphCommand,
@@ -72,7 +74,7 @@ class DistributedExecutor(
         val sharedDir = ensureSharedDirectoryForBuild(settings.networkShare, settings.compositeBuildId)
 
         return createUnrealCommandExecution(
-            command.getArgumentsOrRaiseError() +
+            command.toArguments() +
                 listOf(
                     "-SharedStorageDir=$sharedDir",
                     "-WriteToSharedStorage",
@@ -81,7 +83,7 @@ class DistributedExecutor(
         )
     }
 
-    context(Raise<WorkflowCreationError>, UnrealBuildContext)
+    context(Raise<GenericError>, UnrealBuildContext)
     private suspend fun createUnrealCommandExecution(
         arguments: List<String>,
         processListener: ProcessListener,

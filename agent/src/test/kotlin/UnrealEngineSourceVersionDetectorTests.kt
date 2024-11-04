@@ -5,20 +5,27 @@ import com.jetbrains.teamcity.plugins.framework.resource.location.ResourceLocato
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineSourceVersionDetector
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRootPath
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineVersion
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class UnrealEngineSourceVersionDetectorTests {
     private val resourceLocatorMock = mockk<ResourceLocator>()
     private val locator = UnrealEngineSourceVersionDetector(resourceLocatorMock)
 
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+    }
+
     @Test
-    fun `should detect version in 'Build version' file`() =
+    fun `detects version in 'Build version' file`() =
         runTest {
             // arrange
             val expectedVersion = UnrealEngineVersion(5, 3, 0)
@@ -32,12 +39,11 @@ class UnrealEngineSourceVersionDetectorTests {
 
             // assert
             val version = result.getOrNull()
-            assertNotNull(version)
-            assertEquals(expectedVersion, version)
+            version shouldBe expectedVersion
         }
 
     @Test
-    fun `should detect version in cpp version header file`() =
+    fun `detects version in cpp version header file`() =
         runTest {
             // arrange
             val expectedVersion = UnrealEngineVersion(5, 3, 0)
@@ -61,12 +67,11 @@ class UnrealEngineSourceVersionDetectorTests {
 
             // assert
             val version = result.getOrNull()
-            assertNotNull(version)
-            assertEquals(expectedVersion, version)
+            version shouldBe expectedVersion
         }
 
     @Test
-    fun `should search in cpp version header file only if search in 'Build version' fails`() =
+    fun `searches in cpp version header file only if search in 'Build version' fails`() =
         runTest {
             // arrange
             val expectedVersion = UnrealEngineVersion(5, 3, 0)
@@ -83,7 +88,7 @@ class UnrealEngineSourceVersionDetectorTests {
         }
 
     @Test
-    fun `should raise error when unable to find anything`() =
+    fun `raises error when unable to find anything`() =
         runTest {
             // arrange
             coEvery { resourceLocatorMock.locateResources<Any>(any()) } returnsMany
@@ -105,7 +110,7 @@ class UnrealEngineSourceVersionDetectorTests {
 
             // assert
             val error = result.leftOrNull()
-            assertNotNull(error)
+            error shouldNotBe null
         }
 
     private suspend fun act() =

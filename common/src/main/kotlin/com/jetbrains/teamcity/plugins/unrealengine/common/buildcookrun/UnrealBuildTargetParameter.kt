@@ -20,8 +20,8 @@ object UnrealBuildTargetParameter : TextInputParameter {
 
     fun joinBuildTargets(targets: Collection<UnrealBuildTarget>) = targets.joinToString(separator = SEPARATOR) { it.value }
 
-    fun parseBuildTargets(properties: Map<String, String>): List<UnrealBuildTarget> {
-        val targets = properties[name] ?: return emptyList()
+    fun parseBuildTargets(runnerParameters: Map<String, String>): List<UnrealBuildTarget> {
+        val targets = runnerParameters[name] ?: return emptyList()
 
         return targets
             .split(SEPARATOR)

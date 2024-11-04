@@ -6,7 +6,7 @@ data class ArchiveOptions(
     val archiveDirectory: String? = null,
 ) {
     companion object {
-        fun from(runnerParameters: Map<String, String>): ArchiveOptions = ArchiveOptions(runnerParameters[ArchiveDirectoryParameter.name])
+        fun from(runnerParameters: Map<String, String>) = ArchiveOptions(runnerParameters[ArchiveDirectoryParameter.name])
     }
 
     context(CommandExecutionContext)

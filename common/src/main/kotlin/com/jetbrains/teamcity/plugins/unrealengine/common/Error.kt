@@ -14,19 +14,19 @@ data class GenericError(
     val exception: Throwable? = null,
 ) : Error
 
-fun Raise<Error>.raise(message: String): Nothing = raise(GenericError(message))
+fun Raise<GenericError>.raise(message: String): Nothing = raise(GenericError(message))
 
-fun Raise<Error>.raise(
+fun Raise<GenericError>.raise(
     message: String,
     exception: Throwable?,
 ): Nothing = raise(GenericError(message, exception))
 
-fun Raise<Error>.ensure(
+fun Raise<GenericError>.ensure(
     condition: Boolean,
     message: String,
 ) = ensure(condition) { raise(message) }
 
-fun <T : Any> Raise<Error>.ensureNotNull(
+fun <T : Any> Raise<GenericError>.ensureNotNull(
     value: T?,
     message: String,
 ): T = ensureNotNull(value) { raise(message) }

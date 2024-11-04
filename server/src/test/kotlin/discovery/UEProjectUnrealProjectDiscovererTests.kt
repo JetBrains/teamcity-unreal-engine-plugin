@@ -5,29 +5,40 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineProject
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealTargetPlatform
 import com.jetbrains.teamcity.plugins.unrealengine.server.discovery.UprojectFileDiscoverer
+import io.kotest.matchers.collections.shouldHaveSingleElement
+import io.kotest.matchers.collections.shouldHaveSize
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import jetbrains.buildServer.util.browser.Element
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
-import kotlin.test.assertEquals
 
 class UEProjectUnrealProjectDiscovererTests {
     private val discoverer = UprojectFileDiscoverer()
-    private val childElementMock = mockk<Element>()
-    private val parentElementMock =
-        mockk<Element> {
-            every { children } returns listOf(childElementMock)
-        }
+    private val childElement = mockk<Element>()
+    private val parentElement = mockk<Element>()
 
-    companion object {
-        @JvmStatic
-        fun generateHappyPathTestCases(): Collection<HappyPathTestCase> =
-            listOf(
-                HappyPathTestCase(
-                    "5.1",
-                    listOf(UnrealTargetPlatform.IOS, UnrealTargetPlatform.TVOS),
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+        every { parentElement.children } returns listOf(childElement)
+    }
+
+    data class HappyPathTestCase(
+        val engineVersion: String?,
+        val targetPlatforms: Collection<UnrealTargetPlatform>,
+        val uprojectFileContent: String,
+    )
+
+    private fun `discovers the project`(): Collection<HappyPathTestCase> =
+        listOf(
+            HappyPathTestCase(
+                engineVersion = "5.1",
+                targetPlatforms = listOf(UnrealTargetPlatform.IOS, UnrealTargetPlatform.TVOS),
+                uprojectFileContent =
                     """
                     {
                         "FileVersion": 3,
@@ -42,10 +53,11 @@ class UEProjectUnrealProjectDiscovererTests {
                     ).joinToString { "\"${it}\"" }}]
                     }
                     """.trimIndent(),
-                ),
-                HappyPathTestCase(
-                    "4.2",
-                    listOf(),
+            ),
+            HappyPathTestCase(
+                engineVersion = "4.2",
+                targetPlatforms = listOf(),
+                uprojectFileContent =
                     """
                     {
                         "FileVersion": 3,
@@ -56,10 +68,11 @@ class UEProjectUnrealProjectDiscovererTests {
                         "Plugins": []
                     }
                     """.trimIndent(),
-                ),
-                HappyPathTestCase(
-                    null,
-                    listOf(),
+            ),
+            HappyPathTestCase(
+                engineVersion = null,
+                targetPlatforms = listOf(),
+                uprojectFileContent =
                     """
                     {
                         "FileVersion": 3,
@@ -68,38 +81,27 @@ class UEProjectUnrealProjectDiscovererTests {
                         "Plugins": []
                     }
                     """.trimIndent(),
-                ),
-            )
-    }
-
-    data class HappyPathTestCase(
-        val engineVersion: String?,
-        val targetPlatforms: Collection<UnrealTargetPlatform>,
-        val uprojectFileContent: String,
-    )
+            ),
+        )
 
     @ParameterizedTest
-    @MethodSource("generateHappyPathTestCases")
-    fun `should correctly discover the project`(testCase: HappyPathTestCase) {
+    @MethodSource("discovers the project")
+    fun `discovers the project`(testCase: HappyPathTestCase) {
         // arrange
-        every { childElementMock.isContentAvailable } returns true
-        every { childElementMock.fullName } returns "foo.uproject"
-        every { childElementMock.inputStream } returns testCase.uprojectFileContent.byteInputStream()
+        every { childElement.isContentAvailable } returns true
+        every { childElement.fullName } returns "foo.uproject"
+        every { childElement.inputStream } returns testCase.uprojectFileContent.byteInputStream()
 
         // act
-        val result = discoverer.discover(parentElementMock)
+        val result = discoverer.discover(parentElement)
 
         // assert
-        assertEquals(1, result.size)
-        val discoveredProject = result.single()
-        assertEquals(
+        result shouldHaveSingleElement
             UnrealEngineProject(
-                UnrealProjectPath(childElementMock.fullName),
+                UnrealProjectPath(childElement.fullName),
                 if (testCase.engineVersion != null) UnrealEngineIdentifier(testCase.engineVersion) else null,
                 testCase.targetPlatforms,
-            ),
-            discoveredProject,
-        )
+            )
     }
 
     @ParameterizedTest
@@ -123,16 +125,16 @@ class UEProjectUnrealProjectDiscovererTests {
         """,
         ],
     )
-    fun `should not discover anything if the project json file is corrupted`(content: String) {
+    fun `does not discover anything if the project json file is corrupted`(content: String) {
         // arrange
-        every { childElementMock.isContentAvailable } returns true
-        every { childElementMock.fullName } returns "foo.ueproject"
-        every { childElementMock.inputStream } returns content.trimIndent().byteInputStream()
+        every { childElement.isContentAvailable } returns true
+        every { childElement.fullName } returns "foo.ueproject"
+        every { childElement.inputStream } returns content.trimIndent().byteInputStream()
 
         // act
-        val result = discoverer.discover(parentElementMock)
+        val result = discoverer.discover(parentElement)
 
         // assert
-        assertEquals(0, result.size)
+        result shouldHaveSize 0
     }
 }

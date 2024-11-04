@@ -10,49 +10,46 @@ class BuildGraphExtensionTests {
         val name: String,
     )
 
-    companion object {
-        private val node0 = DummyNode("node 0")
-        private val node1 = DummyNode("node 1")
-        private val node2 = DummyNode("node 2")
-        private val node3 = DummyNode("node 3")
+    private val node0 = DummyNode("node 0")
+    private val node1 = DummyNode("node 1")
+    private val node2 = DummyNode("node 2")
+    private val node3 = DummyNode("node 3")
 
-        private val firstBuildGraph =
-            BuildGraph(
-                mapOf(
-                    node0 to listOf(node2, node3),
-                    node1 to listOf(node2),
-                    node2 to listOf(node3),
-                    node3 to listOf(),
-                ),
-                listOf(),
-            )
+    private val firstBuildGraph =
+        BuildGraph(
+            mapOf(
+                node0 to listOf(node2, node3),
+                node1 to listOf(node2),
+                node2 to listOf(node3),
+                node3 to listOf(),
+            ),
+            listOf(),
+        )
 
-        private val secondBuildGraph =
-            BuildGraph(
-                mapOf(
-                    node3 to listOf(node0, node1, node2),
-                    node2 to listOf(node0, node1),
-                    node1 to listOf(node0),
-                    node0 to listOf(),
-                ),
-                listOf(),
-            )
+    private val secondBuildGraph =
+        BuildGraph(
+            mapOf(
+                node3 to listOf(node0, node1, node2),
+                node2 to listOf(node0, node1),
+                node1 to listOf(node0),
+                node0 to listOf(),
+            ),
+            listOf(),
+        )
 
-        @JvmStatic
-        fun generateTopologicalSortTestCases(): Collection<TopologicalSortTestCase> =
-            listOf(
-                TopologicalSortTestCase(firstBuildGraph),
-                TopologicalSortTestCase(secondBuildGraph),
-            )
-    }
+    private fun `sorts the nodes of a graph`(): Collection<TopologicalSortTestCase> =
+        listOf(
+            TopologicalSortTestCase(firstBuildGraph),
+            TopologicalSortTestCase(secondBuildGraph),
+        )
 
     data class TopologicalSortTestCase(
         val buildGraph: BuildGraph<DummyNode>,
     )
 
     @ParameterizedTest
-    @MethodSource("generateTopologicalSortTestCases")
-    fun `should correctly sort the nodes of a graph`(case: TopologicalSortTestCase) {
+    @MethodSource("sorts the nodes of a graph")
+    fun `sorts the nodes of a graph`(case: TopologicalSortTestCase) {
         // arrange, act
         val result = case.buildGraph.topologicalSort()
 

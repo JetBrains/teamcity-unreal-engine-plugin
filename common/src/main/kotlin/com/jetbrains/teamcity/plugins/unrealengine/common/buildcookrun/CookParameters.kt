@@ -9,9 +9,16 @@ object CookStageSwitchParameter : CheckboxParameter {
     override val defaultValue = true.toString()
     override val description = "Perform cooking"
     override val advanced = false
+
+    fun parseCookOptions(runnerParameters: Map<String, String>) =
+        runnerParameters[name]?.toBooleanStrictOrNull()?.let {
+            CookOptions.from(runnerParameters)
+        }
 }
 
 object CookCulturesParameter : TextInputParameter {
+    private const val SEPARATOR = "+"
+
     override val name = "build-cook-run-cook-cultures"
     override val displayName = "Cook cultures"
     override val defaultValue = ""
@@ -24,9 +31,17 @@ object CookCulturesParameter : TextInputParameter {
     override val supportsVcsNavigation = false
     override val expandable = true
     override val advanced = true
+
+    fun from(runnerParameters: Map<String, String>) =
+        runnerParameters[name]
+            ?.splitToSequence(SEPARATOR)
+            ?.map { CookCulture(it) }
+            ?.toList()
 }
 
 object MapsToCookParameter : TextInputParameter {
+    private const val SEPARATOR = "+"
+
     override val name = "build-cook-run-maps-to-cook"
     override val displayName = "Maps to cook"
     override val defaultValue = ""
@@ -39,6 +54,12 @@ object MapsToCookParameter : TextInputParameter {
     override val supportsVcsNavigation = false
     override val expandable = true
     override val advanced = true
+
+    fun from(runnerParameters: Map<String, String>) =
+        runnerParameters[name]
+            ?.splitToSequence(SEPARATOR)
+            ?.map { CookMap(it) }
+            ?.toList()
 }
 
 object UnversionedCookedContentParameter : CheckboxParameter {
@@ -47,4 +68,6 @@ object UnversionedCookedContentParameter : CheckboxParameter {
     override val defaultValue = true.toString()
     override val description = "Enables omitting asset versions, assuming all loaded assets are of the current version."
     override val advanced = true
+
+    fun from(runnerParameters: Map<String, String>) = runnerParameters[name].toBoolean()
 }

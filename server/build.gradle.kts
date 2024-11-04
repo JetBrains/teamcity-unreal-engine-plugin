@@ -53,10 +53,9 @@ teamcity {
         baseHomeDir = "teamcity/environments"
         baseDataDir = "teamcity/data"
 
-        val teamcityVersion = libs.versions.teamcity.get()
-        create(teamcityVersion) {
-            version = teamcityVersion
-            homeDir = "${environments.baseHomeDir}/${teamcityVersion}"
+        create(teamcity.version) {
+            version = teamcity.version
+            homeDir = "${environments.baseHomeDir}/${teamcity.version}"
         }
 
     }
@@ -94,10 +93,9 @@ tasks.register("getLatestChangelogVersion") {
 }
 
 val unpackCommitStatusPublisher = tasks.register<Copy>("unpackCommitStatusPublisher") {
-    val teamcityVersion = libs.versions.teamcity.get()
-    dependsOn("install${teamcityVersion}")
+    dependsOn("install${teamcity.version}")
 
-    from(zipTree("${teamcity.environments.baseHomeDir}/${teamcityVersion}/webapps/ROOT/WEB-INF/plugins/commit-status-publisher.zip")) {
+    from(zipTree("${teamcity.environments.baseHomeDir}/${teamcity.version}/webapps/ROOT/WEB-INF/plugins/commit-status-publisher.zip")) {
         include("server/commit-status-publisher-*")
         eachFile {
             relativePath = RelativePath(true, relativePath.segments.last())
@@ -121,7 +119,7 @@ dependencies {
         // rely on the version provided by TeamCity. Otherwise, we get a LinkageError because of "ILoggerFactory"
         exclude(group = "org.slf4j", module = "slf4j-api")
     }
-    implementation(project(":framework"))
+    implementation(project(":plugin-sdk-core"))
     implementation(project(":common"))
     provided("org.jetbrains.teamcity.internal:server:${teamcity.version}")
 
@@ -142,6 +140,7 @@ dependencies {
     }
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.mockk)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotest.assertions.core)

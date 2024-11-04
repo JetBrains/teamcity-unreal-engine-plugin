@@ -55,10 +55,10 @@ object UnrealTargetPlatformsParameter {
 
     context(Raise<PropertyValidationError>)
     fun parseTargetPlatforms(
-        properties: Map<String, String>,
+        runnerParameters: Map<String, String>,
         name: String,
     ): NonEmptyList<UnrealTargetPlatform> {
-        val platformsRaw = properties[name]
+        val platformsRaw = runnerParameters[name]
         ensureNotNull(platformsRaw) { PropertyValidationError(name, "Target platform list is missing") }
 
         val platforms =

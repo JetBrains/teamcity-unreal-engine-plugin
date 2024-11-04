@@ -1,16 +1,14 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.automation
 
-import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
-import arrow.core.raise.either
-import arrow.core.raise.ensure
 import arrow.core.raise.zipOrAccumulate
-import com.jetbrains.teamcity.plugins.unrealengine.common.ArgumentsPreparationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
+import com.jetbrains.teamcity.plugins.unrealengine.common.ensure
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
 
 @JvmInline
@@ -63,37 +61,36 @@ data class RunAutomationCommand(
             }
     }
 
-    context(CommandExecutionContext)
-    override fun toArguments(): Either<ArgumentsPreparationError, List<String>> =
-        either {
-            buildList {
-                val resolvedProjectPath = concatPaths(workingDirectory, projectPath.value)
-                ensure(
-                    fileExists(resolvedProjectPath),
-                ) { ArgumentsPreparationError("Could not find the specified project file. Path: $resolvedProjectPath") }
-                add(resolvedProjectPath)
+    context(Raise<GenericError>, CommandExecutionContext)
+    override fun toArguments() =
+        buildList {
+            val resolvedProjectPath = concatPaths(workingDirectory, projectPath.value)
+            ensure(
+                fileExists(resolvedProjectPath),
+                "Could not find the specified project file. Path: $resolvedProjectPath",
+            )
+            add(resolvedProjectPath)
 
-                if (nullRHI) {
-                    add("-nullrhi")
-                }
-
-                add(
-                    buildString {
-                        append("-ExecCmds=Automation ")
-                        when (execCommand) {
-                            is ExecCommand.RunAll -> append("RunAll;")
-                            is ExecCommand.RunFilter -> append("RunFilter ${execCommand.filter.name};")
-                            is ExecCommand.RunTests -> {
-                                append("RunTests ")
-                                append(execCommand.tests.joinToString(separator = "+") { it.value })
-                                append(";")
-                            }
-                        }
-                        append("Quit;")
-                    },
-                )
-
-                addAll(extraArguments)
+            if (nullRHI) {
+                add("-nullrhi")
             }
+
+            add(
+                buildString {
+                    append("-ExecCmds=Automation ")
+                    when (execCommand) {
+                        is ExecCommand.RunAll -> append("RunAll;")
+                        is ExecCommand.RunFilter -> append("RunFilter ${execCommand.filter.name};")
+                        is ExecCommand.RunTests -> {
+                            append("RunTests ")
+                            append(execCommand.tests.joinToString(separator = "+") { it.value })
+                            append(";")
+                        }
+                    }
+                    append("Quit;")
+                },
+            )
+
+            addAll(extraArguments)
         }
 }

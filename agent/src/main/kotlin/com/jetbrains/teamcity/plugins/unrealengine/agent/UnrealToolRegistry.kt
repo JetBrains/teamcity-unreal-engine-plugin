@@ -3,7 +3,9 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent
 import arrow.core.raise.Raise
 import com.jetbrains.teamcity.plugins.framework.common.Environment
 import com.jetbrains.teamcity.plugins.framework.common.OSType
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineVersion
+import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 
 enum class UnrealToolType {
     AutomationTool,
@@ -23,13 +25,13 @@ class UnrealToolRegistry(
         private val unreal_version_5 = UnrealEngineVersion(5, 0, 0)
     }
 
-    context(UnrealBuildContext, Raise<WorkflowCreationError>)
+    context(UnrealBuildContext, Raise<GenericError>)
     suspend fun automationTool(parameters: Map<String, String>) = getTools(parameters).first { it.type == UnrealToolType.AutomationTool }
 
-    context(UnrealBuildContext, Raise<WorkflowCreationError>)
+    context(UnrealBuildContext, Raise<GenericError>)
     suspend fun editor(parameters: Map<String, String>) = getTools(parameters).first { it.type == UnrealToolType.Editor }
 
-    context(UnrealBuildContext, Raise<WorkflowCreationError>)
+    context(UnrealBuildContext, Raise<GenericError>)
     private suspend fun getTools(parameters: Map<String, String>): Collection<UnrealTool> {
         val engine = engineProvider.findEngine(parameters)
 
@@ -59,7 +61,7 @@ class UnrealToolRegistry(
         ).joinToString(separator = separator)
     }
 
-    context(Raise<WorkflowCreationError>)
+    context(Raise<GenericError>)
     private fun getEditorFullPath(engine: UnrealEngine): String {
         val editorName = if (engine.version >= unreal_version_5) "UnrealEditor" else "UE4Editor"
 
@@ -67,10 +69,7 @@ class UnrealToolRegistry(
             OSType.Windows -> "${engine.path.value}\\Engine\\Binaries\\Win64\\$editorName.exe"
             OSType.MacOs -> "${engine.path.value}/Engine/Binaries/Mac/$editorName.app/Contents/MacOS/$editorName"
             OSType.Linux -> "${engine.path.value}/Engine/Binaries/Linux/$editorName"
-            OSType.Unknown ->
-                raise(
-                    WorkflowCreationError.ExecutionPreparationError("Unknown operating system. Unable to get a path to the Editor"),
-                )
+            OSType.Unknown -> raise("Unknown operating system. Unable to get a path to the Editor")
         }
     }
 }

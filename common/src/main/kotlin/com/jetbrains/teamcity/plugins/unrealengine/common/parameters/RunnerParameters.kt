@@ -37,8 +37,8 @@ abstract class MultiSelectParameter : SelectParameter() {
 
     fun getOptionsAsJsArray() = options.toJsArray()
 
-    fun getSelectedOptionsAsJsArray(properties: Map<String, String>): String {
-        val selectedValues = properties[name]?.split(separator).orEmpty()
+    fun getSelectedOptionsAsJsArray(runnerParameters: Map<String, String>): String {
+        val selectedValues = runnerParameters[name]?.split(separator).orEmpty()
         val knownSelectedOptions = options.filter { selectedValues.contains(it.name) }
 
         val customSelectedOptions =

@@ -1,8 +1,6 @@
 package com.jetbrains.teamcity.plugins.unrealengine.agent
 
 import arrow.core.raise.Raise
-import arrow.core.raise.ensure
-import arrow.core.raise.ensureNotNull
 import arrow.core.raise.recover
 import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.framework.resource.location.ResourceLocationResult
@@ -10,9 +8,13 @@ import com.jetbrains.teamcity.plugins.framework.resource.location.ResourceLocato
 import com.jetbrains.teamcity.plugins.framework.resource.location.queries.filteredLines
 import com.jetbrains.teamcity.plugins.framework.resource.location.queries.json
 import com.jetbrains.teamcity.plugins.framework.resource.location.queries.map
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.JsonEncoder
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRootPath
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineVersion
+import com.jetbrains.teamcity.plugins.unrealengine.common.ensure
+import com.jetbrains.teamcity.plugins.unrealengine.common.ensureNotNull
+import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -39,7 +41,7 @@ class UnrealEngineSourceVersionDetector(
         private val versionPartRegex = "^#define\\s+ENGINE_(\\w+)_VERSION\\s+(\\d+)\$".toRegex()
     }
 
-    context(Raise<WorkflowCreationError.EngineLocationError>, UnrealBuildContext)
+    context(Raise<GenericError>, UnrealBuildContext)
     suspend fun detect(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion =
         recover({
             lookUpInBuildVersionFile(engineRootPath)
@@ -51,7 +53,7 @@ class UnrealEngineSourceVersionDetector(
             lookUpInCppVersionHeaderFile(engineRootPath)
         }
 
-    context(Raise<WorkflowCreationError.EngineLocationError>, UnrealBuildContext)
+    context(Raise<GenericError>, UnrealBuildContext)
     private suspend fun lookUpInBuildVersionFile(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion {
         val locationResults =
             resourceLocator.locateResources {
@@ -64,15 +66,14 @@ class UnrealEngineSourceVersionDetector(
                 )
             }
 
-        val result = locationResults.firstOrNull()
-        ensureNotNull(result) {
-            WorkflowCreationError.EngineLocationError(
+        val result =
+            ensureNotNull(
+                locationResults.firstOrNull(),
                 "No results were found while attempting to search in the 'Build.version' file",
             )
-        }
 
         return when (result) {
-            is ResourceLocationResult.Error -> raise(WorkflowCreationError.EngineLocationError(result.message))
+            is ResourceLocationResult.Error -> raise(result.message)
             is ResourceLocationResult.Success -> {
                 logger.info("Version '${result.data}' was found in 'Build.version' file")
                 result.data
@@ -80,7 +81,7 @@ class UnrealEngineSourceVersionDetector(
         }
     }
 
-    context(Raise<WorkflowCreationError.EngineLocationError>, UnrealBuildContext)
+    context(Raise<GenericError>, UnrealBuildContext)
     private suspend fun lookUpInCppVersionHeaderFile(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion {
         val locationResults =
             resourceLocator.locateResources {
@@ -95,23 +96,18 @@ class UnrealEngineSourceVersionDetector(
                 )
             }
 
-        val result = locationResults.firstOrNull()
-        ensureNotNull(result) {
-            WorkflowCreationError.EngineLocationError(
+        val result =
+            ensureNotNull(
+                locationResults.firstOrNull(),
                 "No results were found while attempting to search in the 'Version.h' file",
             )
-        }
 
         return when (result) {
-            is ResourceLocationResult.Error -> raise(WorkflowCreationError.EngineLocationError(result.message))
+            is ResourceLocationResult.Error -> raise(result.message)
             is ResourceLocationResult.Success -> {
                 val version = result.data.buildVersion()
 
-                ensure(version != UnrealEngineVersion.empty) {
-                    WorkflowCreationError.EngineLocationError(
-                        "Unable to find version information in 'Version.h' file",
-                    )
-                }
+                ensure(version != UnrealEngineVersion.empty, "Unable to find version information in 'Version.h' file")
 
                 logger.info("Version '$version' was found in 'Version.h' file")
 

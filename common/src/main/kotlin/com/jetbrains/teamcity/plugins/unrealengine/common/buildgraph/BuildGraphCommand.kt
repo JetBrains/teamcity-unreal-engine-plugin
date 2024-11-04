@@ -1,15 +1,13 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph
 
-import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
-import arrow.core.raise.either
-import arrow.core.raise.ensure
 import arrow.core.raise.zipOrAccumulate
-import com.jetbrains.teamcity.plugins.unrealengine.common.ArgumentsPreparationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommand
+import com.jetbrains.teamcity.plugins.unrealengine.common.ensure
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
 
 data class BuildGraphCommand(
@@ -38,24 +36,23 @@ data class BuildGraphCommand(
             }
     }
 
-    context(CommandExecutionContext)
-    override fun toArguments(): Either<ArgumentsPreparationError, List<String>> =
-        either {
-            buildList {
-                add("BuildGraph")
+    context(Raise<GenericError>, CommandExecutionContext)
+    override fun toArguments() =
+        buildList {
+            add("BuildGraph")
 
-                val resolvedScriptPath = concatPaths(workingDirectory, scriptPath.value)
-                ensure(fileExists(resolvedScriptPath)) {
-                    ArgumentsPreparationError("Could not find the specified BuildGraph script file. Path: $resolvedScriptPath")
-                }
+            val resolvedScriptPath = concatPaths(workingDirectory, scriptPath.value)
+            ensure(
+                fileExists(resolvedScriptPath),
+                "Could not find the specified BuildGraph script file. Path: $resolvedScriptPath",
+            )
 
-                add("-script=$resolvedScriptPath")
-                add("-target=${target.value}")
-                options.forEach {
-                    add("-set:${it.name}=${it.value}")
-                }
-
-                addAll(extraArguments)
+            add("-script=$resolvedScriptPath")
+            add("-target=${target.value}")
+            options.forEach {
+                add("-set:${it.name}=${it.value}")
             }
+
+            addAll(extraArguments)
         }
 }

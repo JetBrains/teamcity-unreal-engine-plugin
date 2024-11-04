@@ -39,8 +39,8 @@ object UnrealCommandTypeParameter : SelectParameter() {
     )
 
     context(Raise<PropertyValidationError>)
-    fun parse(properties: Map<String, String>): UnrealCommandType {
-        val commandTypeRaw = properties[name] ?: raise(PropertyValidationError(name, "Unreal command type is missing"))
+    fun parse(runnerParameters: Map<String, String>): UnrealCommandType {
+        val commandTypeRaw = runnerParameters[name] ?: raise(PropertyValidationError(name, "Unreal command type is missing"))
         val commandType = enumValueOfOrNull<UnrealCommandType>(commandTypeRaw)
         ensureNotNull(commandType) { PropertyValidationError(name, "Unknown Unreal command $commandTypeRaw") }
         return commandType

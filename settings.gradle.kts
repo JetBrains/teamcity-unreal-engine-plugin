@@ -2,12 +2,12 @@ rootProject.name = "teamcity-unreal-engine-plugin"
 
 dependencyResolutionManagement {
     versionCatalogs {
-        create("frameworkLibs")
-            .from(files("framework/gradle/libs.versions.toml"))
+        create("pluginSdkCoreLibs")
+            .from(files("plugin-sdk-core/gradle/libs.versions.toml"))
     }
 }
 
 include("agent")
 include("server")
 include("common")
-include("framework")
+include("plugin-sdk-core")

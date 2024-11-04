@@ -7,11 +7,11 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCook
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.UnrealTargetConfigurationsParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.UnrealTargetPlatformsParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealCommandTypeParameter
+import io.kotest.matchers.collections.shouldExist
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.Test
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import BuildGraphExecCommandTests.Companion.happyPathCaseParams as buildGraphHappyPathCaseParams
 
 class UnrealCommandCreatorTests {
@@ -19,48 +19,47 @@ class UnrealCommandCreatorTests {
         val runnerParameters: Map<String, String>,
     )
 
-    companion object {
-        @JvmStatic
-        fun generateTestCases() =
-            listOf(
-                TestCase(
-                    runnerParameters =
-                        mapOf(
-                            UnrealCommandTypeParameter.name to UnrealCommandType.BuildCookRun.name,
-                            BuildCookRunProjectPathParameter.name to "some-path",
-                            BuildConfigurationParameter.name to "StandaloneGame",
-                            UnrealTargetConfigurationsParameter.Standalone.name to "Shipping+Development",
-                            UnrealTargetPlatformsParameter.Standalone.name to "Mac+IOS",
-                        ),
-                ),
-                TestCase(
-                    runnerParameters =
-                        mapOf(
-                            UnrealCommandTypeParameter.name to UnrealCommandType.BuildGraph.name,
-                        ) + buildGraphHappyPathCaseParams,
-                ),
-            )
-    }
+    private fun `test cases`() =
+        listOf(
+            TestCase(
+                runnerParameters =
+                    mapOf(
+                        UnrealCommandTypeParameter.name to UnrealCommandType.BuildCookRun.name,
+                        BuildCookRunProjectPathParameter.name to "some-path",
+                        BuildConfigurationParameter.name to "StandaloneGame",
+                        UnrealTargetConfigurationsParameter.Standalone.name to "Shipping+Development",
+                        UnrealTargetPlatformsParameter.Standalone.name to "Mac+IOS",
+                    ),
+            ),
+            TestCase(
+                runnerParameters =
+                    mapOf(
+                        UnrealCommandTypeParameter.name to UnrealCommandType.BuildGraph.name,
+                    ) + buildGraphHappyPathCaseParams,
+            ),
+        )
 
     @ParameterizedTest
-    @MethodSource("generateTestCases")
-    fun `should create a command`(case: TestCase) {
-        val sut = UnrealCommandCreator()
+    @MethodSource("test cases")
+    fun `creates a command`(case: TestCase) {
+        // act
+        val result = either { UnrealCommandCreator().create(case.runnerParameters) }
 
-        val result = either { sut.create(case.runnerParameters) }
+        // assert
         val command = result.getOrNull()
-        assertNotNull(command)
+        command shouldNotBe null
     }
 
     @Test
-    fun `should raise an error when the command type is missing`() {
-        val sut = UnrealCommandCreator()
+    fun `raises an error when the command type is missing`() {
+        // act
+        val result = either { UnrealCommandCreator().create(mapOf()) }
 
-        val result = either { sut.create(mapOf()) }
+        // assert
         val errors = result.leftOrNull()
-        assertNotNull(errors)
-        assertTrue {
-            errors.any { it.message.contains("Unreal command type is missing") }
+        errors shouldNotBe null
+        errors!!.shouldExist {
+            it.message.contains("Unreal command type is missing")
         }
     }
 
@@ -77,9 +76,9 @@ class UnrealCommandCreatorTests {
                 )
             }
         val errors = result.leftOrNull()
-        assertNotNull(errors)
-        assertTrue {
-            errors.any { it.message.contains("Unknown Unreal command") }
+        errors shouldNotBe null
+        errors!!.shouldExist {
+            it.message.contains("Unknown Unreal command")
         }
     }
 }

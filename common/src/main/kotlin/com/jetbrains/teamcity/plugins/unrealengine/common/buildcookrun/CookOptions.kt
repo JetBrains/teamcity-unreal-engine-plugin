@@ -16,24 +16,12 @@ data class CookOptions(
     val unversionedContent: Boolean = false,
 ) {
     companion object {
-        // TODO: move to parameter
-        fun from(runnerParameters: Map<String, String>): CookOptions {
-            val maps =
-                runnerParameters[MapsToCookParameter.name]
-                    ?.splitToSequence(SEPARATOR)
-                    ?.map { CookMap(it) }
-                    ?.toList()
-
-            val cultures =
-                runnerParameters[CookCulturesParameter.name]
-                    ?.splitToSequence(SEPARATOR)
-                    ?.map { CookCulture(it) }
-                    ?.toList()
-
-            return CookOptions(maps, cultures, runnerParameters[UnversionedCookedContentParameter.name].toBoolean())
-        }
-
-        private const val SEPARATOR = "+"
+        fun from(runnerParameters: Map<String, String>) =
+            CookOptions(
+                MapsToCookParameter.from(runnerParameters),
+                CookCulturesParameter.from(runnerParameters),
+                UnversionedCookedContentParameter.from(runnerParameters),
+            )
     }
 
     val arguments =
@@ -41,11 +29,11 @@ data class CookOptions(
             add("-cook")
 
             if (mapsToCook != null) {
-                add("-map=${mapsToCook.joinToString(separator = SEPARATOR) { it.value }}")
+                add("-map=${mapsToCook.joinToString(separator = "+") { it.value }}")
             }
 
             if (cookCultures != null) {
-                add("-cookcultures=${cookCultures.joinToString(separator = SEPARATOR) { it.value }}")
+                add("-cookcultures=${cookCultures.joinToString(separator = "+") { it.value }}")
             }
 
             if (unversionedContent) {

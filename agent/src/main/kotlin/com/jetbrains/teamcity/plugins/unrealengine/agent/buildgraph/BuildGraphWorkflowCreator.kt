@@ -7,10 +7,11 @@ import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealBuildContext
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineCommandExecution
 import com.jetbrains.teamcity.plugins.unrealengine.agent.Workflow
-import com.jetbrains.teamcity.plugins.unrealengine.agent.WorkflowCreationError
 import com.jetbrains.teamcity.plugins.unrealengine.agent.WorkflowCreator
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphMode
+import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 
 class BuildGraphWorkflowCreator(
     private val singleMachineExecutor: SingleMachineExecutor,
@@ -20,17 +21,17 @@ class BuildGraphWorkflowCreator(
         private val logger = TeamCityLoggers.agent<BuildGraphWorkflowCreator>()
     }
 
-    context(Raise<WorkflowCreationError>, UnrealBuildContext)
+    context(Raise<GenericError>, UnrealBuildContext)
     override suspend fun create(): Workflow = Workflow(getCommands())
 
-    context(Raise<WorkflowCreationError>, UnrealBuildContext)
+    context(Raise<GenericError>, UnrealBuildContext)
     private suspend fun getCommands(): List<UnrealEngineCommandExecution> {
         val command =
             either { BuildGraphCommand.from(runnerParameters) }.getOrElse {
                 it.forEach { error ->
                     logger.error("An error occurred during command creation: ${error.message}")
                 }
-                raise(WorkflowCreationError.CommandCreationError("Unable to create command from the given runner parameters"))
+                raise("Unable to create command from the given runner parameters")
             }
 
         return when (command.mode) {

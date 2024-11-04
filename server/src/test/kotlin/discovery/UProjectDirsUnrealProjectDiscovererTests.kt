@@ -5,26 +5,36 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineProject
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
 import com.jetbrains.teamcity.plugins.unrealengine.server.discovery.UprojectDirsFileDiscoverer
 import com.jetbrains.teamcity.plugins.unrealengine.server.discovery.UprojectFileDiscoverer
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import jetbrains.buildServer.util.browser.Element
+import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class UProjectDirsUnrealProjectDiscovererTests {
-    private val ueProjectDiscovererMock = mockk<UprojectFileDiscoverer>()
-    private val uprojectDirsElementMock =
-        mockk<Element> {
+    private val ueProjectDiscoverer = mockk<UprojectFileDiscoverer>()
+    private val uprojectDirsElement = mockk<Element>()
+    private val directoryElement = mockk<Element>()
+
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+
+        with(uprojectDirsElement) {
             every { isContentAvailable } returns true
             every { fullName } returns "foo.uprojectdirs"
         }
-    private val directoryElementMock =
-        mockk<Element> {
-            every { children } returns listOf(uprojectDirsElementMock)
+
+        with(directoryElement) {
+            every { children } returns listOf(uprojectDirsElement)
         }
+    }
 
     @Test
-    fun `should correctly discover unreal projects`() {
+    fun `discovers unreal projects`() {
         // arrange
         val firstProjectPath = "project1/"
         val secondProjectPath = "subdir/project2/"
@@ -38,28 +48,30 @@ class UProjectDirsUnrealProjectDiscovererTests {
         )
         val firstProjectElement = mockk<Element>(relaxed = true)
         val secondProjectElement = mockk<Element>(relaxed = true)
-        every { directoryElementMock.browser } returns
+        every { directoryElement.browser } returns
             mockk {
                 every { getElement(firstProjectPath) } returns firstProjectElement
                 every { getElement(secondProjectPath) } returns secondProjectElement
             }
         val firstExpectedProject = UnrealEngineProject(UnrealProjectPath(""), UnrealEngineIdentifier("foo"), emptyList())
         val secondExpectedProject = UnrealEngineProject(UnrealProjectPath(""), UnrealEngineIdentifier("foo"), emptyList())
-        every { ueProjectDiscovererMock.discover(firstProjectElement) } returns listOf(firstExpectedProject)
-        every { ueProjectDiscovererMock.discover(secondProjectElement) } returns listOf(secondExpectedProject)
-        val uProjectDirsDiscoverer = UprojectDirsFileDiscoverer(ueProjectDiscovererMock)
+        every { ueProjectDiscoverer.discover(firstProjectElement) } returns listOf(firstExpectedProject)
+        every { ueProjectDiscoverer.discover(secondProjectElement) } returns listOf(secondExpectedProject)
+        val uProjectDirsDiscoverer = UprojectDirsFileDiscoverer(ueProjectDiscoverer)
 
         // act
-        val result = uProjectDirsDiscoverer.discover(directoryElementMock)
+        val result = uProjectDirsDiscoverer.discover(directoryElement)
 
         // assert
-        assertEquals(2, result.size)
-        assertEquals(firstExpectedProject, result.first())
-        assertEquals(secondExpectedProject, result.last())
+        result shouldHaveSize 2
+        result.shouldContainExactly(
+            firstExpectedProject,
+            secondExpectedProject,
+        )
     }
 
     @Test
-    fun `should discover a single Unreal project when there are duplications of them`() {
+    fun `discovers a single Unreal project when there are duplications of them`() {
         // arrange
         val projectPath = "project/"
         setUprojectDirsFileContent(
@@ -70,24 +82,24 @@ class UProjectDirsUnrealProjectDiscovererTests {
         """,
         )
         val projectElement = mockk<Element>()
-        every { directoryElementMock.browser } returns
+        every { directoryElement.browser } returns
             mockk {
                 every { getElement(projectPath) } returns projectElement
             }
         every {
-            ueProjectDiscovererMock.discover(projectElement)
+            ueProjectDiscoverer.discover(projectElement)
         } returns listOf(UnrealEngineProject(UnrealProjectPath(""), UnrealEngineIdentifier("foo"), emptyList()))
-        val uProjectDirsDiscoverer = UprojectDirsFileDiscoverer(ueProjectDiscovererMock)
+        val uProjectDirsDiscoverer = UprojectDirsFileDiscoverer(ueProjectDiscoverer)
 
         // act
-        val result = uProjectDirsDiscoverer.discover(directoryElementMock)
+        val result = uProjectDirsDiscoverer.discover(directoryElement)
 
         // assert
-        assertEquals(1, result.size)
+        result shouldHaveSize 1
     }
 
     @Test
-    fun `should ignore unknown paths during discovery`() {
+    fun `ignores unknown paths during discovery`() {
         // arrange
         setUprojectDirsFileContent(
             """
@@ -95,20 +107,20 @@ class UProjectDirsUnrealProjectDiscovererTests {
             bar
         """,
         )
-        every { directoryElementMock.browser } returns
+        every { directoryElement.browser } returns
             mockk {
                 every { getElement(any()) } returns null
             }
-        val uProjectDirsDiscoverer = UprojectDirsFileDiscoverer(ueProjectDiscovererMock)
+        val uProjectDirsDiscoverer = UprojectDirsFileDiscoverer(ueProjectDiscoverer)
 
         // act
-        val result = uProjectDirsDiscoverer.discover(directoryElementMock)
+        val result = uProjectDirsDiscoverer.discover(directoryElement)
 
         // assert
-        assertEquals(0, result.size)
+        result shouldHaveSize 0
     }
 
     private fun setUprojectDirsFileContent(value: String) {
-        every { uprojectDirsElementMock.inputStream } returns value.trimIndent().byteInputStream()
+        every { uprojectDirsElement.inputStream } returns value.trimIndent().byteInputStream()
     }
 }

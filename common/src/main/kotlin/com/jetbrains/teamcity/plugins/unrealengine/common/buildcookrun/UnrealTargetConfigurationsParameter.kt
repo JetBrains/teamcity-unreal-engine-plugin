@@ -53,10 +53,10 @@ object UnrealTargetConfigurationsParameter {
 
     context(Raise<PropertyValidationError>)
     fun parseTargetConfigurations(
-        properties: Map<String, String>,
+        runnerParameters: Map<String, String>,
         name: String,
     ): NonEmptyList<UnrealTargetConfiguration> {
-        val configurationsRaw = properties[name]
+        val configurationsRaw = runnerParameters[name]
         ensureNotNull(configurationsRaw) { PropertyValidationError(name, "Target configuration list is missing") }
 
         val configurations =

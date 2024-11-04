@@ -18,8 +18,8 @@ class UnrealProjectPathParameter(
     override val advanced = false
 
     context(Raise<PropertyValidationError>)
-    fun parseProjectPath(properties: Map<String, String>): UnrealProjectPath {
-        val projectPath = properties[name]
+    fun parseProjectPath(runnerParameters: Map<String, String>): UnrealProjectPath {
+        val projectPath = runnerParameters[name]
         if (projectPath.isNullOrEmpty()) {
             raise(PropertyValidationError(name, "Project path must not be empty"))
         }

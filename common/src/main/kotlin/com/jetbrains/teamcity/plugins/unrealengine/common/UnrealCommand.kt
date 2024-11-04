@@ -1,6 +1,6 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common
 
-import arrow.core.Either
+import arrow.core.raise.Raise
 
 enum class UnrealCommandType {
     BuildCookRun,
@@ -8,12 +8,7 @@ enum class UnrealCommandType {
     RunAutomation,
 }
 
-@JvmInline
-value class ArgumentsPreparationError(
-    val message: String,
-)
-
 interface UnrealCommand {
-    context(CommandExecutionContext)
-    fun toArguments(): Either<ArgumentsPreparationError, List<String>>
+    context(Raise<GenericError>, CommandExecutionContext)
+    fun toArguments(): List<String>
 }

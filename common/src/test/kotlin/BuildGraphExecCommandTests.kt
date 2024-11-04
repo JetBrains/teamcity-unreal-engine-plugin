@@ -9,36 +9,47 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphS
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphTargetNode
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphTargetNodeParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldNotContainAnyOf
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class BuildGraphExecCommandTests {
-    private val commandExecutionContext =
-        CommandExecutionContextStub(
-            workingDirectory = WORKING_DIR,
-        )
-
     companion object {
-        const val WORKING_DIR = "FOO"
         val happyPathCaseParams =
             mapOf(
                 BuildGraphScriptPathParameter.name to "BuildGraph.xml",
                 BuildGraphTargetNodeParameter.name to "Build Linux",
                 BuildGraphOptionsParameter.name to "Foo=Bar",
             )
+    }
 
-        @JvmStatic
-        fun generateHappyPathTestCases(): List<TestCase> =
-            listOf(
-                TestCase(
+    private val workingDir = "FOO"
+
+    private val commandExecutionContext =
+        CommandExecutionContextStub(
+            workingDirectory = workingDir,
+        )
+
+    data class TestCase(
+        val runnerParameters: Map<String, String>,
+        val expectedCommand: BuildGraphCommand,
+        val shouldContainItems: List<String>,
+        val shouldNotContainItems: List<String>,
+    )
+
+    private fun `happy path test cases`(): List<TestCase> =
+        listOf(
+            TestCase(
+                runnerParameters =
                     happyPathCaseParams +
                         mapOf(
                             AdditionalArgumentsParameter.name to "-P4 -Submit",
                         ),
+                expectedCommand =
                     BuildGraphCommand(
                         BuildGraphScriptPath("BuildGraph.xml"),
                         BuildGraphTargetNode("Build Linux"),
@@ -46,14 +57,16 @@ class BuildGraphExecCommandTests {
                         BuildGraphMode.SingleMachine,
                         listOf("-P4", "-Submit"),
                     ),
-                    listOf("-script=FOO/BuildGraph.xml", "-target=Build Linux", "-set:Foo=Bar", "-P4", "-Submit"),
-                    emptyList(),
-                ),
-                TestCase(
+                shouldContainItems = listOf("-script=FOO/BuildGraph.xml", "-target=Build Linux", "-set:Foo=Bar", "-P4", "-Submit"),
+                shouldNotContainItems = emptyList(),
+            ),
+            TestCase(
+                runnerParameters =
                     happyPathCaseParams +
                         mapOf(
                             BuildGraphOptionsParameter.name to "Foo=Bar\rFoo2=Bar2",
                         ),
+                expectedCommand =
                     BuildGraphCommand(
                         BuildGraphScriptPath("BuildGraph.xml"),
                         BuildGraphTargetNode("Build Linux"),
@@ -63,47 +76,42 @@ class BuildGraphExecCommandTests {
                         ),
                         BuildGraphMode.SingleMachine,
                     ),
-                    listOf("-script=FOO/BuildGraph.xml", "-target=Build Linux", "-set:Foo=Bar", "-set:Foo2=Bar2"),
-                    emptyList(),
-                ),
-            )
-    }
+                shouldContainItems = listOf("-script=FOO/BuildGraph.xml", "-target=Build Linux", "-set:Foo=Bar", "-set:Foo2=Bar2"),
+                shouldNotContainItems = emptyList(),
+            ),
+        )
 
     @ParameterizedTest
-    @MethodSource("generateHappyPathTestCases")
-    fun `should parse command from the given runner parameters`(case: TestCase) {
+    @MethodSource("happy path test cases")
+    fun `parses command from the given runner parameters`(case: TestCase) {
         // act
         val command = either { BuildGraphCommand.from(case.runnerParameters) }.getOrNull()
 
         // assert
-        assertNotNull(command)
-        assertEquals(case.expectedCommand, command)
+        command shouldBe case.expectedCommand
     }
 
-    data class TestCase(
-        val runnerParameters: Map<String, String>,
-        val expectedCommand: BuildGraphCommand,
-        val shouldContainItems: List<String>,
-        val shouldNotContainItems: List<String>,
-    )
-
     @ParameterizedTest
-    @MethodSource("generateHappyPathTestCases")
-    fun `should generate a correct list of arguments`(case: TestCase) {
+    @MethodSource("happy path test cases")
+    fun `generates a correct list of arguments`(case: TestCase) {
         // act
         val arguments =
-            with(commandExecutionContext) {
-                case.expectedCommand.toArguments()
+            either {
+                with(commandExecutionContext) {
+                    case.expectedCommand.toArguments()
+                }
             }.getOrNull()
 
         // assert
-        assertNotNull(arguments)
-        assertTrue(arguments.containsAll(case.shouldContainItems))
-        assertTrue(case.shouldNotContainItems.all { !arguments.contains(it) })
+        arguments shouldNotBe null
+        arguments!! shouldContainAll case.shouldContainItems
+        if (case.shouldNotContainItems.isNotEmpty()) {
+            arguments shouldNotContainAnyOf case.shouldNotContainItems
+        }
     }
 
     @Test
-    fun `should raise an error when a script file doesn't exist`() {
+    fun `raises an error when a script file doesn't exist`() {
         // arrange
         val context =
             CommandExecutionContextStub(
@@ -120,9 +128,12 @@ class BuildGraphExecCommandTests {
             )
 
         // act
-        val error = with(context) { command.toArguments() }.leftOrNull()
+        val error =
+            either {
+                with(context) { command.toArguments() }
+            }.leftOrNull()
 
         // assert
-        assertNotNull(error)
+        error shouldNotBe null
     }
 }

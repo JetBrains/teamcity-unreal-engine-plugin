@@ -2,61 +2,65 @@
 import com.jetbrains.teamcity.plugins.framework.common.Environment
 import com.jetbrains.teamcity.plugins.framework.common.OSType
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProgramCommandLine
+import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import kotlin.test.assertEquals
 
 class UnrealEngineProgramCommandLineTests {
     private val environmentMock = mockk<Environment>()
 
-    data class ArgumentsTestCase(
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+    }
+
+    data class TestCase(
         val os: OSType,
         val arguments: List<String>,
         val expectedArguments: List<String>,
     )
 
-    companion object {
-        @JvmStatic
-        fun generateArgumentsTestCases(): Collection<ArgumentsTestCase> =
-            listOf(
-                ArgumentsTestCase(
-                    OSType.Windows,
-                    listOf("-foo", "-LogCmds=\"LogDerivedDataCache Verbose\"", "-bar"),
-                    listOf("-foo", "-LogCmds=\\\"LogDerivedDataCache Verbose\\\"", "-bar"),
-                ),
-                ArgumentsTestCase(
-                    OSType.Windows,
-                    listOf("\"foo bar\""),
-                    listOf("\"foo bar\""),
-                ),
-                ArgumentsTestCase(
-                    OSType.Windows,
-                    listOf("\"\""),
-                    listOf("\"\""),
-                ),
-                ArgumentsTestCase(
-                    OSType.Windows,
-                    listOf("\"foo \"bar\" \""),
-                    listOf("\"foo \\\"bar\\\" \""),
-                ),
-                ArgumentsTestCase(
-                    OSType.MacOs,
-                    listOf("-key=\"value1 value2\""),
-                    listOf("-key=\"value1 value2\""),
-                ),
-                ArgumentsTestCase(
-                    OSType.Linux,
-                    listOf("-key=\"value1 value2\""),
-                    listOf("-key=\"value1 value2\""),
-                ),
-            )
-    }
+    private fun `escapes inner quotes in arguments with spaces on Windows`(): Collection<TestCase> =
+        listOf(
+            TestCase(
+                os = OSType.Windows,
+                arguments = listOf("-foo", "-LogCmds=\"LogDerivedDataCache Verbose\"", "-bar"),
+                expectedArguments = listOf("-foo", "-LogCmds=\\\"LogDerivedDataCache Verbose\\\"", "-bar"),
+            ),
+            TestCase(
+                os = OSType.Windows,
+                arguments = listOf("\"foo bar\""),
+                expectedArguments = listOf("\"foo bar\""),
+            ),
+            TestCase(
+                os = OSType.Windows,
+                arguments = listOf("\"\""),
+                expectedArguments = listOf("\"\""),
+            ),
+            TestCase(
+                os = OSType.Windows,
+                arguments = listOf("\"foo \"bar\" \""),
+                expectedArguments = listOf("\"foo \\\"bar\\\" \""),
+            ),
+            TestCase(
+                os = OSType.MacOs,
+                arguments = listOf("-key=\"value1 value2\""),
+                expectedArguments = listOf("-key=\"value1 value2\""),
+            ),
+            TestCase(
+                os = OSType.Linux,
+                arguments = listOf("-key=\"value1 value2\""),
+                expectedArguments = listOf("-key=\"value1 value2\""),
+            ),
+        )
 
     @ParameterizedTest
-    @MethodSource("generateArgumentsTestCases")
-    fun `should escape inner quotes in arguments with spaces on Windows`(case: ArgumentsTestCase) {
+    @MethodSource("escapes inner quotes in arguments with spaces on Windows")
+    fun `escapes inner quotes in arguments with spaces on Windows`(case: TestCase) {
         // arrange
         every { environmentMock.osType } returns case.os
 
@@ -66,6 +70,6 @@ class UnrealEngineProgramCommandLineTests {
         val arguments = commandLine.arguments
 
         // assert
-        assertEquals(case.expectedArguments, arguments)
+        arguments shouldBe case.expectedArguments
     }
 }

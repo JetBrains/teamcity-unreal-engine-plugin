@@ -1,71 +1,73 @@
 
+import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.ExecCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.RunAutomationCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.RunFilterType
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.UnrealAutomationTest
+import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.Test
 import kotlin.test.assertContains
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class RunAutomationCommandTests {
     private val commandExecutionContext = CommandExecutionContextStub()
+    private val testProject = UnrealProjectPath("SomeName.uproject")
 
-    companion object {
-        private val testProject = UnrealProjectPath("SomeName.uproject")
+    data class TestCase(
+        val automationCommand: RunAutomationCommand,
+        val expectedExecCmds: String,
+        val failedTestDescription: String,
+    )
 
-        data class TestCase(
-            val description: String,
-            val automationCommand: RunAutomationCommand,
-            val expectedExecCmds: String,
-        )
-
-        @JvmStatic
-        fun generateHappyPathTestCases(): List<TestCase> =
-            listOf(
-                TestCase(
-                    "fill ExecCmds argument with RunAll command",
-                    RunAutomationCommand(testProject, nullRHI = true, ExecCommand.RunAll),
-                    "-ExecCmds=Automation RunAll;Quit;",
-                ),
-                TestCase(
-                    "fill ExecCmds argument with RunTests command",
+    private fun `constructs ExecCmds argument`(): List<TestCase> =
+        listOf(
+            TestCase(
+                automationCommand = RunAutomationCommand(testProject, nullRHI = true, ExecCommand.RunAll),
+                expectedExecCmds = "-ExecCmds=Automation RunAll;Quit;",
+                failedTestDescription = "fill ExecCmds argument with RunAll command",
+            ),
+            TestCase(
+                automationCommand =
                     RunAutomationCommand(
                         testProject,
                         nullRHI = true,
                         ExecCommand.RunTests(listOf(UnrealAutomationTest("testNameFilter"))),
                     ),
-                    "-ExecCmds=Automation RunTests testNameFilter;Quit;",
-                ),
-                TestCase(
-                    "fill ExecCmds argument with RunFilter command",
+                expectedExecCmds = "-ExecCmds=Automation RunTests testNameFilter;Quit;",
+                failedTestDescription = "fill ExecCmds argument with RunTests command",
+            ),
+            TestCase(
+                automationCommand =
                     RunAutomationCommand(
                         testProject,
                         nullRHI = true,
                         ExecCommand.RunFilter(RunFilterType.Product),
                     ),
-                    "-ExecCmds=Automation RunFilter Product;Quit;",
-                ),
-            )
-    }
+                expectedExecCmds = "-ExecCmds=Automation RunFilter Product;Quit;",
+                failedTestDescription = "fill ExecCmds argument with RunFilter command",
+            ),
+        )
 
     @ParameterizedTest
-    @MethodSource("generateHappyPathTestCases")
-    fun `should correctly construct ExecCmds argument`(case: TestCase) {
+    @MethodSource("constructs ExecCmds argument")
+    fun `constructs ExecCmds argument`(case: TestCase) {
         // act
-        val result = with(commandExecutionContext) { case.automationCommand.toArguments() }.getOrNull()
+        val result =
+            either {
+                with(commandExecutionContext) { case.automationCommand.toArguments() }
+            }.getOrNull()
 
         // assert
-        assertNotNull(result)
-        assertContains(result, case.expectedExecCmds, "Failed to " + case.description)
+        result shouldNotBe null
+        assertContains(result!!, case.expectedExecCmds, "Failed to " + case.failedTestDescription)
     }
 
     @Test
-    fun `should pass project as a first argument`() {
+    fun `passes project as a first argument`() {
         // arrange
         val command =
             RunAutomationCommand(
@@ -76,11 +78,16 @@ class RunAutomationCommandTests {
         val context = CommandExecutionContextStub(workingDirectory = "")
 
         // act
-        val result = with(context) { command.toArguments() }.getOrNull()
+        val result =
+            either {
+                with(context) { command.toArguments() }
+            }.getOrNull()
 
         // assert
-        assertNotNull(result)
-        assertTrue { result.isNotEmpty() }
-        assertEquals(testProject.value, result.first())
+        result
+            .shouldNotBe(null)
+            .shouldNotBeEmpty()
+            .first()
+            .shouldBe(testProject.value)
     }
 }

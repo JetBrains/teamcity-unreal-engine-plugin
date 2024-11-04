@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph
 
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -25,7 +27,6 @@ private const val PROPERTY_KEY_PREFIX = "build-graph.internal-settings."
 
 sealed interface BuildGraphRunnerInternalSettings {
     companion object {
-        @OptIn(ExperimentalSerializationApi::class)
         fun fromRunnerParameters(parametersMap: Map<String, String>): BuildGraphRunnerInternalSettings {
             val settingsSubMap =
                 parametersMap
@@ -55,7 +56,6 @@ sealed interface BuildGraphRunnerInternalSettings {
     ) : BuildGraphRunnerInternalSettings
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 fun BuildGraphRunnerInternalSettings.toMap() =
     properties
         .encodeToStringMap(this)

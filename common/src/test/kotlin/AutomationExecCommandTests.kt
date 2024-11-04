@@ -7,97 +7,96 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationT
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.ExecCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.RunFilterType
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.UnrealAutomationTest
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class AutomationExecCommandTests {
-    companion object {
-        data class HappyTestCase(
-            val description: String,
-            val runnerParameters: Map<String, String>,
-            val expectedExecCommand: ExecCommand,
-        )
+    data class HappyPathTestCase(
+        val runnerParameters: Map<String, String>,
+        val expectedExecCommand: ExecCommand,
+        val failedTestDescription: String,
+    )
 
-        private const val TEST_FILTER_NAME = "testNameFilter"
+    private val testFilterName = "testNameFilter"
 
-        @JvmStatic
-        fun generateHappyPathTestCases(): List<HappyTestCase> =
-            listOf(
-                HappyTestCase(
-                    "parse RunAll command",
-                    mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.all.name),
-                    ExecCommand.RunAll,
-                ),
-                HappyTestCase(
-                    "parse RunTests command with non empty tests",
+    private fun `parses automation command`(): List<HappyPathTestCase> =
+        listOf(
+            HappyPathTestCase(
+                runnerParameters = mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.all.name),
+                expectedExecCommand = ExecCommand.RunAll,
+                failedTestDescription = "parse RunAll command",
+            ),
+            HappyPathTestCase(
+                runnerParameters =
                     mapOf(
                         AutomationExecCommandParameter.name to AutomationExecCommandParameter.list.name,
-                        AutomationTestsParameter.name to TEST_FILTER_NAME,
+                        AutomationTestsParameter.name to testFilterName,
                     ),
-                    ExecCommand.RunTests(listOf(UnrealAutomationTest(TEST_FILTER_NAME))),
-                ),
-                HappyTestCase(
-                    "parse RunFilter command with non empty filter",
+                expectedExecCommand = ExecCommand.RunTests(listOf(UnrealAutomationTest(testFilterName))),
+                failedTestDescription = "parse RunTests command with non empty tests",
+            ),
+            HappyPathTestCase(
+                runnerParameters =
                     mapOf(
                         AutomationExecCommandParameter.name to AutomationExecCommandParameter.filter.name,
                         AutomationFilterParameter.name to RunFilterType.Product.name,
                     ),
-                    ExecCommand.RunFilter(RunFilterType.Product),
-                ),
-                HappyTestCase(
-                    "parse RunAll command with non empty tests and filter",
+                expectedExecCommand = ExecCommand.RunFilter(RunFilterType.Product),
+                failedTestDescription = "parse RunFilter command with non empty filter",
+            ),
+            HappyPathTestCase(
+                runnerParameters =
                     mapOf(
                         AutomationExecCommandParameter.name to AutomationExecCommandParameter.all.name,
                         AutomationFilterParameter.name to RunFilterType.Product.name,
-                        AutomationTestsParameter.name to TEST_FILTER_NAME,
+                        AutomationTestsParameter.name to testFilterName,
                     ),
-                    ExecCommand.RunAll,
-                ),
-            )
-
-        data class UnhappyTestCase(
-            val description: String,
-            val runnerParameters: Map<String, String>,
-            val expectedError: PropertyValidationError,
+                expectedExecCommand = ExecCommand.RunAll,
+                failedTestDescription = "parse RunAll command with non empty tests and filter",
+            ),
         )
 
-        @JvmStatic
-        fun generateInvalidDataTestCases(): List<UnhappyTestCase> =
-            listOf(
-                UnhappyTestCase(
-                    "return expected error when command is RunTests but the list of tests is empty",
-                    mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.list.name),
-                    PropertyValidationError(AutomationTestsParameter.name, "Empty list of test names."),
-                ),
-                UnhappyTestCase(
-                    "return expected error when command is RunFilter but the filter is empty",
-                    mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.filter.name),
-                    PropertyValidationError(AutomationFilterParameter.name, "Empty test filter."),
-                ),
-            )
-    }
-
     @ParameterizedTest
-    @MethodSource("generateHappyPathTestCases")
-    fun `should parse automation command`(case: HappyTestCase) {
+    @MethodSource("parses automation command")
+    fun `parses automation command`(case: HappyPathTestCase) {
         // act
         val result = either { AutomationExecCommandParameter.parse(case.runnerParameters) }.getOrNull()
 
         // assert
-        assertNotNull(result)
-        assertEquals(case.expectedExecCommand, result, "Failed to ${case.description}")
+        result shouldNotBe null
+        assertEquals(case.expectedExecCommand, result, "Failed to ${case.failedTestDescription}")
     }
 
+    data class UnhappyPathTestCase(
+        val runnerParameters: Map<String, String>,
+        val expectedError: PropertyValidationError,
+        val failedTestDescription: String,
+    )
+
+    private fun `raises error when parameters are invalid`(): List<UnhappyPathTestCase> =
+        listOf(
+            UnhappyPathTestCase(
+                runnerParameters = mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.list.name),
+                expectedError = PropertyValidationError(AutomationTestsParameter.name, "Empty list of test names."),
+                failedTestDescription = "return expected error when command is RunTests but the list of tests is empty",
+            ),
+            UnhappyPathTestCase(
+                runnerParameters = mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.filter.name),
+                expectedError = PropertyValidationError(AutomationFilterParameter.name, "Empty test filter."),
+                failedTestDescription = "return expected error when command is RunFilter but the filter is empty",
+            ),
+        )
+
     @ParameterizedTest
-    @MethodSource("generateInvalidDataTestCases")
-    fun `should parse automation command`(case: UnhappyTestCase) {
+    @MethodSource("raises error when parameters are invalid")
+    fun `raises error when parameters are invalid`(case: UnhappyPathTestCase) {
         // act
         val result = either { AutomationExecCommandParameter.parse(case.runnerParameters) }.leftOrNull()
 
         // assert
-        assertNotNull(result)
-        assertEquals(case.expectedError, result, "Failed to ${case.description}")
+        result shouldNotBe null
+        assertEquals(case.expectedError, result, "Failed to ${case.failedTestDescription}")
     }
 }

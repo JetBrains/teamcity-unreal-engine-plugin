@@ -10,29 +10,35 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealComma
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealEngineIdentifierParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealEngineRootParameter
 import com.jetbrains.teamcity.plugins.unrealengine.server.runner.RunnerDescriptionGenerator
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import kotlin.test.assertEquals
 
 class RunnerDescriptionGeneratorTests {
-    companion object {
-        @JvmStatic
-        fun generateHappyPathTestCases(): Collection<TestCase> =
-            buildList {
-                val buildCookRun =
-                    TestCase(
+    data class TestCase(
+        val runnerParameters: Map<String, String>,
+        val expectedDescription: String,
+    )
+
+    private fun `generates a proper description when the parameters are correct`(): Collection<TestCase> =
+        buildList {
+            val buildCookRun =
+                TestCase(
+                    runnerParameters =
                         mapOf(
                             EngineDetectionModeParameter.name to EngineDetectionModeParameter.manual.name,
                             UnrealEngineRootParameter.name to "/foo/UE_5.2",
                             UnrealCommandTypeParameter.name to UnrealCommandType.BuildCookRun.name,
                             BuildCookRunProjectPathParameter.name to "foo/bar.uproject",
                         ),
+                    expectedDescription =
                         "Command: BuildCookRun, Project: foo/bar.uproject, " +
                             "Engine detection mode: Manual, Engine Root path: /foo/UE_5.2",
-                    )
+                )
 
-                val buildGraph =
-                    TestCase(
+            val buildGraph =
+                TestCase(
+                    runnerParameters =
                         mapOf(
                             EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
                             UnrealEngineIdentifierParameter.name to "5.3",
@@ -41,43 +47,40 @@ class RunnerDescriptionGeneratorTests {
                             BuildGraphTargetNodeParameter.name to "FooBar",
                             BuildGraphModeParameter.name to BuildGraphModeParameter.distributed.name,
                         ),
+                    expectedDescription =
                         "Command: BuildGraph, Script path: foo/BuildGraph.xml, " +
                             "Target: FooBar, Mode: Distributed, Engine detection mode: Auto, Engine identifier: 5.3",
-                    )
+                )
 
-                val runAutomation =
-                    TestCase(
+            val runAutomation =
+                TestCase(
+                    runnerParameters =
                         mapOf(
                             EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
                             UnrealEngineIdentifierParameter.name to "5.3",
                             UnrealCommandTypeParameter.name to UnrealCommandType.RunAutomation.name,
                             AutomationProjectPathParameter.name to "bar/baz.uproject",
                         ),
+                    expectedDescription =
                         "Command: RunAutomation, Project: bar/baz.uproject, " +
                             "Engine detection mode: Auto, Engine identifier: 5.3",
-                    )
+                )
 
-                add(buildCookRun)
-                add(buildGraph)
-                add(runAutomation)
-            }
-    }
-
-    data class TestCase(
-        val parameters: Map<String, String>,
-        val expectedDescription: String,
-    )
+            add(buildCookRun)
+            add(buildGraph)
+            add(runAutomation)
+        }
 
     @ParameterizedTest
-    @MethodSource("generateHappyPathTestCases")
-    fun `should generate a proper description when the parameters are correct`(case: TestCase) {
+    @MethodSource("generates a proper description when the parameters are correct")
+    fun `generates a proper description when the parameters are correct`(case: TestCase) {
         // arrange
         val generator = RunnerDescriptionGenerator()
 
         // act
-        val result = generator.generate(case.parameters)
+        val result = generator.generate(case.runnerParameters)
 
         // assert
-        assertEquals(case.expectedDescription, result)
+        result shouldBe case.expectedDescription
     }
 }

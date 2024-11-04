@@ -38,50 +38,50 @@ object BuildConfigurationParameter : SelectParameter() {
         )
 
     context(Raise<NonEmptyList<PropertyValidationError>>)
-    fun parseBuildConfiguration(properties: Map<String, String>) =
-        when (properties[name]) {
-            standalone.name -> parseStandalone(properties)
-            client.name -> parseClient(properties)
-            server.name -> parseServer(properties)
-            clientAndServer.name -> parseClientAndServer(properties)
+    fun parseBuildConfiguration(runnerParameters: Map<String, String>) =
+        when (runnerParameters[name]) {
+            standalone.name -> parseStandalone(runnerParameters)
+            client.name -> parseClient(runnerParameters)
+            server.name -> parseServer(runnerParameters)
+            clientAndServer.name -> parseClientAndServer(runnerParameters)
             else -> {
                 raise(nonEmptyListOf(PropertyValidationError(name, "Unknown build configuration type.")))
             }
         }
 
     context(Raise<NonEmptyList<PropertyValidationError>>)
-    private fun parseStandalone(properties: Map<String, String>) =
+    private fun parseStandalone(runnerParameters: Map<String, String>) =
         zipOrAccumulate(
-            { parseTargetConfigurations(properties, UnrealTargetConfigurationsParameter.Standalone.name) },
-            { parseTargetPlatforms(properties, UnrealTargetPlatformsParameter.Standalone.name) },
-        ) { configuration, platforms -> BuildConfiguration.Standalone(configuration, platforms, parseBuildTargets(properties)) }
+            { parseTargetConfigurations(runnerParameters, UnrealTargetConfigurationsParameter.Standalone.name) },
+            { parseTargetPlatforms(runnerParameters, UnrealTargetPlatformsParameter.Standalone.name) },
+        ) { configuration, platforms -> BuildConfiguration.Standalone(configuration, platforms, parseBuildTargets(runnerParameters)) }
 
     context(Raise<NonEmptyList<PropertyValidationError>>)
-    private fun parseClient(properties: Map<String, String>) =
+    private fun parseClient(runnerParameters: Map<String, String>) =
         zipOrAccumulate(
-            { parseTargetConfigurations(properties, UnrealTargetConfigurationsParameter.Client.name) },
-            { parseTargetPlatforms(properties, UnrealTargetPlatformsParameter.Client.name) },
-        ) { configuration, platforms -> BuildConfiguration.Client(configuration, platforms, parseBuildTargets(properties)) }
+            { parseTargetConfigurations(runnerParameters, UnrealTargetConfigurationsParameter.Client.name) },
+            { parseTargetPlatforms(runnerParameters, UnrealTargetPlatformsParameter.Client.name) },
+        ) { configuration, platforms -> BuildConfiguration.Client(configuration, platforms, parseBuildTargets(runnerParameters)) }
 
     context(Raise<NonEmptyList<PropertyValidationError>>)
-    private fun parseServer(properties: Map<String, String>) =
+    private fun parseServer(runnerParameters: Map<String, String>) =
         zipOrAccumulate(
-            { parseTargetConfigurations(properties, UnrealTargetConfigurationsParameter.Server.name) },
-            { parseTargetPlatforms(properties, UnrealTargetPlatformsParameter.Server.name) },
-        ) { configuration, platforms -> BuildConfiguration.Server(configuration, platforms, parseBuildTargets(properties)) }
+            { parseTargetConfigurations(runnerParameters, UnrealTargetConfigurationsParameter.Server.name) },
+            { parseTargetPlatforms(runnerParameters, UnrealTargetPlatformsParameter.Server.name) },
+        ) { configuration, platforms -> BuildConfiguration.Server(configuration, platforms, parseBuildTargets(runnerParameters)) }
 
     context(Raise<NonEmptyList<PropertyValidationError>>)
-    private fun parseClientAndServer(properties: Map<String, String>) =
+    private fun parseClientAndServer(runnerParameters: Map<String, String>) =
         zipOrAccumulate(
-            { parseClient(properties) },
-            { parseServer(properties) },
+            { parseClient(runnerParameters) },
+            { parseServer(runnerParameters) },
         ) { client, server ->
             BuildConfiguration.ClientAndServer(
                 client.configuration,
                 client.platforms,
                 server.configuration,
                 server.platforms,
-                parseBuildTargets(properties),
+                parseBuildTargets(runnerParameters),
             )
         }
 }

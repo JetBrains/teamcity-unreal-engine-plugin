@@ -17,6 +17,11 @@ object ArchiveSwitchParameter : CheckboxParameter {
     override val defaultValue = true.toString()
     override val description = "Place this build in an archive directory."
     override val advanced = false
+
+    fun parseArchiveOptions(runnerParameters: Map<String, String>) =
+        runnerParameters[name]?.toBooleanStrictOrNull()?.let {
+            ArchiveOptions.from(runnerParameters)
+        }
 }
 
 object ArchiveDirectoryParameter : TextInputParameter {

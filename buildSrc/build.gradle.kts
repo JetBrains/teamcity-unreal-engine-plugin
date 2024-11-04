@@ -4,10 +4,14 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven("https://plugins.gradle.org/m2/")
+    gradlePluginPortal()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:2.0.0")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.25.0")
+    implementation("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:${libs.versions.kotlin.get()}")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:${libs.versions.spotless.get()}")
+    implementation("io.github.rodm:gradle-teamcity-plugin:${libs.versions.rodm.get()}")
+
+    // https://github.com/gradle/gradle/issues/15383#issuecomment-779893192
+    implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 }

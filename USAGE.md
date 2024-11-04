@@ -9,6 +9,7 @@ the plugin is already [installed](README.md#installation) on your TeamCity insta
 * [Build Graph](#build-graph)
 * [UGS integration](#ugs-integration)
 * [Limitations](#limitations)
+* [Resources](#resources)
 
 ### Engine installation detection
 
@@ -129,6 +130,24 @@ commitStatusPublisher {
 
 #### Build Graph
 
+To enable support within a BuildGraph build, you should run it in “distributed” mode and configure
+the settings as follows:
+
+```kotlin
+unrealEngine {
+    command = buildGraph {
+        // irrelevant settings are omitted
+        executionMode = distributed {
+            badges = enableBadges {
+                metadataServer = "http://localhost:3000"
+            }
+        }
+    }
+}
+```
+Alternatively, you can configure it in the UI:
+<img src="./assets/bg-badges-ui.png" alt="BuildGraph badges" width="600"/>
+
 In this case all the badges defined in the script will be published according to the dependent nodes they are linked to.
 
 As an example of the script:
@@ -167,6 +186,13 @@ change to "Failure". The badge will only show "Success" when all dependencies co
 * Currently, for the distributed BuildGraph mode to work,
   your build configuration must contain exactly one active build step.
   This should be addressed in [TW-89015](https://youtrack.jetbrains.com/issue/TW-89015)
+
+### Resources
+
+If you'd like to learn more about the plugin, check out these blog posts:
+
+* [Introducing the Unreal Engine Plugin for TeamCity](https://blog.jetbrains.com/teamcity/2024/05/unreal-engine-plugin-for-teamcity/)
+* [Updates on Unreal Engine Support in TeamCity: UGS Integration and Open-Sourcing the Plugin](TODO)
 
 [teamcity.agent.configuration]: https://www.jetbrains.com/help/teamcity/configure-agent-installation.html
 [teamcity.commit-status-publisher]: https://www.jetbrains.com/help/teamcity/commit-status-publisher.html

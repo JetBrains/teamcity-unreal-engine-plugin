@@ -21,17 +21,17 @@ object EngineDetectionModeParameter : SelectParameter() {
     override val options = listOf(automatic, manual)
 
     context(Raise<PropertyValidationError>)
-    fun parseDetectionMode(properties: Map<String, String>): EngineDetectionMode =
-        when (properties[name]) {
+    fun parseDetectionMode(runnerParameters: Map<String, String>): EngineDetectionMode =
+        when (runnerParameters[name]) {
             automatic.name -> {
-                val engineIdentifier = properties[UnrealEngineIdentifierParameter.name]
+                val engineIdentifier = runnerParameters[UnrealEngineIdentifierParameter.name]
                 if (engineIdentifier.isNullOrEmpty()) {
                     raise(PropertyValidationError(UnrealEngineIdentifierParameter.name, "The engine version cannot be empty."))
                 }
                 EngineDetectionMode.Automatic(UnrealEngineIdentifier(engineIdentifier))
             }
             manual.name -> {
-                val engineRootDirectory = properties[UnrealEngineRootParameter.name]
+                val engineRootDirectory = runnerParameters[UnrealEngineRootParameter.name]
                 if (engineRootDirectory.isNullOrEmpty()) {
                     raise(PropertyValidationError(UnrealEngineRootParameter.name, "The engine root path must be set."))
                 }

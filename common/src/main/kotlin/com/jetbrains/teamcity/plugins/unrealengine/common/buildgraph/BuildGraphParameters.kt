@@ -21,8 +21,8 @@ object BuildGraphScriptPathParameter : TextInputParameter {
     override val advanced = false
 
     context(Raise<PropertyValidationError>)
-    fun parseScriptPath(properties: Map<String, String>): BuildGraphScriptPath {
-        val scriptPath = properties[name]
+    fun parseScriptPath(runnerParameters: Map<String, String>): BuildGraphScriptPath {
+        val scriptPath = runnerParameters[name]
         if (scriptPath.isNullOrEmpty()) {
             raise(PropertyValidationError(name, "The path to the script is not set."))
         }
@@ -42,8 +42,8 @@ object BuildGraphTargetNodeParameter : TextInputParameter {
     override val advanced = false
 
     context(Raise<PropertyValidationError>)
-    fun parseTargetNode(properties: Map<String, String>): BuildGraphTargetNode {
-        val targetNode = properties[name]
+    fun parseTargetNode(runnerParameters: Map<String, String>): BuildGraphTargetNode {
+        val targetNode = runnerParameters[name]
         if (targetNode.isNullOrEmpty()) {
             raise(PropertyValidationError(name, "The target node name is not set."))
         }
@@ -63,8 +63,8 @@ object BuildGraphOptionsParameter : RunnerParameter {
         """.trimIndent()
 
     context(Raise<PropertyValidationError>)
-    fun parseOptions(properties: Map<String, String>): List<BuildGraphOption> {
-        val optionsString = properties[name]
+    fun parseOptions(runnerParameters: Map<String, String>): List<BuildGraphOption> {
+        val optionsString = runnerParameters[name]
         if (optionsString.isNullOrEmpty()) {
             return emptyList()
         }
@@ -103,14 +103,14 @@ object BuildGraphModeParameter : SelectParameter() {
     override val options = listOf(singleMachine, distributed)
 
     context(Raise<PropertyValidationError>)
-    fun parse(properties: Map<String, String>): BuildGraphMode {
-        val modeRaw = properties[name] ?: return BuildGraphMode.SingleMachine
+    fun parse(runnerParameters: Map<String, String>): BuildGraphMode {
+        val modeRaw = runnerParameters[name] ?: return BuildGraphMode.SingleMachine
 
         return when (modeRaw) {
             singleMachine.name -> BuildGraphMode.SingleMachine
             distributed.name -> {
-                val postBadges = properties[PostBadgesFromGraphParameter.name].toBoolean()
-                val metadataServerUrl = properties[UgsMetadataServerUrlParameter.name]
+                val postBadges = runnerParameters[PostBadgesFromGraphParameter.name].toBoolean()
+                val metadataServerUrl = runnerParameters[UgsMetadataServerUrlParameter.name]
                 if (postBadges) {
                     ensure(!metadataServerUrl.isNullOrBlank()) {
                         PropertyValidationError(UgsMetadataServerUrlParameter.name, "Metadata server URL should not be empty")

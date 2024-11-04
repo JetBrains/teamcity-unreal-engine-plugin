@@ -1,9 +1,12 @@
+
+import org.gradle.accessors.dm.LibrariesForLibs
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 plugins {
     id("com.diffplug.spotless")
+    id("io.github.rodm.teamcity-base")
     kotlin("jvm")
 }
 
@@ -18,6 +21,13 @@ project.version = if (project.findProperty("version") == "unspecified") {
     project.version
 }
 
+val libs = the<LibrariesForLibs>()
+
+teamcity {
+    version = libs.versions.teamcity.get()
+    validateBeanDefinition = com.github.rodm.teamcity.ValidationMode.FAIL
+}
+
 kotlin {
     jvmToolchain {
         languageVersion.set(JavaLanguageVersion.of(11))
@@ -27,7 +37,7 @@ kotlin {
 
 spotless {
     kotlin {
-        ktlint("1.3.0")
+        ktlint(libs.versions.ktlint.get())
 			.setEditorConfigPath("${rootDir}/.editorconfig")
     }
 }

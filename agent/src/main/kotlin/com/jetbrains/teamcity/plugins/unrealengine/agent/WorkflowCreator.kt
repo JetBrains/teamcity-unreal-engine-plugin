@@ -1,6 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.agent
 
 import arrow.core.raise.Raise
+import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRunner
 import jetbrains.buildServer.agent.BuildFinishedStatus
 import jetbrains.buildServer.agent.problems.ExitCodeProblemBuilder
@@ -39,25 +40,6 @@ data class Workflow(
 }
 
 interface WorkflowCreator {
-    context(Raise<WorkflowCreationError>, UnrealBuildContext)
+    context(Raise<GenericError>, UnrealBuildContext)
     suspend fun create(): Workflow
-}
-
-sealed interface WorkflowCreationError {
-    val message: String
-
-    @JvmInline
-    value class CommandCreationError(
-        override val message: String,
-    ) : WorkflowCreationError
-
-    @JvmInline
-    value class ExecutionPreparationError(
-        override val message: String,
-    ) : WorkflowCreationError
-
-    @JvmInline
-    value class EngineLocationError(
-        override val message: String,
-    ) : WorkflowCreationError
 }
