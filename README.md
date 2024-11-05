@@ -2,6 +2,7 @@
 
 [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![build status](https://teamcity.jetbrains.com/app/rest/builds/buildType:id:TeamCityPluginsByJetBrains_TeamCityUnrealEnginePlugin_MasterBuild/statusIcon.svg)
 
 This plugin allows you to build Unreal Engine projects in TeamCity.
 
@@ -24,7 +25,8 @@ You can download the plugin from the [marketplace][marketplace.plugin-page]. Ins
 
 ## How to Contribute
 
-We place a high value on user feedback and encourage you to share your experience and suggestions. Send a Pull Request to contribute or contact us via [YouTrack][youtrack] to report an issue.
+We highly value user feedback and encourage you to share your experience and suggestions.
+You can contribute by sending a Pull Request, opening an issue on GitHub, or reaching out via [YouTrack][youtrack].
 
 ## Development
 
@@ -52,6 +54,6 @@ We place a high value on user feedback and encourage you to share your experienc
 - [Maintainership](MAINTAINERSHIP.md)
 - [Configuration](CONFIGURATION.md)
 
-[youtrack]: https://youtrack.jetbrains.com/newIssue?project=TW&c=add%20Board%20TeamCity%20BTI%20%7C%20TeamCity%20Releases&c=add%20Board%20TeamCity%20Documentation%20No%20Fix%20versions&c=add%20Board%20TeamCity%20BTI&c=Team%20Build%20Tools%20Integrations&c=tag%20tc-unreal-engine
+[youtrack]: https://youtrack.jetbrains.com/newIssue?project=TW
 [marketplace.plugin-page]: https://plugins.jetbrains.com/plugin/22679-unreal-engine-support
 [plugin-installation-guide]: https://www.jetbrains.com/help/teamcity/installing-additional-plugins.html

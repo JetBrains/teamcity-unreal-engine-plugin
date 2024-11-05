@@ -7,14 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+
+### Changed
+
+### Fixed
+
+## 1.1.0 - 2024-11-06
+
+The plugin is now open-source and available on [GitHub](https://github.com/JetBrains/teamcity-unreal-engine-plugin)
+
+### Added
+
 - UGS metadata server integration, implemented as an extension to the existing Commit Status Publisher feature and
 within dynamically generated BuildGraph builds [TW-88798](https://youtrack.jetbrains.com/issue/TW-88798)
 
 ### Changed
+
 - Generated BuildGraph builds (in distributed mode) now inherit the build number from the "parent" build [TW-90184](https://youtrack.jetbrains.com/issue/TW-90184/)
 - Configuration parameters are now propagated to the generated BuildGraph virtual builds as well [TW-90185](https://youtrack.jetbrains.com/issue/TW-90185)
 
 ### Fixed
+
 - Custom identifiers for Unreal Engine installations on agents are now correctly provisioned as agent parameters,
   with no duplicate dots (if present) and without curly braces (in the case of auto-generated source build IDs)
 
