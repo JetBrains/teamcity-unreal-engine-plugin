@@ -195,7 +195,7 @@ It’s your responsibility to set it up properly.
 If you'd like to learn more about the plugin, check out these blog posts:
 
 * [Introducing the Unreal Engine Plugin for TeamCity](https://blog.jetbrains.com/teamcity/2024/05/unreal-engine-plugin-for-teamcity/)
-* [Updates on Unreal Engine Support in TeamCity: UGS Integration and Open-Sourcing the Plugin](TODO)
+* [Updates on Unreal Engine Support in TeamCity: UGS Integration and Open-Sourcing the Plugin](https://blog.jetbrains.com/teamcity/2024/11/unreal-engine-plugin-ugs-integration-and-open-sourcing/)
 
 [teamcity.agent.configuration]: https://www.jetbrains.com/help/teamcity/configure-agent-installation.html
 [teamcity.commit-status-publisher]: https://www.jetbrains.com/help/teamcity/commit-status-publisher.html

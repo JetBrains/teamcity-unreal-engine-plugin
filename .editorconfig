@@ -11,3 +11,6 @@ indent_size = 4
 [*.{kt,kts}]
 ktlint_code_style = ktlint_official
 ktlint_standard_no-wildcard-imports = disabled
+
+[{package.json,package-lock.json}]
+indent_size = 2

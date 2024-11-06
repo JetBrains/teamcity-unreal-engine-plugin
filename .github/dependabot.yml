@@ -1,0 +1,13 @@
+version: 2
+updates:
+    -   package-ecosystem: npm
+        directory: "/server/frontend"
+        schedule:
+            interval: monthly
+        # Disable version updates for npm dependencies, perform only security updates
+        open-pull-requests-limit: 0
+        versioning-strategy: increase
+        groups:
+            server-frontend:
+                patterns:
+                    - "*"   # A wildcard that matches all dependencies in the package
