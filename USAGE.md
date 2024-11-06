@@ -146,6 +146,7 @@ unrealEngine {
 }
 ```
 Alternatively, you can configure it in the UI:
+
 <img src="./assets/bg-badges-ui.png" alt="BuildGraph badges" width="600"/>
 
 In this case all the badges defined in the script will be published according to the dependent nodes they are linked to.
