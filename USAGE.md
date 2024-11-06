@@ -183,9 +183,12 @@ change to "Failure". The badge will only show "Success" when all dependencies co
 
 ### Limitations
 
+* Although TeamCity still supports Java 8, this plugin is compatible with Java 11 or newer.
 * Currently, for the distributed BuildGraph mode to work,
   your build configuration must contain exactly one active build step.
   This should be addressed in [TW-89015](https://youtrack.jetbrains.com/issue/TW-89015)
+* Currently, the plugin does not manage the retention period of the produced artifacts in the shared storage in any way.
+It’s your responsibility to set it up properly.
 
 ### Resources
 
