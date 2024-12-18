@@ -54,6 +54,8 @@ in distributed mode [TW-87893](https://youtrack.jetbrains.com/issue/TW-87893)
 
 ## 1.0.0 - 2024-05-07
 
+Starting from this version, the plugin requires TeamCity version 2023.05 or newer.
+
 ### Added
 
 - Introduction of the distributed BuildGraph run mode

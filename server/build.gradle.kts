@@ -25,8 +25,8 @@ teamcity {
             allowRuntimeReload = true
             nodeResponsibilitiesAware = true
 
-            // new agent API is used since that version
-            minimumBuild = "116751" // 2022.10
+            // virtual configurations functionality is available starting from this version
+            minimumBuild = "129203" // 2023.05
 
             // temporary fragile workaround https://youtrack.jetbrains.com/issue/TW-89103
             dependencies {
