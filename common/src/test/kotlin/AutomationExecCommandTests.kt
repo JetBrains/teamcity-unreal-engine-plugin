@@ -1,12 +1,12 @@
 
 import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationExecCommandParameter
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationFilterParameter
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationTestsParameter
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.ExecCommand
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.RunFilterType
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.UnrealAutomationTest
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsExecCommandParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsFilterParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.ExecCommand
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.RunFilterType
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.UnrealAutomationTest
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -24,14 +24,14 @@ class AutomationExecCommandTests {
     private fun `parses automation command`(): List<HappyPathTestCase> =
         listOf(
             HappyPathTestCase(
-                runnerParameters = mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.all.name),
+                runnerParameters = mapOf(AutomationTestsExecCommandParameter.name to AutomationTestsExecCommandParameter.all.name),
                 expectedExecCommand = ExecCommand.RunAll,
                 failedTestDescription = "parse RunAll command",
             ),
             HappyPathTestCase(
                 runnerParameters =
                     mapOf(
-                        AutomationExecCommandParameter.name to AutomationExecCommandParameter.list.name,
+                        AutomationTestsExecCommandParameter.name to AutomationTestsExecCommandParameter.list.name,
                         AutomationTestsParameter.name to testFilterName,
                     ),
                 expectedExecCommand = ExecCommand.RunTests(listOf(UnrealAutomationTest(testFilterName))),
@@ -40,8 +40,8 @@ class AutomationExecCommandTests {
             HappyPathTestCase(
                 runnerParameters =
                     mapOf(
-                        AutomationExecCommandParameter.name to AutomationExecCommandParameter.filter.name,
-                        AutomationFilterParameter.name to RunFilterType.Product.name,
+                        AutomationTestsExecCommandParameter.name to AutomationTestsExecCommandParameter.filter.name,
+                        AutomationTestsFilterParameter.name to RunFilterType.Product.name,
                     ),
                 expectedExecCommand = ExecCommand.RunFilter(RunFilterType.Product),
                 failedTestDescription = "parse RunFilter command with non empty filter",
@@ -49,8 +49,8 @@ class AutomationExecCommandTests {
             HappyPathTestCase(
                 runnerParameters =
                     mapOf(
-                        AutomationExecCommandParameter.name to AutomationExecCommandParameter.all.name,
-                        AutomationFilterParameter.name to RunFilterType.Product.name,
+                        AutomationTestsExecCommandParameter.name to AutomationTestsExecCommandParameter.all.name,
+                        AutomationTestsFilterParameter.name to RunFilterType.Product.name,
                         AutomationTestsParameter.name to testFilterName,
                     ),
                 expectedExecCommand = ExecCommand.RunAll,
@@ -62,7 +62,7 @@ class AutomationExecCommandTests {
     @MethodSource("parses automation command")
     fun `parses automation command`(case: HappyPathTestCase) {
         // act
-        val result = either { AutomationExecCommandParameter.parse(case.runnerParameters) }.getOrNull()
+        val result = either { AutomationTestsExecCommandParameter.parse(case.runnerParameters) }.getOrNull()
 
         // assert
         result shouldNotBe null
@@ -78,13 +78,13 @@ class AutomationExecCommandTests {
     private fun `raises error when parameters are invalid`(): List<UnhappyPathTestCase> =
         listOf(
             UnhappyPathTestCase(
-                runnerParameters = mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.list.name),
+                runnerParameters = mapOf(AutomationTestsExecCommandParameter.name to AutomationTestsExecCommandParameter.list.name),
                 expectedError = PropertyValidationError(AutomationTestsParameter.name, "Empty list of test names."),
                 failedTestDescription = "return expected error when command is RunTests but the list of tests is empty",
             ),
             UnhappyPathTestCase(
-                runnerParameters = mapOf(AutomationExecCommandParameter.name to AutomationExecCommandParameter.filter.name),
-                expectedError = PropertyValidationError(AutomationFilterParameter.name, "Empty test filter."),
+                runnerParameters = mapOf(AutomationTestsExecCommandParameter.name to AutomationTestsExecCommandParameter.filter.name),
+                expectedError = PropertyValidationError(AutomationTestsFilterParameter.name, "Empty test filter."),
                 failedTestDescription = "return expected error when command is RunFilter but the filter is empty",
             ),
         )
@@ -93,7 +93,7 @@ class AutomationExecCommandTests {
     @MethodSource("raises error when parameters are invalid")
     fun `raises error when parameters are invalid`(case: UnhappyPathTestCase) {
         // act
-        val result = either { AutomationExecCommandParameter.parse(case.runnerParameters) }.leftOrNull()
+        val result = either { AutomationTestsExecCommandParameter.parse(case.runnerParameters) }.leftOrNull()
 
         // assert
         result shouldNotBe null

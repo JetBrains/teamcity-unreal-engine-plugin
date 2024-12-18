@@ -4,7 +4,7 @@ import arrow.core.raise.Raise
 import arrow.core.raise.ensureNotNull
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommandType
-import com.jetbrains.teamcity.plugins.unrealengine.common.enumValueOfOrNull
+import kotlin.enums.enumEntries
 
 object UnrealCommandTypeParameter : SelectParameter() {
     val commands =
@@ -20,9 +20,17 @@ object UnrealCommandTypeParameter : SelectParameter() {
                 "viewBuildGraphProperties.jsp",
             ),
             UnrealCommand(
-                SelectOption(UnrealCommandType.RunAutomation.name),
-                "editRunAutomationProperties.jsp",
-                "viewRunAutomationProperties.jsp",
+                SelectOption(
+                    name = UnrealCommandType.RunAutomationTests.value,
+                    displayName = UnrealCommandType.RunAutomationTests.name,
+                ),
+                "editRunAutomationTestsProperties.jsp",
+                "viewRunAutomationTestsProperties.jsp",
+            ),
+            UnrealCommand(
+                SelectOption(UnrealCommandType.RunAutomationCommand.name),
+                "editAutomationCommandProperties.jsp",
+                "viewAutomationCommandProperties.jsp",
             ),
             UnrealCommand(
                 SelectOption(UnrealCommandType.RunCommandlet.name),
@@ -46,7 +54,7 @@ object UnrealCommandTypeParameter : SelectParameter() {
     context(Raise<PropertyValidationError>)
     fun parse(runnerParameters: Map<String, String>): UnrealCommandType {
         val commandTypeRaw = runnerParameters[name] ?: raise(PropertyValidationError(name, "Unreal command type is missing"))
-        val commandType = enumValueOfOrNull<UnrealCommandType>(commandTypeRaw)
+        val commandType = enumEntries<UnrealCommandType>().find { it.value == commandTypeRaw }
         ensureNotNull(commandType) { PropertyValidationError(name, "Unknown Unreal command $commandTypeRaw") }
         return commandType
     }

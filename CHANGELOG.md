@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Support for launching commandlets via the runner [TW-87818](https://youtrack.jetbrains.com/issue/TW-87818)
+* Support for launching custom automation commands via the runner [TW-90747](https://youtrack.jetbrains.com/issue/TW-90747)
 
 ### Changed
 

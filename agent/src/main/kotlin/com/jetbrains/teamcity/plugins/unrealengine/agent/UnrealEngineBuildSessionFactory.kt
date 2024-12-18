@@ -2,10 +2,11 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent
 
 import arrow.core.getOrElse
 import arrow.core.raise.either
+import com.jetbrains.teamcity.plugins.unrealengine.agent.automation.commands.RunAutomationCommandWorkflowCreator
+import com.jetbrains.teamcity.plugins.unrealengine.agent.automation.tests.RunAutomationTestsWorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.agent.buildcookrun.BuildCookRunWorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.BuildGraphWorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.agent.commandlets.CommandletWorkflowCreator
-import com.jetbrains.teamcity.plugins.unrealengine.agent.runautomation.RunAutomationWorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommandType
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRunner
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealCommandTypeParameter
@@ -24,8 +25,9 @@ import kotlin.io.path.pathString
 class UnrealEngineBuildSessionFactory(
     private val buildCookRunWorkflowCreator: BuildCookRunWorkflowCreator,
     private val buildGraphWorkflowCreator: BuildGraphWorkflowCreator,
-    private val automationWorkflowCreator: RunAutomationWorkflowCreator,
+    private val automationTestsWorkflowCreator: RunAutomationTestsWorkflowCreator,
     private val commandletWorkflowCreator: CommandletWorkflowCreator,
+    private val automationCommandWorkflowCreator: RunAutomationCommandWorkflowCreator,
 ) : MultiCommandBuildSessionFactory {
     override fun createSession(runnerContext: BuildRunnerContext): MultiCommandBuildSession =
         either {
@@ -35,8 +37,9 @@ class UnrealEngineBuildSessionFactory(
                 when (commandType) {
                     UnrealCommandType.BuildCookRun -> buildCookRunWorkflowCreator
                     UnrealCommandType.BuildGraph -> buildGraphWorkflowCreator
-                    UnrealCommandType.RunAutomation -> automationWorkflowCreator
+                    UnrealCommandType.RunAutomationTests -> automationTestsWorkflowCreator
                     UnrealCommandType.RunCommandlet -> commandletWorkflowCreator
+                    UnrealCommandType.RunAutomationCommand -> automationCommandWorkflowCreator
                 }
 
             UnrealEngineBuildSession(workflowCreator, createUnrealBuildContext(runnerContext))

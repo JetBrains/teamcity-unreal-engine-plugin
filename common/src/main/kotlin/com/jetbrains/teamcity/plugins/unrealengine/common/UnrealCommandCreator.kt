@@ -5,7 +5,8 @@ import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
 import arrow.core.raise.Raise
 import arrow.core.raise.either
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.RunAutomationCommand
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.commands.RunAutomationCommand
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.RunAutomationTestsCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCookRunCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.RunCommandletCommand
@@ -24,11 +25,14 @@ class UnrealCommandCreator {
                     UnrealCommandType.BuildGraph -> {
                         BuildGraphCommand.from(runnerParameters)
                     }
-                    UnrealCommandType.RunAutomation -> {
-                        RunAutomationCommand.from(runnerParameters)
+                    UnrealCommandType.RunAutomationTests -> {
+                        RunAutomationTestsCommand.from(runnerParameters)
                     }
                     UnrealCommandType.RunCommandlet -> {
                         RunCommandletCommand.from(runnerParameters)
+                    }
+                    UnrealCommandType.RunAutomationCommand -> {
+                        RunAutomationCommand.from(runnerParameters)
                     }
                 }
             }

@@ -1,10 +1,10 @@
 
 import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.ExecCommand
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.RunAutomationCommand
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.RunFilterType
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.UnrealAutomationTest
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.ExecCommand
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.RunAutomationTestsCommand
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.RunFilterType
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.UnrealAutomationTest
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -13,12 +13,12 @@ import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.Test
 import kotlin.test.assertContains
 
-class RunAutomationCommandTests {
+class RunAutomationTestsCommandTests {
     private val commandExecutionContext = CommandExecutionContextStub()
     private val testProject = UnrealProjectPath("SomeName.uproject")
 
     data class TestCase(
-        val automationCommand: RunAutomationCommand,
+        val automationTestsCommand: RunAutomationTestsCommand,
         val expectedExecCmds: String,
         val failedTestDescription: String,
     )
@@ -26,13 +26,13 @@ class RunAutomationCommandTests {
     private fun `constructs ExecCmds argument`(): List<TestCase> =
         listOf(
             TestCase(
-                automationCommand = RunAutomationCommand(testProject, nullRHI = true, ExecCommand.RunAll),
+                automationTestsCommand = RunAutomationTestsCommand(testProject, nullRHI = true, ExecCommand.RunAll),
                 expectedExecCmds = "-ExecCmds=Automation RunAll;Quit;",
                 failedTestDescription = "fill ExecCmds argument with RunAll command",
             ),
             TestCase(
-                automationCommand =
-                    RunAutomationCommand(
+                automationTestsCommand =
+                    RunAutomationTestsCommand(
                         testProject,
                         nullRHI = true,
                         ExecCommand.RunTests(listOf(UnrealAutomationTest("testNameFilter"))),
@@ -41,8 +41,8 @@ class RunAutomationCommandTests {
                 failedTestDescription = "fill ExecCmds argument with RunTests command",
             ),
             TestCase(
-                automationCommand =
-                    RunAutomationCommand(
+                automationTestsCommand =
+                    RunAutomationTestsCommand(
                         testProject,
                         nullRHI = true,
                         ExecCommand.RunFilter(RunFilterType.Product),
@@ -58,7 +58,7 @@ class RunAutomationCommandTests {
         // act
         val result =
             either {
-                with(commandExecutionContext) { case.automationCommand.toArguments() }
+                with(commandExecutionContext) { case.automationTestsCommand.toArguments() }
             }.getOrNull()
 
         // assert
@@ -70,7 +70,7 @@ class RunAutomationCommandTests {
     fun `passes project as a first argument`() {
         // arrange
         val command =
-            RunAutomationCommand(
+            RunAutomationTestsCommand(
                 testProject,
                 nullRHI = true,
                 execCommand = ExecCommand.RunAll,
