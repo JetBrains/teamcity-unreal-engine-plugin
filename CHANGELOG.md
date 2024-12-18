@@ -7,19 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
-* Support for launching commandlets via the runner [TW-87818](https://youtrack.jetbrains.com/issue/TW-87818)
-* Support for launching custom automation commands via the runner [TW-90747](https://youtrack.jetbrains.com/issue/TW-90747)
-* Structured build logging and error highlighting
-  [TW-88848](https://youtrack.jetbrains.com/issue/TW-88848).
-  This means that previously successful builds might now generate build problems if one of the underlying Epic tools
-  reports them as such.
-  You can [mute][teamcity.build-problems.mute] these build problems or completely disable this new behavior
-  by setting the `UE_LOG_JSON_TO_STDOUT` environment variable to "0" in your build configurations.
-  That said, if you choose to do either of these, we encourage you to share your case with us by reporting a ticket.
 
 ### Changed
 
 ### Fixed
+
+## 1.2.0 - 2024-12-18
+
+### Added
+
+- Support for launching commandlets via the runner [TW-87818](https://youtrack.jetbrains.com/issue/TW-87818)
+- Support for launching custom automation commands via the runner [TW-90747](https://youtrack.jetbrains.com/issue/TW-90747)
+- Structured build logging and error highlighting
+  [TW-88848](https://youtrack.jetbrains.com/issue/TW-88848).
+  This means that previously successful builds might now generate build problems if any of the underlying Epic tools
+  report them as errors.
+  You can [mute][teamcity.build-problems.mute] these build problems or completely disable this new behavior
+  by setting the `UE_LOG_JSON_TO_STDOUT` environment variable to "0" in your build configurations.
+  That said, if you choose to do either of these, we encourage you to share your case with us by reporting a ticket.
 
 ## 1.1.0 - 2024-11-06
 
