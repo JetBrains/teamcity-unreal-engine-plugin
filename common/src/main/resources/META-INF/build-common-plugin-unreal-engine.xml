@@ -7,4 +7,5 @@
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommandCreator"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.common.build.events.AgentBuildEventConverter"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphSettings"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.common.ClockFactory" factory-method="systemClock"/>
 </beans>
