@@ -10,6 +10,10 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCook
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphModeParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphScriptPathParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphTargetNodeParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.CommandletArgumentsParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.CommandletNameParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.CommandletProjectPathParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.EditorExecutableParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.EngineDetectionModeParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealCommandTypeParameter
 
@@ -39,6 +43,14 @@ class RunnerDescriptionGenerator {
                             UnrealCommandTypeParameter,
                             AutomationProjectPathParameter,
                         )
+
+                    UnrealCommandType.RunCommandlet ->
+                        sequenceOf(
+                            EditorExecutableParameter,
+                            CommandletProjectPathParameter,
+                            CommandletNameParameter,
+                            CommandletArgumentsParameter,
+                        )
                 }.associate { it.displayName to runnerParameters[it.name] }
 
             val detectionModeParameters =
@@ -57,6 +69,7 @@ class RunnerDescriptionGenerator {
 
             (commandParameters + detectionModeParameters)
                 .asSequence()
+                .filter { it.value != null }
                 .joinToString(separator = ", ") { "${it.key}: ${it.value}" }
         }.getOrElse {
             logger.info("There was an error during runner description generation: $it")

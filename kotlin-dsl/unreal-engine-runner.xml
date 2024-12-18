@@ -36,7 +36,7 @@
                 <description>Manual</description>
                 <param name="engine-root-path" dslName="rootDir">
                     <description>
-                        Specify a path (absolute or relative to the checkout directory) to the Unreal Engine root folder.
+                        Specify a path (relative to the checkout directory or absolute) to the Unreal Engine root folder.
                     </description>
                 </param>
             </option>
@@ -288,6 +288,35 @@
                     </description>
                 </param>
             </option>
+
+            <option name="runCommandlet" value="RunCommandlet">
+                <param name="unreal-editor-executable" dslName="editorExecutable" type="string" mandatory="false">
+                    <description>
+                        The path or binary name for the Unreal Engine Editor.
+                        You can:
+                        • Leave it blank to use the default editor.
+                        • Provide a binary name to use it from the default path.
+                        • Specify a relative path to use it relative to the engine root directory.
+                        • Specify an absolute path to use it directly, bypassing engine detection logic.
+                    </description>
+                </param>
+                <param name="commandlet-project" dslName="project" type="string" mandatory="false">
+                    <description>
+                        The project to run the editor with.
+                        You can specify either the path to a project or its name if the project is "Native".
+                    </description>
+                </param>
+                <param name="commandlet-name" dslName="commandlet" type="string" mandatory="true">
+                    <description>
+                        The commandlet name to execute (the value which will be used with "-run=").
+                    </description>
+                </param>
+                <param name="commandlet-arguments" dslName="arguments" type="string">
+                    <description>
+                        Arguments to be passed to the commandlet.
+                    </description>
+                </param>
+            </option>
         </param>
 
         <param name="additional-arguments" dslName="additionalArguments" type="string">
@@ -386,6 +415,28 @@
                         }
                     }
                     additionalArguments = "-utf8output -buildmachine -unattended -noP4 -nosplash -stdout -NoCodeSign"
+                }
+            </code>
+        </example>
+
+        <example>
+            <description>
+                Runs a commandlet to compile all blueprints in a native project "Cropout"
+                (only the project name is specified, not the full path)
+                using the command-line version of the Unreal Editor.
+            </description>
+            <code>
+                unrealEngine {
+                    engineDetectionMode = manual {
+                        rootDir = "engine-root"
+                    }
+                    command = runCommandlet {
+                        editorExecutable = "UnrealEditor-Cmd"
+                        project = "Cropout"
+                        commandlet = "CompileAllBlueprints"
+                        arguments = "-DirtyOnly"
+                    }
+                    additionalArguments = "-buildmachine -unattended"
                 }
             </code>
         </example>

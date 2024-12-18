@@ -4,6 +4,7 @@ import arrow.core.getOrElse
 import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.unrealengine.agent.buildcookrun.BuildCookRunWorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.BuildGraphWorkflowCreator
+import com.jetbrains.teamcity.plugins.unrealengine.agent.commandlets.CommandletWorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.agent.runautomation.RunAutomationWorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommandType
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRunner
@@ -14,6 +15,7 @@ import jetbrains.buildServer.agent.BuildAgentConfiguration
 import jetbrains.buildServer.agent.BuildRunnerContext
 import jetbrains.buildServer.agent.runner.MultiCommandBuildSession
 import jetbrains.buildServer.agent.runner.MultiCommandBuildSessionFactory
+import java.nio.file.Paths
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -23,6 +25,7 @@ class UnrealEngineBuildSessionFactory(
     private val buildCookRunWorkflowCreator: BuildCookRunWorkflowCreator,
     private val buildGraphWorkflowCreator: BuildGraphWorkflowCreator,
     private val automationWorkflowCreator: RunAutomationWorkflowCreator,
+    private val commandletWorkflowCreator: CommandletWorkflowCreator,
 ) : MultiCommandBuildSessionFactory {
     override fun createSession(runnerContext: BuildRunnerContext): MultiCommandBuildSession =
         either {
@@ -33,6 +36,7 @@ class UnrealEngineBuildSessionFactory(
                     UnrealCommandType.BuildCookRun -> buildCookRunWorkflowCreator
                     UnrealCommandType.BuildGraph -> buildGraphWorkflowCreator
                     UnrealCommandType.RunAutomation -> automationWorkflowCreator
+                    UnrealCommandType.RunCommandlet -> commandletWorkflowCreator
                 }
 
             UnrealEngineBuildSession(workflowCreator, createUnrealBuildContext(runnerContext))
@@ -52,10 +56,10 @@ class UnrealEngineBuildSessionFactory(
             override val workingDirectory = runnerContext.workingDirectory.canonicalPath
             override val agentTempDirectory = runnerContext.build.agentTempDirectory.canonicalPath
 
-            override fun concatPaths(
+            override fun resolvePath(
                 root: String,
-                path: String,
-            ): String = Path(root).resolve(path).pathString
+                vararg parts: String,
+            ): String = Paths.get(root, *parts).normalize().toString()
 
             override fun fileExists(path: String) = Path(path).exists()
 

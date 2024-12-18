@@ -150,7 +150,7 @@ class UnrealEngineProviderTests {
                 )
 
             val context = UnrealBuildContextStub(isAbsoluteStub = { false })
-            val expectedRootLocation = UnrealEngineRootPath(context.concatPaths(context.workingDirectory, relativeRootPath))
+            val expectedRootLocation = UnrealEngineRootPath(context.resolvePath(context.workingDirectory, relativeRootPath))
 
             // act
             val root = rootProvider.act(runnerProperties, context)

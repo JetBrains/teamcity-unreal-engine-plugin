@@ -103,5 +103,5 @@ class DistributedExecutor(
     private fun ensureSharedDirectoryForBuild(
         root: String,
         compositeBuildId: String,
-    ) = createDirectory(concatPaths(root, compositeBuildId))
+    ) = createDirectory(resolvePath(root, compositeBuildId))
 }

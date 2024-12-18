@@ -16,13 +16,15 @@ class UnrealBuildContextStub(
     override val workingDirectory: String = "foo",
     override val agentTempDirectory: String = "bar",
     val fileExistsStub: (String) -> Boolean = { true },
-    val concatPathsStub: (String, String) -> String = { root, path -> "$root/$path" },
+    val resolvePathStub: (String, List<String>) -> String = { root, parts ->
+        listOf(root, *parts.toTypedArray()).joinToString(separator = "/")
+    },
     val isAbsoluteStub: (String) -> Boolean = { true },
 ) : UnrealBuildContext {
-    override fun concatPaths(
+    override fun resolvePath(
         root: String,
-        path: String,
-    ) = concatPathsStub(root, path)
+        vararg parts: String,
+    ) = resolvePathStub(root, parts.toList())
 
     override fun fileExists(path: String) = fileExistsStub(path)
 
