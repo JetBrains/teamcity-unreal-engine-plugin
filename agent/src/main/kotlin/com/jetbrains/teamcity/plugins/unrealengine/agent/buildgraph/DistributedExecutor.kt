@@ -6,10 +6,10 @@ import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.framework.common.Environment
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealBuildContext
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineCommandExecution
-import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProcessListener
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProgramCommandLine
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolRegistry
-import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.AutomationTestLogMessageHandler
+import com.jetbrains.teamcity.plugins.unrealengine.agent.build.log.UnrealEngineProcessListenerFactory
+import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.AutomationTestLogEventHandler
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.raise
@@ -21,6 +21,7 @@ class DistributedExecutor(
     private val environment: Environment,
     private val artifactsWatcher: ArtifactsWatcherEx,
     private val settingsCreator: DistributedBuildSettingsCreator,
+    private val processListenerFactory: UnrealEngineProcessListenerFactory,
 ) {
     context(Raise<GenericError>, UnrealBuildContext)
     suspend fun execute(command: BuildGraphCommand): List<UnrealEngineCommandExecution> {
@@ -55,7 +56,7 @@ class DistributedExecutor(
         return createUnrealCommandExecution(
             command.toArguments(),
             processListener =
-                object : ProcessListener by UnrealEngineProcessListener.create() {
+                object : ProcessListener by processListenerFactory.create() {
                     override fun processFinished(exitCode: Int) {
                         if (exitCode == 0) {
                             artifactsWatcher.addNewArtifactsPath(settings.exportedGraphPath)
@@ -79,7 +80,7 @@ class DistributedExecutor(
                     "-SharedStorageDir=$sharedDir",
                     "-WriteToSharedStorage",
                 ),
-            UnrealEngineProcessListener.create(AutomationTestLogMessageHandler()),
+            processListenerFactory.create(AutomationTestLogEventHandler()),
         )
     }
 

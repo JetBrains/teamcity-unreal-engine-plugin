@@ -7,12 +7,12 @@ import com.jetbrains.teamcity.plugins.framework.common.Environment
 import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealBuildContext
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineCommandExecution
-import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProcessListener
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProgramCommandLine
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolRegistry
 import com.jetbrains.teamcity.plugins.unrealengine.agent.Workflow
 import com.jetbrains.teamcity.plugins.unrealengine.agent.WorkflowCreator
-import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.AutomationTestLogMessageHandler
+import com.jetbrains.teamcity.plugins.unrealengine.agent.build.log.UnrealEngineProcessListenerFactory
+import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.AutomationTestLogEventHandler
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.RunAutomationTestsCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.raise
@@ -20,6 +20,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 class RunAutomationTestsWorkflowCreator(
     private val toolRegistry: UnrealToolRegistry,
     private val environment: Environment,
+    private val processListenerFactory: UnrealEngineProcessListenerFactory,
 ) : WorkflowCreator {
     companion object {
         private val logger = TeamCityLoggers.agent<RunAutomationTestsWorkflowCreator>()
@@ -54,7 +55,7 @@ class RunAutomationTestsWorkflowCreator(
                 toolRegistry.editor(runnerParameters).executablePath,
                 arguments,
             ),
-            UnrealEngineProcessListener.create(AutomationTestLogMessageHandler()),
+            processListenerFactory.create(AutomationTestLogEventHandler()),
         )
     }
 }

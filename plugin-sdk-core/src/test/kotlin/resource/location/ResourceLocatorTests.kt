@@ -64,6 +64,7 @@ internal class ResourceLocatorTests {
         override val osType = os
         override val homeDirectory = Path.of("")
         override val programDataDirectory = Path.of("")
+        override fun getEnvironmentVariable(name: String) = null
     }
 
     private fun createLocator(environment: Environment): ResourceLocator {

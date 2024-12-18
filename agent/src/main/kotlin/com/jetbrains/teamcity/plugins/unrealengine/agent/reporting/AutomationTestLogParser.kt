@@ -29,7 +29,7 @@ data class TestCompletedInfo(
 // Same regex approach to report tests is used in Rider (UnrealTestUnitTestRunner.cs)
 // and in Unreal Engine Gauntlet (Gauntlet.AutomationLogParser.cs)
 object AutomationTestLogParser {
-    private val agentLogger = TeamCityLoggers.agent<AutomationTestLogMessageHandler>()
+    private val agentLogger = TeamCityLoggers.agent<AutomationTestLogEventHandler>()
 
     @Suppress("ktlint:standard:max-line-length")
     private val testStartedPattern =

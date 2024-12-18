@@ -1,5 +1,7 @@
 
-import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.AutomationTestLogMessageHandler
+import com.jetbrains.teamcity.plugins.unrealengine.agent.build.log.LogLevel
+import com.jetbrains.teamcity.plugins.unrealengine.agent.build.log.UnrealLogEvent
+import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.AutomationTestLogEventHandler
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.confirmVerified
@@ -9,12 +11,13 @@ import io.mockk.verifyOrder
 import jetbrains.buildServer.agent.AgentRunningBuild
 import jetbrains.buildServer.agent.BuildProgressLogger
 import org.junit.jupiter.api.BeforeEach
+import java.time.Instant
 import kotlin.test.Test
 
-class AutomationTestLogMessageHandlerTests {
+class AutomationTestLogEventHandlerTests {
     private val buildLoggerMock = mockk<BuildProgressLogger>(relaxed = true)
     private val buildContext = UnrealBuildContextStub(build = mockk<AgentRunningBuild>())
-    private val handler = with(buildContext) { AutomationTestLogMessageHandler() }
+    private val handler = with(buildContext) { AutomationTestLogEventHandler() }
 
     @BeforeEach
     fun init() {
@@ -32,7 +35,7 @@ class AutomationTestLogMessageHandlerTests {
             )
 
         // act
-        val handledCount = lines.count { handler.tryHandleMessage(it) }
+        val handledCount = lines.count { handler.tryHandleEvent(it.toLogEvent()) }
 
         // assert
         handledCount shouldBe 2
@@ -58,10 +61,18 @@ class AutomationTestLogMessageHandlerTests {
             )
 
         // act
-        val handledCount = lines.count { handler.tryHandleMessage(it) }
+        val handledCount = lines.count { handler.tryHandleEvent(it.toLogEvent()) }
 
         // assert
         handledCount shouldBe 0
         confirmVerified(buildLoggerMock)
     }
+
+    private fun String.toLogEvent() =
+        UnrealLogEvent(
+            time = Instant.now(),
+            level = LogLevel.Information,
+            message = this,
+            channel = null,
+        )
 }

@@ -2,6 +2,7 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent
 
 import com.jetbrains.teamcity.plugins.framework.common.Environment
 import com.jetbrains.teamcity.plugins.framework.common.OSType
+import com.jetbrains.teamcity.plugins.unrealengine.agent.build.log.StructuredLogging
 import jetbrains.buildServer.agent.runner.ProgramCommandLine
 import jetbrains.buildServer.agent.runner.SimpleProgramCommandLine
 import jetbrains.buildServer.util.StringUtil
@@ -11,6 +12,13 @@ class UnrealEngineProgramCommandLine
         private val environment: Environment,
         private val commandLine: ProgramCommandLine,
     ) : ProgramCommandLine by commandLine {
+        companion object {
+            private val defaultEnvironmentVariables =
+                mapOf(
+                    StructuredLogging.STRUCTURED_LOGGING_ENV_VAR to "1",
+                )
+        }
+
         constructor(
             environment: Environment,
             envVariables: Map<String, String>,
@@ -19,7 +27,12 @@ class UnrealEngineProgramCommandLine
             arguments: List<String>,
         ) : this(
             environment,
-            SimpleProgramCommandLine(envVariables, workingDirectory, executablePath, arguments),
+            SimpleProgramCommandLine(
+                defaultEnvironmentVariables + envVariables,
+                workingDirectory,
+                executablePath,
+                arguments,
+            ),
         )
 
         override fun getArguments(): MutableList<String> {

@@ -15,6 +15,7 @@ This plugin allows you to build Unreal Engine projects in TeamCity.
     * Launch automation tests.
 * Automation test reporting
 * UGS metadata server integration
+* Structured build log with error highlighting, reported as TeamCity Build Problems
 
 For details on usage, please refer to [USAGE.md](USAGE.md).
 

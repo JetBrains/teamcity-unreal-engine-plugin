@@ -8,6 +8,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealTool
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolRegistry
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolType
 import com.jetbrains.teamcity.plugins.unrealengine.agent.automation.tests.RunAutomationTestsWorkflowCreator
+import com.jetbrains.teamcity.plugins.unrealengine.agent.build.log.UnrealEngineProcessListenerFactory
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsExecCommandParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsProjectPathParameter
@@ -30,6 +31,7 @@ class RunAutomationTestsWorkflowCreatorTests {
     private val buildParameters = mockk<BuildParametersMap>(relaxed = true)
     private val runningBuild = mockk<AgentRunningBuild>()
     private val environment = mockk<Environment>()
+    private val processListenerFactory = mockk<UnrealEngineProcessListenerFactory>(relaxed = true)
     private val toolRegistry = mockk<UnrealToolRegistry>()
 
     @BeforeEach
@@ -57,7 +59,7 @@ class RunAutomationTestsWorkflowCreatorTests {
     fun `contains a single command in the workflow`() =
         runTest {
             // arrange
-            val creator = RunAutomationTestsWorkflowCreator(toolRegistry, environment)
+            val creator = RunAutomationTestsWorkflowCreator(toolRegistry, environment, processListenerFactory)
 
             // act
             val workflow = with(createContext()) { either { creator.create() } }.getOrNull()
@@ -71,7 +73,7 @@ class RunAutomationTestsWorkflowCreatorTests {
     fun `does not import test report if no file was generated`() =
         runTest {
             // arrange
-            val creator = RunAutomationTestsWorkflowCreator(toolRegistry, environment)
+            val creator = RunAutomationTestsWorkflowCreator(toolRegistry, environment, processListenerFactory)
 
             val buildContext =
                 createContext(
