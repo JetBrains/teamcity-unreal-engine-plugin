@@ -8,6 +8,7 @@ import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.RunAutomationCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCookRunCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphCommand
+import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.RunCommandletCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealCommandTypeParameter
 
 class UnrealCommandCreator {
@@ -25,6 +26,9 @@ class UnrealCommandCreator {
                     }
                     UnrealCommandType.RunAutomation -> {
                         RunAutomationCommand.from(runnerParameters)
+                    }
+                    UnrealCommandType.RunCommandlet -> {
+                        RunCommandletCommand.from(runnerParameters)
                     }
                 }
             }

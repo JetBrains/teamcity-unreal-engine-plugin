@@ -15,7 +15,7 @@ data class ArchiveOptions(
             add("-archive")
 
             if (archiveDirectory != null) {
-                add("-archivedirectory=${concatPaths(workingDirectory, archiveDirectory)}")
+                add("-archivedirectory=${resolvePath(workingDirectory, archiveDirectory)}")
             }
         }
 }

@@ -4,17 +4,23 @@ class CommandExecutionContextStub(
     override val workingDirectory: String = "foo",
     override val agentTempDirectory: String = "bar",
     val fileExistsStub: (String) -> Boolean = { true },
-    val concatPathsStub: (String, String) -> String = { root, path ->
-        sequenceOf(root, path)
+    val resolvePathStub: (String, List<String>) -> String = { root, parts ->
+        val sanitizedRoot = root.trimEnd('/')
+        val sanitizedParts =
+            parts
+                .flatMap { it.split("/") }
+                .filter { it != "." }
+
+        sequenceOf(sanitizedRoot, *sanitizedParts.toTypedArray())
             .filter { it.isNotEmpty() }
-            .joinToString(separator = "/")
+            .joinToString("/")
     },
     val isAbsoluteStub: (String) -> Boolean = { true },
 ) : CommandExecutionContext {
-    override fun concatPaths(
+    override fun resolvePath(
         root: String,
-        path: String,
-    ) = concatPathsStub(root, path)
+        vararg parts: String,
+    ): String = resolvePathStub(root, parts.toList())
 
     override fun fileExists(path: String) = fileExistsStub(path)
 

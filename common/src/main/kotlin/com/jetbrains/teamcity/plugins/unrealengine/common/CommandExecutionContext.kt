@@ -4,9 +4,9 @@ interface FileSystemContext {
     val workingDirectory: String
     val agentTempDirectory: String
 
-    fun concatPaths(
+    fun resolvePath(
         root: String,
-        path: String,
+        vararg parts: String,
     ): String
 
     fun fileExists(path: String): Boolean

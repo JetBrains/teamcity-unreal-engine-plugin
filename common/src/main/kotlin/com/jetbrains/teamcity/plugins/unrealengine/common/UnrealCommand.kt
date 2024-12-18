@@ -6,6 +6,7 @@ enum class UnrealCommandType {
     BuildCookRun,
     BuildGraph,
     RunAutomation,
+    RunCommandlet,
 }
 
 interface UnrealCommand {

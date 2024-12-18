@@ -24,6 +24,11 @@ object UnrealCommandTypeParameter : SelectParameter() {
                 "editRunAutomationProperties.jsp",
                 "viewRunAutomationProperties.jsp",
             ),
+            UnrealCommand(
+                SelectOption(UnrealCommandType.RunCommandlet.name),
+                "editCommandletProperties.jsp",
+                "viewCommandletProperties.jsp",
+            ),
         )
     override val description = null
     override val options = commands.map { it.option }

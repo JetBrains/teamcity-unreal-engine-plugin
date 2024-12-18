@@ -3,6 +3,7 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent
 import arrow.core.raise.Raise
 import arrow.core.raise.recover
 import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
+import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
 import com.jetbrains.teamcity.plugins.unrealengine.common.EngineDetectionMode
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineIdentifier
@@ -27,7 +28,7 @@ class UnrealEngineProvider(
         private val logger = TeamCityLoggers.agent<UnrealEngineProvider>()
     }
 
-    context(UnrealBuildContext, Raise<GenericError>)
+    context(Raise<GenericError>, CommandExecutionContext)
     suspend fun findEngine(runnerParameters: Map<String, String>): UnrealEngine {
         val mode = recover({ parseDetectionMode(runnerParameters) }) { raise(it.message) }
 
@@ -37,13 +38,15 @@ class UnrealEngineProvider(
                     findAmongAgentInstalledEngines(mode.identifier)
                 }
                 is EngineDetectionMode.Manual -> {
-                    mode.engineRootPath.let {
-                        if (isAbsolute(it.value)) {
-                            it
-                        } else {
-                            UnrealEngineRootPath(concatPaths(workingDirectory, it.value))
-                        }
-                    }
+                    UnrealEngineRootPath(
+                        mode.engineRootPath.value.let {
+                            if (isAbsolute(it)) {
+                                resolvePath(it)
+                            } else {
+                                resolvePath(workingDirectory, it)
+                            }
+                        },
+                    )
                 }
             }
 

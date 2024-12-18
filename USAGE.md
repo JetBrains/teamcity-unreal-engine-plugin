@@ -6,6 +6,7 @@ the plugin is already [installed](README.md#installation) on your TeamCity insta
 ### Table of Contents
 
 * [Engine installation detection](#engine-installation-detection)
+* [Commandlets](#commandlets)
 * [Build Graph](#build-graph)
 * [UGS integration](#ugs-integration)
 * [Limitations](#limitations)
@@ -27,6 +28,34 @@ installations (both installed from the Epic Games Launcher and built from the so
 
 Once an engine is detected, its identifier and path are written to corresponding agent properties.
 TeamCity utilizes these properties to match compatible agents with build configurations that manage UE solutions.
+
+### Commandlets
+
+Unreal Engine supports creating mini-programs for automation called commandlets. The default Unreal Engine setup includes several built-in commandlets, such as:
+
+* `UCookCommandlet`
+* `UCompileAllBlueprintsCommandlet`
+* and so on.
+
+You can also develop custom commandlets by extending the `UCommandlet` class. This plugin natively supports launching commandlets.
+For example, to compile all blueprints in a [native][unreal-engine.native-project] project named "Cropout" using the Unreal Editor's command-line version:
+
+<img src="./assets/commandlet-ui.png" alt="Commandlet" width="600"/>
+
+The equivalent Kotlin DSL configuration:
+
+```kotlin
+unrealEngine {
+    ...
+    command = runCommandlet {
+        editorExecutable = "UnrealEditor-Cmd"
+        project = "Cropout"
+        commandlet = "CompileAllBlueprints"
+        arguments = "-DirtyOnly"
+    }
+    ...
+}
+```
 
 ### Build Graph
 
@@ -202,3 +231,4 @@ If you'd like to learn more about the plugin, check out these blog posts:
 [teamcity.commit-status-publisher]: https://www.jetbrains.com/help/teamcity/commit-status-publisher.html
 [unreal-engine.build-graph-script-elements]: https://dev.epicgames.com/documentation/en-us/unreal-engine/buildgraph-script-elements-reference-for-unreal-engine
 [unreal-engine.ugs]: https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-game-sync-reference-guide-for-unreal-engine
+[unreal-engine.native-project]: https://dev.epicgames.com/community/learning/knowledge-base/eP9R/unreal-engine-what-s-a-native-project

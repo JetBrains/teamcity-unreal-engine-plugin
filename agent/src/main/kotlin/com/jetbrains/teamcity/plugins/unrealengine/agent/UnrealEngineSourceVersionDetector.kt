@@ -8,6 +8,7 @@ import com.jetbrains.teamcity.plugins.framework.resource.location.ResourceLocato
 import com.jetbrains.teamcity.plugins.framework.resource.location.queries.filteredLines
 import com.jetbrains.teamcity.plugins.framework.resource.location.queries.json
 import com.jetbrains.teamcity.plugins.framework.resource.location.queries.map
+import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.JsonEncoder
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRootPath
@@ -41,7 +42,7 @@ class UnrealEngineSourceVersionDetector(
         private val versionPartRegex = "^#define\\s+ENGINE_(\\w+)_VERSION\\s+(\\d+)\$".toRegex()
     }
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(Raise<GenericError>, CommandExecutionContext)
     suspend fun detect(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion =
         recover({
             lookUpInBuildVersionFile(engineRootPath)
@@ -53,13 +54,13 @@ class UnrealEngineSourceVersionDetector(
             lookUpInCppVersionHeaderFile(engineRootPath)
         }
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(Raise<GenericError>, CommandExecutionContext)
     private suspend fun lookUpInBuildVersionFile(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion {
         val locationResults =
             resourceLocator.locateResources {
                 anyOS(
                     {
-                        file(concatPaths(engineRootPath.value, "Engine/Build/Build.version"))
+                        file(resolvePath(engineRootPath.value, "Engine/Build/Build.version"))
                             .json<BuildVersion>(json)
                             .map { UnrealEngineVersion(it.majorVersion, it.minorVersion, it.patchVersion) }
                     },
@@ -81,13 +82,13 @@ class UnrealEngineSourceVersionDetector(
         }
     }
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(Raise<GenericError>, CommandExecutionContext)
     private suspend fun lookUpInCppVersionHeaderFile(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion {
         val locationResults =
             resourceLocator.locateResources {
                 anyOS(
                     {
-                        file(concatPaths(engineRootPath.value, "Engine/Source/Runtime/Launch/Resources/Version.h"))
+                        file(resolvePath(engineRootPath.value, "Engine/Source/Runtime/Launch/Resources/Version.h"))
                             .filteredLines(
                                 accept = { line -> versionPartRegex.matches(line) },
                                 continueReading = { _, acceptedSoFar -> acceptedSoFar != BuildVersion.PART_COUNT },

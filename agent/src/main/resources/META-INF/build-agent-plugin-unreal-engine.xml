@@ -15,6 +15,7 @@
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildcookrun.BuildCookRunWorkflowCreator"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.runautomation.RunAutomationWorkflowCreator"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.BuildGraphWorkflowCreator"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.commandlets.CommandletWorkflowCreator"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.DistributedBuildSettingsCreator"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.SingleMachineExecutor"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph.DistributedExecutor"/>

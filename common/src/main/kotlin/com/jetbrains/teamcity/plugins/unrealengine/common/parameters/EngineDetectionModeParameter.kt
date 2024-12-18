@@ -61,7 +61,7 @@ object UnrealEngineRootParameter : TextInputParameter {
     override val name = "engine-root-path"
     override val displayName = "Root dir"
     override val defaultValue = ""
-    override val description = "The path (relative to the checkout directory) to the Unreal Engine root folder."
+    override val description = "The path (relative to the checkout directory or absolute) to the Unreal Engine root folder."
     override val required = true
     override val supportsVcsNavigation = true
     override val expandable = false
