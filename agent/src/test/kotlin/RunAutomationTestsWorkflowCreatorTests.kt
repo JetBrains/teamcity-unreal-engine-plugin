@@ -7,10 +7,10 @@ import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealBuildContext
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealTool
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolRegistry
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolType
-import com.jetbrains.teamcity.plugins.unrealengine.agent.runautomation.RunAutomationWorkflowCreator
+import com.jetbrains.teamcity.plugins.unrealengine.agent.automation.tests.RunAutomationTestsWorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationExecCommandParameter
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationProjectPathParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsExecCommandParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsProjectPathParameter
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
@@ -25,7 +25,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 
-class RunAutomationWorkflowCreatorTests {
+class RunAutomationTestsWorkflowCreatorTests {
     private val buildLogger = mockk<BuildProgressLogger>(relaxed = true)
     private val buildParameters = mockk<BuildParametersMap>(relaxed = true)
     private val runningBuild = mockk<AgentRunningBuild>()
@@ -57,7 +57,7 @@ class RunAutomationWorkflowCreatorTests {
     fun `contains a single command in the workflow`() =
         runTest {
             // arrange
-            val creator = RunAutomationWorkflowCreator(toolRegistry, environment)
+            val creator = RunAutomationTestsWorkflowCreator(toolRegistry, environment)
 
             // act
             val workflow = with(createContext()) { either { creator.create() } }.getOrNull()
@@ -71,13 +71,13 @@ class RunAutomationWorkflowCreatorTests {
     fun `does not import test report if no file was generated`() =
         runTest {
             // arrange
-            val creator = RunAutomationWorkflowCreator(toolRegistry, environment)
+            val creator = RunAutomationTestsWorkflowCreator(toolRegistry, environment)
 
             val buildContext =
                 createContext(
                     runnerParameters =
                         mapOf(
-                            AutomationProjectPathParameter.name to "foo.uproject",
+                            AutomationTestsProjectPathParameter.name to "foo.uproject",
                         ),
                     generateReport = false,
                 )
@@ -93,8 +93,8 @@ class RunAutomationWorkflowCreatorTests {
     private fun createContext(
         runnerParameters: Map<String, String> =
             mapOf(
-                AutomationExecCommandParameter.name to AutomationExecCommandParameter.all.name,
-                AutomationProjectPathParameter.name to "foo.uproject",
+                AutomationTestsExecCommandParameter.name to AutomationTestsExecCommandParameter.all.name,
+                AutomationTestsProjectPathParameter.name to "foo.uproject",
             ),
         generateReport: Boolean = true,
     ): UnrealBuildContext =

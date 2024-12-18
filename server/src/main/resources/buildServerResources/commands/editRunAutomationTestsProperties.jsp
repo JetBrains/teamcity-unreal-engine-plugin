@@ -4,7 +4,7 @@
 <%@ taglib prefix="l" tagdir="/WEB-INF/tags/layout" %>
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 
-<jsp:useBean id="component" class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.RunAutomationComponent"/>
+<jsp:useBean id="component" class="com.jetbrains.teamcity.plugins.unrealengine.server.runner.ui.RunAutomationTestsComponent"/>
 
 <c:set var="noBorder" value="${true}"/>
 <c:set var="parameter" value="${component.projectPath}"/>

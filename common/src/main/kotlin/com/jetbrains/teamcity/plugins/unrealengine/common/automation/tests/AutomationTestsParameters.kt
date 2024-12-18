@@ -1,8 +1,8 @@
-package com.jetbrains.teamcity.plugins.unrealengine.common.automation
+package com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests
 
 import arrow.core.raise.Raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.ExecCommand.*
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.ExecCommand.*
 import com.jetbrains.teamcity.plugins.unrealengine.common.enumValueOfOrNull
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.CheckboxParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.RunnerParameter
@@ -18,7 +18,7 @@ object NullRHIParameter : CheckboxParameter {
     override val advanced = true
 }
 
-object AutomationExecCommandParameter : SelectParameter() {
+object AutomationTestsExecCommandParameter : SelectParameter() {
     val all = SelectOption("run-all", "RunAll")
     val filter = SelectOption("run-filter", "RunFilter")
     val list = SelectOption("run-tests", "RunTests")
@@ -40,8 +40,8 @@ object AutomationExecCommandParameter : SelectParameter() {
 
             filter.name ->
                 RunFilter(
-                    AutomationFilterParameter.parse(runnerParameters)
-                        ?: raise(PropertyValidationError(AutomationFilterParameter.name, "Empty test filter.")),
+                    AutomationTestsFilterParameter.parse(runnerParameters)
+                        ?: raise(PropertyValidationError(AutomationTestsFilterParameter.name, "Empty test filter.")),
                 )
 
             list.name -> {
@@ -61,7 +61,7 @@ object AutomationExecCommandParameter : SelectParameter() {
     }
 }
 
-object AutomationFilterParameter : SelectParameter() {
+object AutomationTestsFilterParameter : SelectParameter() {
     override val name = "automation-filter"
     override val displayName = "Filter"
     override val defaultValue = RunFilterType.Product.name
@@ -94,4 +94,4 @@ object AutomationTestsParameter : RunnerParameter {
     }
 }
 
-val AutomationProjectPathParameter = UnrealProjectPathParameter("automation-project-path")
+val AutomationTestsProjectPathParameter = UnrealProjectPathParameter("automation-project-path")

@@ -1,4 +1,4 @@
-package com.jetbrains.teamcity.plugins.unrealengine.agent.runautomation
+package com.jetbrains.teamcity.plugins.unrealengine.agent.automation.commands
 
 import arrow.core.getOrElse
 import arrow.core.raise.Raise
@@ -12,30 +12,29 @@ import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProgramComm
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolRegistry
 import com.jetbrains.teamcity.plugins.unrealengine.agent.Workflow
 import com.jetbrains.teamcity.plugins.unrealengine.agent.WorkflowCreator
-import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.AutomationTestLogMessageHandler
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.RunAutomationCommand
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.commands.RunAutomationCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 
-class RunAutomationWorkflowCreator(
+class RunAutomationCommandWorkflowCreator(
     private val toolRegistry: UnrealToolRegistry,
     private val environment: Environment,
 ) : WorkflowCreator {
     companion object {
-        private val logger = TeamCityLoggers.agent<RunAutomationWorkflowCreator>()
+        private val logger = TeamCityLoggers.agent<RunAutomationCommandWorkflowCreator>()
     }
 
     context(Raise<GenericError>, UnrealBuildContext)
-    override suspend fun create(): Workflow = Workflow(getCommands())
+    override suspend fun create() = Workflow(getCommands())
 
     context(Raise<GenericError>, UnrealBuildContext)
-    private suspend fun getCommands() =
+    private suspend fun getCommands(): List<UnrealEngineCommandExecution> =
         listOf(
-            runAutomation(),
+            run(),
         )
 
     context(Raise<GenericError>, UnrealBuildContext)
-    private suspend fun runAutomation(): UnrealEngineCommandExecution {
+    private suspend fun run(): UnrealEngineCommandExecution {
         val command =
             either { RunAutomationCommand.from(runnerParameters) }.getOrElse {
                 it.forEach { error ->
@@ -51,10 +50,10 @@ class RunAutomationWorkflowCreator(
                 environment,
                 buildParameters.environmentVariables,
                 workingDirectory,
-                toolRegistry.editor(runnerParameters).executablePath,
+                toolRegistry.automationTool(runnerParameters).executablePath,
                 arguments,
             ),
-            UnrealEngineProcessListener.create(AutomationTestLogMessageHandler()),
+            UnrealEngineProcessListener.create(),
         )
     }
 }

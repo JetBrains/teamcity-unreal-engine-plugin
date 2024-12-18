@@ -1,6 +1,7 @@
 
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommandType
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationProjectPathParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.commands.AutomationCommandNameParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsProjectPathParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCookRunProjectPathParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphModeParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphScriptPathParameter
@@ -52,23 +53,38 @@ class RunnerDescriptionGeneratorTests {
                             "Target: FooBar, Mode: Distributed, Engine detection mode: Auto, Engine identifier: 5.3",
                 )
 
-            val runAutomation =
+            val runAutomationTests =
                 TestCase(
                     runnerParameters =
                         mapOf(
                             EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
                             UnrealEngineIdentifierParameter.name to "5.3",
-                            UnrealCommandTypeParameter.name to UnrealCommandType.RunAutomation.name,
-                            AutomationProjectPathParameter.name to "bar/baz.uproject",
+                            UnrealCommandTypeParameter.name to UnrealCommandType.RunAutomationTests.value,
+                            AutomationTestsProjectPathParameter.name to "bar/baz.uproject",
                         ),
                     expectedDescription =
-                        "Command: RunAutomation, Project: bar/baz.uproject, " +
+                        "Command: RunAutomationTests, Project: bar/baz.uproject, " +
                             "Engine detection mode: Auto, Engine identifier: 5.3",
+                )
+
+            val runAutomationCommand =
+                TestCase(
+                    runnerParameters =
+                        mapOf(
+                            EngineDetectionModeParameter.name to EngineDetectionModeParameter.manual.name,
+                            UnrealEngineRootParameter.name to "./engine-root",
+                            UnrealCommandTypeParameter.name to UnrealCommandType.RunAutomationCommand.value,
+                            AutomationCommandNameParameter.name to "AnalyzeThirdPartyLibs",
+                        ),
+                    expectedDescription =
+                        "Command: RunAutomationCommand, Name: AnalyzeThirdPartyLibs, " +
+                            "Engine detection mode: Manual, Engine Root path: ./engine-root",
                 )
 
             add(buildCookRun)
             add(buildGraph)
-            add(runAutomation)
+            add(runAutomationTests)
+            add(runAutomationCommand)
         }
 
     @ParameterizedTest

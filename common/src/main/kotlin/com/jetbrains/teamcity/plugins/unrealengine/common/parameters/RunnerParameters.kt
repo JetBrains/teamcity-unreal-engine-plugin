@@ -24,6 +24,8 @@ abstract class SelectParameter : RunnerParameter {
     val optionNamesAsJsArray by lazy { "[${options.map { it.name }.joinToString(separator = ",") { "'$it'" }}]" }
 
     fun escapeHTML(value: String) = value.escapeHTML()
+
+    fun getOptionDisplayName(value: String?) = options.find { it.name == value }?.displayName.orEmpty()
 }
 
 interface CheckboxParameter : RunnerParameter {

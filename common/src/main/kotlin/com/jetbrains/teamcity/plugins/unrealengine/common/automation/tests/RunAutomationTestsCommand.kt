@@ -1,4 +1,4 @@
-package com.jetbrains.teamcity.plugins.unrealengine.common.automation
+package com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests
 
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
@@ -36,7 +36,7 @@ sealed interface ExecCommand {
     ) : ExecCommand
 }
 
-data class RunAutomationCommand(
+data class RunAutomationTestsCommand(
     val projectPath: UnrealProjectPath,
     val nullRHI: Boolean,
     val execCommand: ExecCommand,
@@ -46,13 +46,13 @@ data class RunAutomationCommand(
         context(Raise<NonEmptyList<PropertyValidationError>>)
         fun from(runnerParameters: Map<String, String>) =
             zipOrAccumulate(
-                { AutomationProjectPathParameter.parseProjectPath(runnerParameters) },
-                { AutomationExecCommandParameter.parse(runnerParameters) },
+                { AutomationTestsProjectPathParameter.parseProjectPath(runnerParameters) },
+                { AutomationTestsExecCommandParameter.parse(runnerParameters) },
                 { AdditionalArgumentsParameter.parse(runnerParameters) },
             ) { projectPath, command, extraArguments ->
                 val nullRHI = runnerParameters[NullRHIParameter.name].toBoolean()
 
-                RunAutomationCommand(
+                RunAutomationTestsCommand(
                     projectPath,
                     nullRHI,
                     command,

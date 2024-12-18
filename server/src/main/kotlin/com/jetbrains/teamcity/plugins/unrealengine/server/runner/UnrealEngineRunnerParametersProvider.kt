@@ -1,10 +1,10 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.runner
 
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationExecCommandParameter
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationFilterParameter
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationProjectPathParameter
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationTestsParameter
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.NullRHIParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsExecCommandParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsFilterParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsProjectPathParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.NullRHIParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.ArchiveSwitchParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildConfigurationParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCookRunProjectPathParameter
@@ -29,7 +29,7 @@ class UnrealEngineRunnerParametersProvider {
             generalParameters +
                 buildCookRunParameters +
                 buildGraphParameters +
-                runAutomationParameters
+                runAutomationTestsParameters
         ).associate { it.name to it.defaultValue }
 
     private val generalParameters
@@ -66,13 +66,13 @@ class UnrealEngineRunnerParametersProvider {
                 BuildGraphOptionsParameter,
             )
 
-    private val runAutomationParameters
+    private val runAutomationTestsParameters
         get() =
             sequenceOf(
                 NullRHIParameter,
-                AutomationExecCommandParameter,
-                AutomationFilterParameter,
+                AutomationTestsExecCommandParameter,
+                AutomationTestsFilterParameter,
                 AutomationTestsParameter,
-                AutomationProjectPathParameter,
+                AutomationTestsProjectPathParameter,
             )
 }

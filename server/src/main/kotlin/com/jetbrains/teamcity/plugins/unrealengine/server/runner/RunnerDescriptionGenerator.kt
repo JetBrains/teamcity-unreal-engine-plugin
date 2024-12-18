@@ -5,7 +5,8 @@ import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.EngineDetectionMode
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommandType
-import com.jetbrains.teamcity.plugins.unrealengine.common.automation.AutomationProjectPathParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.commands.AutomationCommandNameParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsProjectPathParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCookRunProjectPathParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphModeParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphScriptPathParameter
@@ -15,6 +16,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.Commandlet
 import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.CommandletProjectPathParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.EditorExecutableParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.EngineDetectionModeParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.SelectParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealCommandTypeParameter
 
 class RunnerDescriptionGenerator {
@@ -38,20 +40,30 @@ class RunnerDescriptionGenerator {
                             BuildGraphTargetNodeParameter,
                             BuildGraphModeParameter,
                         )
-                    UnrealCommandType.RunAutomation ->
+                    UnrealCommandType.RunAutomationTests ->
                         sequenceOf(
                             UnrealCommandTypeParameter,
-                            AutomationProjectPathParameter,
+                            AutomationTestsProjectPathParameter,
                         )
-
+                    UnrealCommandType.RunAutomationCommand ->
+                        sequenceOf(
+                            UnrealCommandTypeParameter,
+                            AutomationCommandNameParameter,
+                        )
                     UnrealCommandType.RunCommandlet ->
                         sequenceOf(
+                            UnrealCommandTypeParameter,
                             EditorExecutableParameter,
                             CommandletProjectPathParameter,
                             CommandletNameParameter,
                             CommandletArgumentsParameter,
                         )
-                }.associate { it.displayName to runnerParameters[it.name] }
+                }.associate {
+                    when (it) {
+                        is SelectParameter -> it.displayName to it.getOptionDisplayName(runnerParameters[it.name])
+                        else -> it.displayName to runnerParameters[it.name]
+                    }
+                }
 
             val detectionModeParameters =
                 when (val detectionMode = EngineDetectionModeParameter.parseDetectionMode(runnerParameters)) {

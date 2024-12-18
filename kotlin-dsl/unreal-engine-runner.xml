@@ -287,6 +287,42 @@
                         Specifies whether rendering is disabled. The default value is "true".
                     </description>
                 </param>
+                <deprecated replaceWith="runAutomationTests">
+                    Use `runAutomationTests` option instead
+                </deprecated>
+            </option>
+
+            <option name="runAutomationTests" value="RunAutomation">
+                <param name="automation-project-path" dslName="project" type="string" mandatory="true">
+                    <description>
+                        The path (relative to the checkout directory) to the .uproject file.
+                    </description>
+                </param>
+                <param name="automation-exec-command" dslName="execCommand" type="compound">
+                    <description>
+                        The automation exec command to run.
+                    </description>
+                    <option name="runAll" value="run-all">
+                        <description>Runs all tests</description>
+                    </option>
+                    <option name="runFilter" value="run-filter">
+                        <description>Specifies whether only tests tagged with the specific filter should be run.</description>
+                        <param name="automation-tests-filter" dslName="filter" type="RunFilterType"/>
+                    </option>
+                    <option name="runTests" value="run-tests">
+                        <description>Specifies whether only the selected tests should be run.</description>
+                        <param name="automation-tests" dslName="tests">
+                            <description>
+                                The newline-delimited list of tests to run. Both full and partial hierarchical test names are supported.
+                            </description>
+                        </param>
+                    </option>
+                </param>
+                <param name="automation-null-rhi" dslName="nullRHI" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Specifies whether rendering is disabled. The default value is "true".
+                    </description>
+                </param>
             </option>
 
             <option name="runCommandlet" value="RunCommandlet">
@@ -314,6 +350,19 @@
                 <param name="commandlet-arguments" dslName="arguments" type="string">
                     <description>
                         Arguments to be passed to the commandlet.
+                    </description>
+                </param>
+            </option>
+
+            <option name="runAutomationCommand" value="RunAutomationCommand">
+                <param name="automation-command-name-parameter" dslName="name" type="string" mandatory="true">
+                    <description>
+                        The automation command to execute.
+                    </description>
+                </param>
+                <param name="automation-command-arguments" dslName="arguments" type="string">
+                    <description>
+                        Arguments to be passed to the automation command.
                     </description>
                 </param>
             </option>
@@ -368,7 +417,7 @@
                     engineDetectionMode = automatic {
                         identifier = "5"
                     }
-                    command = runAutomation {
+                    command = runAutomationTests {
                         project = "foo.uproject"
                         execCommand = runTests {
                             tests = """

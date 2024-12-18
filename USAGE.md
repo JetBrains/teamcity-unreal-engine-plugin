@@ -7,6 +7,7 @@ the plugin is already [installed](README.md#installation) on your TeamCity insta
 
 * [Engine installation detection](#engine-installation-detection)
 * [Commandlets](#commandlets)
+* [Automation Commands](#automation-commands)
 * [Build Graph](#build-graph)
 * [UGS integration](#ugs-integration)
 * [Limitations](#limitations)
@@ -53,6 +54,50 @@ unrealEngine {
         commandlet = "CompileAllBlueprints"
         arguments = "-DirtyOnly"
     }
+    ...
+}
+```
+
+### Automation Commands
+
+Unreal Engine provides several tools for scripting unattended processes related to the build workflow.
+One of these tools is UAT (Unreal Automation Tool), which can be used for a variety of tasks,
+including building, cooking, and running games, executing automation tests, and scripting other useful operations.
+
+Typically, using UAT requires creating a separate .csproj file and implementing a specialized `BuildCommand` class,
+which can then be executed with the RunUAT script.
+However, this plugin simplifies the process by offering several
+common commands through a runner interface (available via UI or Kotlin DSL).
+The interface allows you to tweak parameters, and the resulting command is automatically generated for you.
+
+#### Predefined Commands
+
+The plugin includes the following predefined commands:
+* `BuildCookRun`
+* `BuildGraph` (distributed mode is a bit trickier, though - check the corresponding section below)
+
+#### Custom Automation Commands
+
+You can also execute any custom automation command using the runner’s `RunAutomationCommand` option.
+For guidance on creating custom automation commands,
+refer to the [official documentation][unreal-engine.custom-automation-command].
+
+#### Example
+
+In the following example, we run a built-in Unreal Engine command called `AnalyzeThirdPartyLibs`.
+
+<img src="./assets/custom-automation-command.png" alt="CustomAutomationCommand" width="600"/>
+
+The corresponding Kotlin DSL configuration looks like this:
+
+```kotlin
+unrealEngine {
+    ...
+    command = runAutomationCommand {
+        name = "AnalyzeThirdPartyLibs"
+        arguments = "-libs=libPNG+libJPG"
+    }
+    additionalArguments = "-buildmachine -unattended -noP4"
     ...
 }
 ```
@@ -232,3 +277,4 @@ If you'd like to learn more about the plugin, check out these blog posts:
 [unreal-engine.build-graph-script-elements]: https://dev.epicgames.com/documentation/en-us/unreal-engine/buildgraph-script-elements-reference-for-unreal-engine
 [unreal-engine.ugs]: https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-game-sync-reference-guide-for-unreal-engine
 [unreal-engine.native-project]: https://dev.epicgames.com/community/learning/knowledge-base/eP9R/unreal-engine-what-s-a-native-project
+[unreal-engine.custom-automation-command]: https://dev.epicgames.com/documentation/en-us/unreal-engine/create-an-automation-project-in-unreal-engine
