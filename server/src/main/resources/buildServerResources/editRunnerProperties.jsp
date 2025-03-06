@@ -8,50 +8,52 @@
 <jsp:useBean id="teamcityPluginResourcesPath" scope="request" type="java.lang.String"/>
 
 <script type="text/javascript">
-    BS.UnrealRunner = BS.UnrealRunner || {
-        updateContentBasedOnCheckbox(checkboxId, contentValueClass) {
-            const advancedHiddenCoreClass = ".advanced_hidden";
-            const isChecked = $j(BS.Util.escapeId(checkboxId)).is(":checked");
-            const $content = $j(BS.Util.escape(contentValueClass)).not(advancedHiddenCoreClass);
-            if (isChecked) {
-                $content.show();
-            } else {
-                $content.hide();
-            }
-        },
-        updateContentBasedOnSelect(selectId, options) {
-            const selectedValue = $j(BS.Util.escapeId(selectId)).val();
+    {
+        BS.UnrealRunner = BS.UnrealRunner || {
+            updateContentBasedOnCheckbox(checkboxId, contentValueClass) {
+                const advancedHiddenCoreClass = ".advanced_hidden";
+                const isChecked = $j(BS.Util.escapeId(checkboxId)).is(":checked");
+                const $content = $j(BS.Util.escape(contentValueClass)).not(advancedHiddenCoreClass);
+                if (isChecked) {
+                    $content.show();
+                } else {
+                    $content.hide();
+                }
+            },
+            updateContentBasedOnSelect(selectId, options) {
+                const selectedValue = $j(BS.Util.escapeId(selectId)).val();
 
-            const hideAll = () => {
+                const hideAll = () => {
+                    for (const option of options) {
+                        $j(BS.Util.escapeId(option)).hide();
+                    }
+                }
+
+                const show = (option) => $j(BS.Util.escapeId(option)).show();
+
                 for (const option of options) {
-                    $j(BS.Util.escapeId(option)).hide();
+                    if (selectedValue === option) {
+                        hideAll();
+                        show(option)
+                        BS.MultilineProperties.updateVisible();
+                        return;
+                    }
                 }
+
+                hideAll();
+                show(options.first())
+                BS.MultilineProperties.updateVisible();
             }
+        };
 
-            const show = (option) => $j(BS.Util.escapeId(option)).show();
-
-            for (const option of options) {
-                if (selectedValue === option) {
-                    hideAll();
-                    show(option)
-                    BS.MultilineProperties.updateVisible();
-                    return;
-                }
-            }
-
-            hideAll();
-            show(options.first())
-            BS.MultilineProperties.updateVisible();
-        }
-    };
-
-    const reactExtensions = document.createElement('script');
-    reactExtensions.id = "unreal-runner-react-extensions";
-    reactExtensions.src = "<c:url value='${teamcityPluginResourcesPath}react/bundle.js'/>";
-    reactExtensions.onload = () => {
-        $j(reactExtensions).trigger("UnrealRunnerReactExtensionsLoaded");
-    };
-    document.body.appendChild(reactExtensions);
+        const reactExtensions = document.createElement('script');
+        reactExtensions.id = "unreal-runner-react-extensions";
+        reactExtensions.src = "<c:url value='${teamcityPluginResourcesPath}react/bundle.js'/>";
+        reactExtensions.onload = () => {
+            $j(reactExtensions).trigger("UnrealRunnerReactExtensionsLoaded");
+        };
+        document.body.appendChild(reactExtensions);
+    }
 </script>
 
 <l:settingsGroup title="Engine detection">
