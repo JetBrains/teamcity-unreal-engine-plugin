@@ -13,7 +13,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.Distribute
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateChangedEventBus
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateStorage
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateTracker
-import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.getGeneratedById
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.getGeneratedById
 import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
 import io.mockk.clearMocks

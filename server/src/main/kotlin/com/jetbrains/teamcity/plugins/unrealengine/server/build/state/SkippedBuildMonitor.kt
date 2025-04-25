@@ -2,7 +2,7 @@ package com.jetbrains.teamcity.plugins.unrealengine.server.build.state
 
 import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
-import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.getGeneratedById
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.getGeneratedById
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.isMainNode
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.logResult
 import jetbrains.buildServer.messages.ErrorData

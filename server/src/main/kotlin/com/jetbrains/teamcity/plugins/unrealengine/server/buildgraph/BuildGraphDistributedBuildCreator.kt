@@ -6,12 +6,14 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphR
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.toMap
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.DistributedBuild
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.activeRunners
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.addDependencies
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.addUnrealRunner
 import jetbrains.buildServer.requirements.Requirement
 import jetbrains.buildServer.requirements.RequirementType
 import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.SBuild
 import jetbrains.buildServer.serverSide.SRunningBuild
-import jetbrains.buildServer.util.DependencyOptionSupportImpl
 
 class BuildGraphDistributedBuildCreator(
     private val virtualBuildCreator: BuildGraphVirtualBuildCreator,
@@ -44,13 +46,6 @@ class BuildGraphDistributedBuildCreator(
                 }
 
         return DistributedBuild(buildsToAdd)
-    }
-
-    private fun BuildPromotionEx.addDependencies(dependencies: Collection<BuildPromotionEx>) {
-        val options = DependencyOptionSupportImpl().default()
-        for (dependency in dependencies) {
-            addDependency(dependency, options)
-        }
     }
 
     context(BuildGraphVirtualBuildCreator.VirtualBuildCreationContext)

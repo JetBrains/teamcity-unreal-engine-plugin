@@ -1,6 +1,6 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.build
 
-import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.asBuildPromotionEx
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.asBuildPromotionEx
 import jetbrains.buildServer.serverSide.CustomDataStorage
 import jetbrains.buildServer.serverSide.SBuild
 
