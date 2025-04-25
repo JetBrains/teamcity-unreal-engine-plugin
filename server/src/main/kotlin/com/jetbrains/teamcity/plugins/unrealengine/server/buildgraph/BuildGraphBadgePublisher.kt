@@ -15,6 +15,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.Distribute
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateChanged
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateChangedEventHandler
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.BadgeState
+import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.PerforceDepotPath
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsBuildMetadata
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsMetadataServerClient
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.asBuildPromotionEx
@@ -100,7 +101,7 @@ class BuildGraphBadgePublisher(
                 val metadata =
                     UgsBuildMetadata(
                         changeList,
-                        badge.project,
+                        PerforceDepotPath(badge.project),
                         badge.name,
                         links.getBuildDependenciesUrl(build),
                         state,

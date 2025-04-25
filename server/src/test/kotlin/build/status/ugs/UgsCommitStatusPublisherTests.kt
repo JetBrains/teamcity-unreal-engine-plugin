@@ -9,6 +9,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.ugs.UgsMetadataServerUrl
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.BadgeState
+import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.PerforceDepotPath
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsBadgeName
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsBuildFeatureParameters
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsBuildMetadata
@@ -93,7 +94,7 @@ class UgsCommitStatusPublisherTests {
                         ugsServerUrl,
                         UgsBuildMetadata(
                             change = 123L,
-                            project = buildFeatureParameters.project.value,
+                            projectDirectory = PerforceDepotPath(buildFeatureParameters.project.value),
                             badgeName = buildFeatureParameters.badgeName.value,
                             url = viewLink,
                             badgeState = BadgeState.Starting,

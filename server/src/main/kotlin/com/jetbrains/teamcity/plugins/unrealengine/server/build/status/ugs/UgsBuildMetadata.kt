@@ -10,17 +10,11 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlin.reflect.KClass
 
-@Serializable
 data class UgsBuildMetadata(
-    @SerialName("ChangeNumber")
     val change: Long,
-    @SerialName("Project")
-    val project: String,
-    @SerialName("BuildType")
+    val projectDirectory: PerforceDepotPath,
     val badgeName: String,
-    @SerialName("Url")
     val url: String,
-    @SerialName("Result")
     val badgeState: BadgeState,
 )
 
@@ -47,3 +41,34 @@ open class EnumAsIntSerializer<T : Enum<T>>(
         value: T,
     ) = encoder.encodeInt(value.ordinal)
 }
+
+// Old Epic's metadata server + RUGS
+@Serializable
+data class AddUgsMetadataRequestV1(
+    @SerialName("ChangeNumber")
+    val change: Long,
+    @SerialName("Project")
+    val project: String,
+    @SerialName("BuildType")
+    val badgeName: String,
+    @SerialName("Url")
+    val url: String,
+    @SerialName("Result")
+    val badgeState: BadgeState,
+)
+
+// Horde
+@Serializable
+data class AddUgsMetadataRequestV2(
+    val stream: String,
+    val change: Long,
+    val project: String,
+    val badges: List<AddUgsBadgeRequest>,
+)
+
+@Serializable
+data class AddUgsBadgeRequest(
+    val name: String,
+    val url: String,
+    val state: BadgeState,
+)
