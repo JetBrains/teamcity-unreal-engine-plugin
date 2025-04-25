@@ -1,7 +1,7 @@
 package buildgraph
 
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphVirtualBuildCreator
-import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.create
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.create
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk

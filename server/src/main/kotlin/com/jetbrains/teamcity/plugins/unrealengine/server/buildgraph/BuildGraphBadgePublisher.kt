@@ -17,6 +17,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.Distribute
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.BadgeState
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsBuildMetadata
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsMetadataServerClient
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.asBuildPromotionEx
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.getPerforceChangelistNumber
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.logError
 import jetbrains.buildServer.serverSide.BuildsManager

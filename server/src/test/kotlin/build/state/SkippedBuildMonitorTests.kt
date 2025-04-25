@@ -4,7 +4,7 @@ import arrow.core.raise.Raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.Error
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateTracker
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.SkippedBuildMonitor
-import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.getGeneratedById
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.getGeneratedById
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.isMainNode
 import io.mockk.Called
 import io.mockk.Runs

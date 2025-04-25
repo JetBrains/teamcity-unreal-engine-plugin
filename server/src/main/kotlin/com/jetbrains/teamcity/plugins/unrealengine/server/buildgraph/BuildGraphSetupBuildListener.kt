@@ -13,6 +13,12 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphM
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphSettings
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensureNotNull
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateTracker
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.activeRunners
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.addDependencies
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.asBuildPromotionEx
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.asTriggeredBy
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.default
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.hasSingleDistributedBuildGraphStep
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.logError
 import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.BuildQueueEx
@@ -23,6 +29,7 @@ import jetbrains.buildServer.serverSide.SRunningBuild
 import jetbrains.buildServer.serverSide.artifacts.BuildArtifact
 import jetbrains.buildServer.serverSide.artifacts.BuildArtifacts
 import jetbrains.buildServer.serverSide.artifacts.BuildArtifactsViewMode
+import jetbrains.buildServer.serverSide.dependency.DependencyOptions
 import jetbrains.buildServer.util.DependencyOptionSupportImpl
 
 class BuildGraphSetupBuildListener(
@@ -128,7 +135,10 @@ class BuildGraphSetupBuildListener(
                 }
 
         setupBuildPromotion.addAsADependencyTo(build.starts)
-        originalBuildPromotion.addDependencies(build.ends)
+        originalBuildPromotion.addDependencies(build.ends) {
+            setOption(DependencyOptions.RUN_BUILD_IF_DEPENDENCY_FAILED, DependencyOptions.BuildContinuationMode.RUN_ADD_PROBLEM)
+            setOption(DependencyOptions.RUN_BUILD_IF_DEPENDENCY_FAILED_TO_START, DependencyOptions.BuildContinuationMode.RUN_ADD_PROBLEM)
+        }
         originalBuildPromotion.removeDependency(setupBuildPromotion)
 
         buildQueue.addToQueue(build.builds.toMapWithoutAgentRestrictions(), originalBuildPromotion.asTriggeredBy())
@@ -157,13 +167,6 @@ class BuildGraphSetupBuildListener(
         val settings = BuildGraphBuildSettings(badgePostingConfig)
         addBuildGraphBuildSettings(settings)
         return settings
-    }
-
-    private fun BuildPromotionEx.addDependencies(dependencies: Collection<BuildPromotionEx>) {
-        val options = DependencyOptionSupportImpl().default()
-        for (dependency in dependencies) {
-            addDependency(dependency, options)
-        }
     }
 
     private fun BuildPromotionEx.addAsADependencyTo(dependents: Collection<BuildPromotionEx>) {

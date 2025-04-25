@@ -10,9 +10,9 @@ import com.jetbrains.teamcity.plugins.unrealengine.server.build.DistributedBuild
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildEvent.*
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildState.BuildStep
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildState.BuildStepState
-import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.activeRunners
-import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.asBuildPromotionEx
-import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.getGeneratedById
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.activeRunners
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.asBuildPromotionEx
+import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.getGeneratedById
 import jetbrains.buildServer.serverSide.BuildPromotionManager
 import jetbrains.buildServer.serverSide.SBuild
 

@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Resolved an issue where the "main" BuildGraph build in distributed mode was incorrectly marked as "Failed to Start" [TW-91456](https://youtrack.jetbrains.com/issue/TW-91456)
+
 ## 1.2.0 - 2024-12-18
 
 ### Added
