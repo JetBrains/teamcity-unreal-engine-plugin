@@ -8,10 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+## 1.3.0 - 2025-04-25
+
+### Added
+
 - Improved artifact visibility for BuildGraph-generated virtual builds in distributed mode [TW-90157](https://youtrack.jetbrains.com/issue/TW-90157)
 - Support for UGS Metadata Server V2 (Horde) [TW-92748](https://youtrack.jetbrains.com/issue/TW-92748)
-
-### Changed
 
 ### Fixed
 
