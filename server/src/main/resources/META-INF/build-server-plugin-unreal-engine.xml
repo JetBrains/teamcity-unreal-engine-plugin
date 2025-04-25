@@ -28,6 +28,11 @@
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphParser"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphDistributedBuildCreator"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphSetupBuildListener"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphSetupBuildValidator"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphDistributedSetupOrchestrator"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphDependencyConnector"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphDefinitionLoader"/>
+    <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphSettingsInitializer"/>
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphVirtualBuildCreator"/>
 
     <bean class="com.jetbrains.teamcity.plugins.unrealengine.server.ServerExtensionPointsRegistration" init-method="register"/>

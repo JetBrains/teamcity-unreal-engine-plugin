@@ -170,6 +170,43 @@ The build configuration "Work B" will depend on a build configuration "Work A" d
 run after completing step "Step A.1". This is due to the nature of snapshot dependencies and the limitation in TeamCity
 where triggering another build after completing a build step is impossible. Keep that in mind when writing your scripts.
 
+###### Artifacts
+
+To produce artifacts from within an Agent/Node, you can use a TeamCity service message along with the built-in
+BuildGraph logging task:
+```xml
+<Option Name="WorkingDir" Restrict=".+" DefaultValue="None" Description="Working directory for the build" />
+
+<Agent Name="Agent" Type="...">
+    <Node Name="Produce Artifacts">
+        <Spawn Exe="mkdir" Arguments="-p $(WorkingDir)/artifacts/"/>
+        <Spawn Exe="touch" Arguments="$(WorkingDir)/artifacts/foo.txt"/>
+        <Spawn Exe="echo" Arguments="Content > ./artifacts/foo.txt"/>
+        <Log Message="##teamcity[publishArtifacts './artifacts/foo.txt']" />
+    </Node>
+</Agent>
+```
+Note: In the script above, we demonstrate one way to reference a working directory from
+within a BuildGraph script - by setting an option to the value of one of TeamCity’s
+[predefined build parameters][teamcity.predefined-build-parameters]:
+
+```kotlin
+object Artifacts : BuildType({
+    ...
+    steps {
+        unrealEngine {
+            command = buildGraph {
+                options = """
+                    WorkingDir=%teamcity.build.workingDir%
+                """.trimIndent()
+            }
+        }
+    }
+    ...
+})
+```
+This variable will be resolved at runtime based on the agent where the build is executed.
+
 ### UGS integration
 
 The integration allows you to notify the UGS (Unreal Game Sync) metadata server about the result of a build using badges.
@@ -274,6 +311,7 @@ If you'd like to learn more about the plugin, check out these blog posts:
 
 [teamcity.agent.configuration]: https://www.jetbrains.com/help/teamcity/configure-agent-installation.html
 [teamcity.commit-status-publisher]: https://www.jetbrains.com/help/teamcity/commit-status-publisher.html
+[teamcity.predefined-build-parameters] https://www.jetbrains.com/help/teamcity/predefined-build-parameters.html
 [unreal-engine.build-graph-script-elements]: https://dev.epicgames.com/documentation/en-us/unreal-engine/buildgraph-script-elements-reference-for-unreal-engine
 [unreal-engine.ugs]: https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-game-sync-reference-guide-for-unreal-engine
 [unreal-engine.native-project]: https://dev.epicgames.com/community/learning/knowledge-base/eP9R/unreal-engine-what-s-a-native-project
