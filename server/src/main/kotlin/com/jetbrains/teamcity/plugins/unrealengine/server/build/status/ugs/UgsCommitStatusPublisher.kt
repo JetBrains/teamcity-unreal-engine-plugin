@@ -150,7 +150,7 @@ class UgsCommitStatusPublisher(
                     badgeName = badgeName.value,
                     badgeState = state,
                     url = links.getViewResultsUrl(build),
-                    project = project.value,
+                    projectDirectory = PerforceDepotPath(project.value),
                 )
 
             metadataServerClient.postBuildMetadata(metadataServerUrl, metadata)
