@@ -73,6 +73,15 @@ class UnrealEngineBuildSessionFactory(
                 vararg parts: String,
             ) = Path(root, *parts).createDirectories().pathString
 
+            override fun resolveUserPath(path: String): String =
+                path.let {
+                    if (isAbsolute(it)) {
+                        resolvePath(it)
+                    } else {
+                        resolvePath(workingDirectory, it)
+                    }
+                }
+
             override val buildParameters = runnerContext.buildParameters
             override val runnerParameters = runnerContext.runnerParameters
             override val build = runnerContext.build

@@ -56,7 +56,7 @@ data class BuildCookRunCommand(
         buildList {
             add("BuildCookRun")
 
-            val resolvedProjectPath = resolvePath(workingDirectory, projectPath.value)
+            val resolvedProjectPath = resolveUserPath(projectPath.value)
             ensure(
                 fileExists(resolvedProjectPath),
                 "Could not find the specified project file. Path: $resolvedProjectPath",

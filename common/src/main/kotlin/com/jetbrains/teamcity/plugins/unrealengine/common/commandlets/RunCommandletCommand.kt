@@ -8,6 +8,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
+import com.jetbrains.teamcity.plugins.unrealengine.common.ensure
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
 
 @JvmInline
@@ -43,7 +44,12 @@ class RunCommandletCommand(
     override fun toArguments(): List<String> =
         buildList {
             projectPath?.let {
-                add(it.value)
+                val resolvedProjectPath = resolveUserPath(it.value)
+                ensure(
+                    fileExists(resolvedProjectPath),
+                    "Could not find the specified project file. Path: $resolvedProjectPath",
+                )
+                add(resolvedProjectPath)
             }
 
             add("-run=${commandlet.value}")

@@ -7,6 +7,8 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.UsePakPar
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldNotContainAnyOf
 import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -18,12 +20,13 @@ class StageOptionsTests {
         val shouldNotContainItems: List<String>,
     )
 
-    private val workingDir = "FOO"
+    private val context = createTestCommandExecutionContext()
 
-    private val commandExecutionContext =
-        CommandExecutionContextStub(
-            workingDirectory = workingDir,
-        )
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+        setupTestCommandExecutionContext(context)
+    }
 
     private fun `test cases`() =
         listOf(
@@ -45,7 +48,7 @@ class StageOptionsTests {
                 shouldContainItems =
                     listOf(
                         "-stage",
-                        "-stagingdirectory=$workingDir/some-dir/some-sub-dir",
+                        "-stagingdirectory=${context.workingDirectory}/some-dir/some-sub-dir",
                         "-pak",
                         "-compressed",
                         "-prereqs",
@@ -75,7 +78,7 @@ class StageOptionsTests {
     fun `generates a correct list of arguments`(case: TestCase) {
         // act
         val arguments =
-            with(commandExecutionContext) {
+            with(context) {
                 case.expectedOptions.toArguments()
             }
 

@@ -19,8 +19,6 @@ import io.mockk.coEvery
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
-import jetbrains.buildServer.agent.AgentRunningBuild
-import jetbrains.buildServer.agent.BuildParametersMap
 import jetbrains.buildServer.agent.BuildProgressLogger
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
@@ -28,15 +26,20 @@ import kotlin.test.Test
 
 class RunAutomationTestsWorkflowCreatorTests {
     private val buildLogger = mockk<BuildProgressLogger>(relaxed = true)
-    private val buildParameters = mockk<BuildParametersMap>(relaxed = true)
-    private val runningBuild = mockk<AgentRunningBuild>()
     private val environment = mockk<Environment>()
     private val processListenerFactory = mockk<UnrealEngineProcessListenerFactory>(relaxed = true)
     private val toolRegistry = mockk<UnrealToolRegistry>()
+    private val context = createTestUnrealBuildContext()
 
     @BeforeEach
     fun init() {
         clearAllMocks()
+        setupTestUnrealBuildContext(context)
+        every { context.runnerParameters } returns
+            mapOf(
+                AutomationTestsExecCommandParameter.name to AutomationTestsExecCommandParameter.all.name,
+                AutomationTestsProjectPathParameter.name to "foo.uproject",
+            )
 
         with(toolRegistry) {
             coEvery {
@@ -52,7 +55,7 @@ class RunAutomationTestsWorkflowCreatorTests {
             every { osType } returns OSType.MacOs
         }
 
-        every { runningBuild.buildLogger } returns buildLogger
+        every { context.build.buildLogger } returns buildLogger
     }
 
     @Test
@@ -62,7 +65,7 @@ class RunAutomationTestsWorkflowCreatorTests {
             val creator = RunAutomationTestsWorkflowCreator(toolRegistry, environment, processListenerFactory)
 
             // act
-            val workflow = with(createContext()) { either { creator.create() } }.getOrNull()
+            val workflow = with(context) { either { creator.create() } }.getOrNull()
 
             // assert
             workflow shouldNotBe null
@@ -75,35 +78,18 @@ class RunAutomationTestsWorkflowCreatorTests {
             // arrange
             val creator = RunAutomationTestsWorkflowCreator(toolRegistry, environment, processListenerFactory)
 
-            val buildContext =
-                createContext(
-                    runnerParameters =
-                        mapOf(
-                            AutomationTestsProjectPathParameter.name to "foo.uproject",
-                        ),
-                    generateReport = false,
+            every { context.runnerParameters } returns
+                mapOf(
+                    AutomationTestsExecCommandParameter.name to AutomationTestsExecCommandParameter.all.name,
+                    AutomationTestsProjectPathParameter.name to "foo.uproject",
                 )
+            every { context.fileExists(any()) } returns false
 
             // act
-            val workflow = with(buildContext) { either { creator.create() } }.getOrNull()
+            val workflow = with(context) { either { creator.create() } }.getOrNull()
             workflow?.commands?.single()?.processFinished(255)
 
             // assert
             confirmVerified(buildLogger)
         }
-
-    private fun createContext(
-        runnerParameters: Map<String, String> =
-            mapOf(
-                AutomationTestsExecCommandParameter.name to AutomationTestsExecCommandParameter.all.name,
-                AutomationTestsProjectPathParameter.name to "foo.uproject",
-            ),
-        generateReport: Boolean = true,
-    ): UnrealBuildContext =
-        UnrealBuildContextStub(
-            buildParameters = buildParameters,
-            runnerParameters = runnerParameters,
-            build = runningBuild,
-            fileExistsStub = { generateReport },
-        )
 }

@@ -13,6 +13,9 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldNotContainAnyOf
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.clearAllMocks
+import io.mockk.every
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.Test
@@ -27,12 +30,13 @@ class BuildGraphExecCommandTests {
             )
     }
 
-    private val workingDir = "FOO"
+    private val context = createTestCommandExecutionContext()
 
-    private val commandExecutionContext =
-        CommandExecutionContextStub(
-            workingDirectory = workingDir,
-        )
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+        setupTestCommandExecutionContext(context)
+    }
 
     data class TestCase(
         val runnerParameters: Map<String, String>,
@@ -57,7 +61,14 @@ class BuildGraphExecCommandTests {
                         BuildGraphMode.SingleMachine,
                         listOf("-P4", "-Submit"),
                     ),
-                shouldContainItems = listOf("-script=FOO/BuildGraph.xml", "-target=Build Linux", "-set:Foo=Bar", "-P4", "-Submit"),
+                shouldContainItems =
+                    listOf(
+                        "-script=${context.workingDirectory}/BuildGraph.xml",
+                        "-target=Build Linux",
+                        "-set:Foo=Bar",
+                        "-P4",
+                        "-Submit",
+                    ),
                 shouldNotContainItems = emptyList(),
             ),
             TestCase(
@@ -76,7 +87,13 @@ class BuildGraphExecCommandTests {
                         ),
                         BuildGraphMode.SingleMachine,
                     ),
-                shouldContainItems = listOf("-script=FOO/BuildGraph.xml", "-target=Build Linux", "-set:Foo=Bar", "-set:Foo2=Bar2"),
+                shouldContainItems =
+                    listOf(
+                        "-script=${context.workingDirectory}/BuildGraph.xml",
+                        "-target=Build Linux",
+                        "-set:Foo=Bar",
+                        "-set:Foo2=Bar2",
+                    ),
                 shouldNotContainItems = emptyList(),
             ),
         )
@@ -97,7 +114,7 @@ class BuildGraphExecCommandTests {
         // act
         val arguments =
             either {
-                with(commandExecutionContext) {
+                with(context) {
                     case.expectedCommand.toArguments()
                 }
             }.getOrNull()
@@ -113,10 +130,7 @@ class BuildGraphExecCommandTests {
     @Test
     fun `raises an error when a script file doesn't exist`() {
         // arrange
-        val context =
-            CommandExecutionContextStub(
-                fileExistsStub = { false },
-            )
+        every { context.fileExists(any()) } returns false
 
         val command =
             BuildGraphCommand(

@@ -18,10 +18,12 @@ import kotlin.test.Test
 class UnrealEngineSourceVersionDetectorTests {
     private val resourceLocatorMock = mockk<ResourceLocator>()
     private val locator = UnrealEngineSourceVersionDetector(resourceLocatorMock)
+    private val context = createTestUnrealBuildContext()
 
     @BeforeEach
     fun init() {
         clearAllMocks()
+        setupTestUnrealBuildContext(context)
     }
 
     @Test
@@ -115,7 +117,7 @@ class UnrealEngineSourceVersionDetectorTests {
 
     private suspend fun act() =
         either {
-            with(UnrealBuildContextStub()) {
+            with(context) {
                 locator.detect(UnrealEngineRootPath("foo"))
             }
         }

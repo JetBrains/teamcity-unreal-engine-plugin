@@ -14,14 +14,22 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalA
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.clearAllMocks
+import io.mockk.every
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 class BuildCookRunExecCommandTests {
-    private val workingDir = "FOO"
-    private val contextStub = CommandExecutionContextStub(workingDirectory = workingDir)
+    private val context = createTestCommandExecutionContext()
+
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+        setupTestCommandExecutionContext(context)
+    }
 
     data class HappyPathTestCase(
         val runnerParameters: Map<String, String>,
@@ -56,7 +64,7 @@ class BuildCookRunExecCommandTests {
                 expectedArguments =
                     listOf(
                         "BuildCookRun",
-                        "-project=$workingDir/some-path",
+                        "-project=${context.workingDirectory}/some-path",
                         "-build",
                         "-configuration=Shipping+Development",
                         "-targetplatform=Mac+IOS",
@@ -87,7 +95,7 @@ class BuildCookRunExecCommandTests {
                 expectedArguments =
                     listOf(
                         "BuildCookRun",
-                        "-project=$workingDir/some-path",
+                        "-project=${context.workingDirectory}/some-path",
                         "-build",
                         "-configuration=Shipping",
                         "-targetplatform=IOS",
@@ -122,7 +130,7 @@ class BuildCookRunExecCommandTests {
                 expectedArguments =
                     listOf(
                         "BuildCookRun",
-                        "-project=$workingDir/some-path",
+                        "-project=${context.workingDirectory}/some-path",
                         "-build",
                         "-clientconfig=Shipping",
                         "-targetplatform=IOS",
@@ -151,7 +159,7 @@ class BuildCookRunExecCommandTests {
                 expectedArguments =
                     listOf(
                         "BuildCookRun",
-                        "-project=$workingDir/some-path",
+                        "-project=${context.workingDirectory}/some-path",
                         "-build",
                         "-serverconfig=Shipping",
                         "-servertargetplatform=Linux+LinuxArm64",
@@ -207,10 +215,7 @@ class BuildCookRunExecCommandTests {
     @Test
     fun `raises error when converting to arguments with a non-existent specified project file`() {
         // arrange
-        val context =
-            CommandExecutionContextStub(
-                fileExistsStub = { false },
-            )
+        every { context.fileExists(any()) } returns false
 
         val command =
             BuildCookRunCommand(
@@ -234,7 +239,7 @@ class BuildCookRunExecCommandTests {
         // act
         val arguments =
             either {
-                with(contextStub) {
+                with(context) {
                     case.parsedCommand.toArguments()
                 }
             }.getOrNull()

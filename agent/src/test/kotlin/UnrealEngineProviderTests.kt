@@ -27,12 +27,25 @@ import org.junit.jupiter.params.provider.ValueSource
 class UnrealEngineProviderTests {
     private val versionDetector = mockk<UnrealEngineSourceVersionDetector>()
     private val agentConfiguration = mockk<BuildAgentConfiguration>()
+    private val context = createTestUnrealBuildContext()
+    private val engineVersion = UnrealEngineVersion(5, 3, 2)
 
     @BeforeEach
     fun init() {
         clearAllMocks()
+        setupTestUnrealBuildContext(context)
 
         agentConfiguration withConfigurationParameters emptyMap()
+
+        with(versionDetector) {
+            coEvery {
+                with(context) {
+                    with(any<Raise<GenericError>>()) {
+                        detect(any())
+                    }
+                }
+            } returns engineVersion
+        }
     }
 
     private fun `returns engine path and version`(): Collection<HappyPathTestCase> =
@@ -41,14 +54,14 @@ class UnrealEngineProviderTests {
                 HappyPathTestCase(
                     agentConfigurationParameters =
                         mapOf(
-                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.5.2.path" to "foo/bar",
+                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.5.2.path" to "/foo/bar",
                         ),
                     runnerProperties =
                         mapOf(
                             EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
                             UnrealEngineIdentifierParameter.name to "5.2",
                         ),
-                    expectedRootLocation = "foo/bar",
+                    expectedRootLocation = "/foo/bar",
                 )
             add(automatic)
 
@@ -63,43 +76,6 @@ class UnrealEngineProviderTests {
                     expectedRootLocation = "/foo/bar/custom-location",
                 )
             add(manual)
-
-            val latestAutomaticRegularVersions =
-                HappyPathTestCase(
-                    agentConfigurationParameters =
-                        mapOf(
-                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.5.1.1.path" to "foo/bar/4",
-                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.5.1.2.path" to "foo/bar/3",
-                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.5.3.1.path" to "foo/bar/2",
-                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.5.3.2.path" to "foo/bar/1",
-                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.4.2.7.path" to "foo/bar/5",
-                        ),
-                    runnerProperties =
-                        mapOf(
-                            EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
-                            UnrealEngineIdentifierParameter.name to "5",
-                        ),
-                    expectedRootLocation = "foo/bar/1",
-                )
-            add(latestAutomaticRegularVersions)
-
-            val latestAutomaticCustomVersions =
-                HappyPathTestCase(
-                    agentConfigurationParameters =
-                        mapOf(
-                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.ver.path" to "foo/bar/4",
-                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.vers.path" to "foo/bar/3",
-                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.versi.path" to "foo/bar/2",
-                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.version.path" to "foo/bar/1",
-                        ),
-                    runnerProperties =
-                        mapOf(
-                            EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
-                            UnrealEngineIdentifierParameter.name to "ve",
-                        ),
-                    expectedRootLocation = "foo/bar/1",
-                )
-            add(latestAutomaticCustomVersions)
         }
 
     data class HappyPathTestCase(
@@ -108,24 +84,85 @@ class UnrealEngineProviderTests {
         val expectedRootLocation: String,
     )
 
+    private fun `returns latest available engine version when partial version is specified`(): Collection<HappyPathTestCase> =
+        buildList {
+            val latestAutomaticRegularVersions =
+                HappyPathTestCase(
+                    agentConfigurationParameters =
+                        mapOf(
+                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.5.1.1.path" to "/foo/bar/4",
+                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.5.1.2.path" to "/foo/bar/3",
+                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.5.3.1.path" to "/foo/bar/2",
+                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.5.3.2.path" to "/foo/bar/1",
+                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.4.2.7.path" to "/foo/bar/5",
+                        ),
+                    runnerProperties =
+                        mapOf(
+                            EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
+                            UnrealEngineIdentifierParameter.name to "5",
+                        ),
+                    expectedRootLocation = "/foo/bar/1",
+                )
+            add(latestAutomaticRegularVersions)
+
+            val latestAutomaticCustomVersions =
+                HappyPathTestCase(
+                    agentConfigurationParameters =
+                        mapOf(
+                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.ver.path" to "/foo/bar/4",
+                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.vers.path" to "/foo/bar/3",
+                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.versi.path" to "/foo/bar/2",
+                            "${UnrealEngineRunner.AGENT_PARAMETER_NAME_PREFIX}.version.path" to "/foo/bar/1",
+                        ),
+                    runnerProperties =
+                        mapOf(
+                            EngineDetectionModeParameter.name to EngineDetectionModeParameter.automatic.name,
+                            UnrealEngineIdentifierParameter.name to "ve",
+                        ),
+                    expectedRootLocation = "/foo/bar/1",
+                )
+            add(latestAutomaticCustomVersions)
+        }
+
     @ParameterizedTest
-    @MethodSource("returns engine path and version")
-    fun `returns engine path and version`(testCase: HappyPathTestCase) =
+    @MethodSource("returns latest available engine version when partial version is specified")
+    fun `returns latest available engine version when partial version is specified`(testCase: HappyPathTestCase) =
         runTest {
             // arrange
-            val expectedVersion = UnrealEngineVersion(5, 3, 2)
-            versionDetector detectsVersion expectedVersion
             agentConfiguration withConfigurationParameters testCase.agentConfigurationParameters
             val provider = UnrealEngineProvider(agentConfiguration, versionDetector)
 
+            every { context.resolveUserPath(any()) } returns testCase.expectedRootLocation
+
             // act
-            val root = provider.act(testCase.runnerProperties, UnrealBuildContextStub())
+            val root = provider.act(testCase.runnerProperties, context)
 
             // assert
             root shouldBe
                 UnrealEngine(
                     UnrealEngineRootPath(testCase.expectedRootLocation),
-                    expectedVersion,
+                    engineVersion,
+                )
+        }
+
+    @ParameterizedTest
+    @MethodSource("returns engine path and version")
+    fun `returns engine path and version`(testCase: HappyPathTestCase) =
+        runTest {
+            // arrange
+            agentConfiguration withConfigurationParameters testCase.agentConfigurationParameters
+            val provider = UnrealEngineProvider(agentConfiguration, versionDetector)
+
+            every { context.resolveUserPath(any()) } returns testCase.expectedRootLocation
+
+            // act
+            val root = provider.act(testCase.runnerProperties, context)
+
+            // assert
+            root shouldBe
+                UnrealEngine(
+                    UnrealEngineRootPath(testCase.expectedRootLocation),
+                    engineVersion,
                 )
         }
 
@@ -140,8 +177,6 @@ class UnrealEngineProviderTests {
     fun `looks up the engine relative to the current working directory when in manual mode`(relativeRootPath: String) =
         runTest {
             // arrange
-            val version = UnrealEngineVersion(5, 3, 2)
-            versionDetector detectsVersion version
             val rootProvider = UnrealEngineProvider(agentConfiguration, versionDetector)
             val runnerProperties =
                 mapOf(
@@ -149,8 +184,7 @@ class UnrealEngineProviderTests {
                     UnrealEngineRootParameter.name to relativeRootPath,
                 )
 
-            val context = UnrealBuildContextStub(isAbsoluteStub = { false })
-            val expectedRootLocation = UnrealEngineRootPath(context.resolvePath(context.workingDirectory, relativeRootPath))
+            val expectedRootLocation = UnrealEngineRootPath(context.resolveUserPath(relativeRootPath))
 
             // act
             val root = rootProvider.act(runnerProperties, context)
@@ -159,19 +193,9 @@ class UnrealEngineProviderTests {
             root shouldBe
                 UnrealEngine(
                     expectedRootLocation,
-                    version,
+                    engineVersion,
                 )
         }
-
-    private infix fun UnrealEngineSourceVersionDetector.detectsVersion(version: UnrealEngineVersion) {
-        coEvery {
-            with(any<UnrealBuildContext>()) {
-                with(any<Raise<GenericError>>()) {
-                    detect(any())
-                }
-            }
-        } returns version
-    }
 
     private infix fun BuildAgentConfiguration.withConfigurationParameters(parameters: Map<String, String>) {
         every { configurationParameters } returns parameters
