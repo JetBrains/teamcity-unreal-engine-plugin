@@ -1,4 +1,3 @@
-
 import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphOption
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphOptionsParameter
@@ -40,6 +39,22 @@ class BuildGraphOptionsParameterTests {
                             ),
                     )
                 }.toTypedArray(),
+            TestCase(
+                runnerParameters = mapOf(BuildGraphOptionsParameter.name to "Option=-a -b -c -bar=baz"),
+                expectedOptions = listOf(BuildGraphOption("Option", "-a -b -c -bar=baz")),
+            ),
+            TestCase(
+                runnerParameters = mapOf(BuildGraphOptionsParameter.name to "AnotherOption=value=with=equals"),
+                expectedOptions = listOf(BuildGraphOption("AnotherOption", "value=with=equals")),
+            ),
+            TestCase(
+                runnerParameters = mapOf(BuildGraphOptionsParameter.name to "MixedCase=foo${"\n"}Other=bar=baz"),
+                expectedOptions =
+                    listOf(
+                        BuildGraphOption("MixedCase", "foo"),
+                        BuildGraphOption("Other", "bar=baz"),
+                    ),
+            ),
         )
 
     @ParameterizedTest
@@ -55,13 +70,10 @@ class BuildGraphOptionsParameterTests {
     private fun `raises an error when the given runner parameters are invalid`(): List<TestCase> =
         listOf(
             TestCase(
-                runnerParameters = mapOf(BuildGraphOptionsParameter.name to "=Bar"),
+                runnerParameters = mapOf(BuildGraphOptionsParameter.name to "=NoName"),
             ),
             TestCase(
-                runnerParameters = mapOf(BuildGraphOptionsParameter.name to "Foo=Bar="),
-            ),
-            TestCase(
-                runnerParameters = mapOf(BuildGraphOptionsParameter.name to "Foo"),
+                runnerParameters = mapOf(BuildGraphOptionsParameter.name to "JustTextNoEquals"),
             ),
         )
 

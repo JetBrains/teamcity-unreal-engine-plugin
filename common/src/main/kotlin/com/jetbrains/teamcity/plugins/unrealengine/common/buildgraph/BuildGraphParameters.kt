@@ -73,17 +73,19 @@ object BuildGraphOptionsParameter : RunnerParameter {
             .split("\r\n", "\r", "\n")
             .filter { it.isNotEmpty() }
             .map { optionString ->
-                val nameAndValue = optionString.split("=")
-                if (nameAndValue.size != 2) {
+                val indexOfEqual = optionString.indexOf('=')
+                if (indexOfEqual == -1) {
                     raise(PropertyValidationError(name, "Make sure all options are in the required 'OPTION_NAME=OPTION_VALUE' format."))
                 }
 
-                val name = nameAndValue.first()
-                if (name.isEmpty()) {
+                val optionName = optionString.substring(0, indexOfEqual)
+                val optionValue = optionString.substring(indexOfEqual + 1)
+
+                if (optionName.isEmpty()) {
                     raise(PropertyValidationError(BuildGraphOptionsParameter.name, "All options must have a name."))
                 }
 
-                BuildGraphOption(name, nameAndValue.last())
+                BuildGraphOption(optionName, optionValue)
             }
     }
 }
