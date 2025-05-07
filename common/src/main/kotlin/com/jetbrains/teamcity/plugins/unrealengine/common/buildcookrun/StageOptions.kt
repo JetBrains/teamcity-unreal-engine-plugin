@@ -24,7 +24,7 @@ data class StageOptions(
             add("-stage")
 
             stagingDirectory?.let {
-                add("-stagingdirectory=${resolvePath(workingDirectory, stagingDirectory)}")
+                add("-stagingdirectory=${resolveUserPath(it)}")
             }
 
             if (usePak) {

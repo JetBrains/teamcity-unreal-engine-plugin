@@ -3,17 +3,25 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.ArchiveDi
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.ArchiveOptions
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 class ArchiveOptionsTests {
+    private val context = createTestCommandExecutionContext()
+
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+        setupTestCommandExecutionContext(context)
+    }
+
     data class TestCase(
         val runnerParameters: Map<String, String>,
         val expectedOptions: ArchiveOptions,
         val expectedArguments: List<String>,
     )
-
-    private val commandExecutionContext = CommandExecutionContextStub()
 
     private fun `test cases`() =
         listOf(
@@ -47,7 +55,7 @@ class ArchiveOptionsTests {
     fun `generates a correct list of arguments`(case: TestCase) {
         // act
         val arguments =
-            with(commandExecutionContext) {
+            with(context) {
                 case.expectedOptions.toArguments()
             }
 

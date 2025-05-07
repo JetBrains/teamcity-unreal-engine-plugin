@@ -19,4 +19,6 @@ interface FileSystemContext {
     ): String
 }
 
-interface CommandExecutionContext : FileSystemContext
+interface CommandExecutionContext : FileSystemContext {
+    fun resolveUserPath(path: String): String
+}

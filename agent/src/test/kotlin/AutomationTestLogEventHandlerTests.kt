@@ -8,7 +8,6 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verifyOrder
-import jetbrains.buildServer.agent.AgentRunningBuild
 import jetbrains.buildServer.agent.BuildProgressLogger
 import org.junit.jupiter.api.BeforeEach
 import java.time.Instant
@@ -16,7 +15,7 @@ import kotlin.test.Test
 
 class AutomationTestLogEventHandlerTests {
     private val buildLoggerMock = mockk<BuildProgressLogger>(relaxed = true)
-    private val buildContext = UnrealBuildContextStub(build = mockk<AgentRunningBuild>())
+    private val buildContext = createTestUnrealBuildContext()
     private val handler = with(buildContext) { AutomationTestLogEventHandler() }
 
     @BeforeEach

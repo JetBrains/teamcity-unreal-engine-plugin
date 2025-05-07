@@ -14,8 +14,8 @@ data class ArchiveOptions(
         buildList {
             add("-archive")
 
-            if (archiveDirectory != null) {
-                add("-archivedirectory=${resolvePath(workingDirectory, archiveDirectory)}")
+            archiveDirectory?.let {
+                add("-archivedirectory=${resolveUserPath(it)}")
             }
         }
 }

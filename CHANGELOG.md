@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed inconsistent handling of absolute paths in parameters across different runners [TW-91846](https://youtrack.jetbrains.com/issue/TW-91846)
+
 ## 1.3.0 - 2025-04-25
 
 ### Added

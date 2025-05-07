@@ -8,14 +8,23 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.Unrea
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.clearAllMocks
+import io.mockk.every
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.Test
 import kotlin.test.assertContains
 
 class RunAutomationTestsCommandTests {
-    private val commandExecutionContext = CommandExecutionContextStub()
+    private val commandExecutionContext = createTestCommandExecutionContext()
     private val testProject = UnrealProjectPath("SomeName.uproject")
+
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
+        setupTestCommandExecutionContext(commandExecutionContext)
+    }
 
     data class TestCase(
         val automationTestsCommand: RunAutomationTestsCommand,
@@ -75,12 +84,13 @@ class RunAutomationTestsCommandTests {
                 nullRHI = true,
                 execCommand = ExecCommand.RunAll,
             )
-        val context = CommandExecutionContextStub(workingDirectory = "")
+
+        every { commandExecutionContext.resolveUserPath(any()) } answers { firstArg() }
 
         // act
         val result =
             either {
-                with(context) { command.toArguments() }
+                with(commandExecutionContext) { command.toArguments() }
             }.getOrNull()
 
         // assert

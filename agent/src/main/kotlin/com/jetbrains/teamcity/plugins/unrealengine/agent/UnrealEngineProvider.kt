@@ -38,15 +38,7 @@ class UnrealEngineProvider(
                     findAmongAgentInstalledEngines(mode.identifier)
                 }
                 is EngineDetectionMode.Manual -> {
-                    UnrealEngineRootPath(
-                        mode.engineRootPath.value.let {
-                            if (isAbsolute(it)) {
-                                resolvePath(it)
-                            } else {
-                                resolvePath(workingDirectory, it)
-                            }
-                        },
-                    )
+                    UnrealEngineRootPath(resolveUserPath(mode.engineRootPath.value))
                 }
             }
 

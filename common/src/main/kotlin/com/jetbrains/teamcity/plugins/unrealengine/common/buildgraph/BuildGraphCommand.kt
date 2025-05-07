@@ -41,7 +41,7 @@ data class BuildGraphCommand(
         buildList {
             add("BuildGraph")
 
-            val resolvedScriptPath = resolvePath(workingDirectory, scriptPath.value)
+            val resolvedScriptPath = resolveUserPath(scriptPath.value)
             ensure(
                 fileExists(resolvedScriptPath),
                 "Could not find the specified BuildGraph script file. Path: $resolvedScriptPath",

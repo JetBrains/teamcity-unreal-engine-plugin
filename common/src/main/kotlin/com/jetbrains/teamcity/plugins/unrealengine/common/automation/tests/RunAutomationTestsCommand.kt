@@ -64,7 +64,7 @@ data class RunAutomationTestsCommand(
     context(Raise<GenericError>, CommandExecutionContext)
     override fun toArguments() =
         buildList {
-            val resolvedProjectPath = resolvePath(workingDirectory, projectPath.value)
+            val resolvedProjectPath = resolveUserPath(projectPath.value)
             ensure(
                 fileExists(resolvedProjectPath),
                 "Could not find the specified project file. Path: $resolvedProjectPath",
