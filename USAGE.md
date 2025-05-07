@@ -187,8 +187,7 @@ BuildGraph logging task:
 </Agent>
 ```
 Note: In the script above, we demonstrate one way to reference a working directory from
-within a BuildGraph script - by setting an option to the value of one of TeamCity’s
-[predefined build parameters][teamcity.predefined-build-parameters]:
+within a BuildGraph script - by setting an option to the value of one of TeamCity’s [predefined build parameters][teamcity.predefined-build-parameters]:
 
 ```kotlin
 object Artifacts : BuildType({
@@ -311,7 +310,7 @@ If you'd like to learn more about the plugin, check out these blog posts:
 
 [teamcity.agent.configuration]: https://www.jetbrains.com/help/teamcity/configure-agent-installation.html
 [teamcity.commit-status-publisher]: https://www.jetbrains.com/help/teamcity/commit-status-publisher.html
-[teamcity.predefined-build-parameters] https://www.jetbrains.com/help/teamcity/predefined-build-parameters.html
+[teamcity.predefined-build-parameters]: https://www.jetbrains.com/help/teamcity/predefined-build-parameters.html
 [unreal-engine.build-graph-script-elements]: https://dev.epicgames.com/documentation/en-us/unreal-engine/buildgraph-script-elements-reference-for-unreal-engine
 [unreal-engine.ugs]: https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-game-sync-reference-guide-for-unreal-engine
 [unreal-engine.native-project]: https://dev.epicgames.com/community/learning/knowledge-base/eP9R/unreal-engine-what-s-a-native-project
