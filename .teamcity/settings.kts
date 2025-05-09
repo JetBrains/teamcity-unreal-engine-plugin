@@ -9,7 +9,7 @@ import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import jetbrains.buildServer.configs.kotlin.version
 
-version = "2024.03"
+version = "2025.03"
 
 project {
     vcsRoot(TagReleaseVcs)
@@ -59,6 +59,10 @@ object ReleaseBuildConfiguration : BuildType({
             name = "publish to marketplace"
             tasks = "publishPlugin"
         }
+    }
+
+    requirements {
+        exists("env.JDK_11")
     }
 
     artifactRules = "+:./server/build/distributions/teamcity-unreal-engine-plugin-server.zip"
@@ -130,6 +134,10 @@ object PullRequestBuildConfiguration : BuildType({
             tasks = "clean build serverPlugin"
         }
     }
+
+    requirements {
+        exists("env.JDK_11")
+    }
 })
 
 object MasterVcs : GitVcsRoot({
@@ -160,5 +168,9 @@ object MasterBuildConfiguration : BuildType({
             name = "build"
             tasks = "clean build serverPlugin"
         }
+    }
+
+    requirements {
+        exists("env.JDK_11")
     }
 })
