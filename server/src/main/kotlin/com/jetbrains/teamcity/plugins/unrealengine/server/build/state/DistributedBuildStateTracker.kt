@@ -26,10 +26,10 @@ class DistributedBuildStateTracker(
     }
 
     fun track(
-        parentBuild: SBuild,
-        build: DistributedBuild,
+        originalBuild: SBuild,
+        distributedBuild: DistributedBuild,
     ) {
-        build.builds.forEach {
+        distributedBuild.builds.forEach {
             it.activeRunners().forEach { runner ->
                 it.buildType!!.settings.updateBuildRunner(
                     runner.id,
@@ -45,7 +45,7 @@ class DistributedBuildStateTracker(
 
         val initialState =
             DistributedBuildState(
-                build.builds.map { build ->
+                distributedBuild.builds.map { build ->
                     DistributedBuildState.Build(
                         build.buildType!!.name,
                         build.activeRunners().map { step ->
@@ -58,7 +58,7 @@ class DistributedBuildStateTracker(
                 },
             )
 
-        stateStorage.init(parentBuild, initialState)
+        stateStorage.init(originalBuild, initialState)
     }
 
     private fun MutableMap<String, String>.notifyServerAboutExecution() =
