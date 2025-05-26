@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## 1.3.2 - 2025-05-26
+
+### Fixed
+
+- Distributed BuildGraph builds with badge state tracking enabled might not have worked as expected.
+
 ## 1.3.1 - 2025-05-08
 
 ### Fixed

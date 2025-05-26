@@ -19,17 +19,17 @@ class BuildGraphDistributedSetupOrchestrator(
 ) {
     context(Raise<Error>)
     fun setupDistributedBuild(setupBuild: SRunningBuild) {
-        val (validateSetupBuild, originalBuild) = validator.validate(setupBuild)
-        val buildGraph = definitionLoader.loadFrom(validateSetupBuild)
+        val (validatedSetupBuild, originalBuild) = validator.validate(setupBuild)
+        val buildGraph = definitionLoader.loadFrom(validatedSetupBuild)
 
         val settings = settingsInitializer.initializeBuildSettings(originalBuild, buildGraph.badges)
         val distributedBuild = buildCreator.create(originalBuild, buildGraph)
 
         if (settings.badgePosting is BadgePostingConfig.Enabled) {
-            buildStateTracker.track(validateSetupBuild, distributedBuild)
+            buildStateTracker.track(originalBuild, distributedBuild)
         }
 
-        dependencyConnector.connect(validateSetupBuild, distributedBuild, originalBuild)
+        dependencyConnector.connect(validatedSetupBuild, distributedBuild, originalBuild)
 
         buildQueue.addToQueue(
             distributedBuild.builds.associateWith { null },
