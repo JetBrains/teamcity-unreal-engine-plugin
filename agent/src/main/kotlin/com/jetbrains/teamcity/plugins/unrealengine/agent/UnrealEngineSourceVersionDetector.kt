@@ -2,7 +2,6 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent
 
 import arrow.core.raise.Raise
 import arrow.core.raise.recover
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.framework.resource.location.ResourceLocationResult
 import com.jetbrains.teamcity.plugins.framework.resource.location.ResourceLocator
 import com.jetbrains.teamcity.plugins.framework.resource.location.queries.filteredLines
@@ -13,6 +12,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.JsonEncoder
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRootPath
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineVersion
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensure
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensureNotNull
 import com.jetbrains.teamcity.plugins.unrealengine.common.raise
@@ -37,7 +37,7 @@ class UnrealEngineSourceVersionDetector(
     private val resourceLocator: ResourceLocator,
 ) {
     companion object {
-        private val logger = TeamCityLoggers.agent<UnrealEngineSourceVersionDetector>()
+        private val logger = UnrealPluginLoggers.get<UnrealEngineSourceVersionDetector>()
         private val json = JsonEncoder.instance
         private val versionPartRegex = "^#define\\s+ENGINE_(\\w+)_VERSION\\s+(\\d+)\$".toRegex()
     }

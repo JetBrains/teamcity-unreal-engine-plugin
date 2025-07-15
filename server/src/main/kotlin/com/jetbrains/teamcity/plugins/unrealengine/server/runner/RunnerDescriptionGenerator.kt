@@ -2,9 +2,9 @@ package com.jetbrains.teamcity.plugins.unrealengine.server.runner
 
 import arrow.core.getOrElse
 import arrow.core.raise.either
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.EngineDetectionMode
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommandType
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.commands.AutomationCommandNameParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.AutomationTestsProjectPathParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCookRunProjectPathParameter
@@ -21,7 +21,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealComma
 
 class RunnerDescriptionGenerator {
     companion object {
-        private val logger = TeamCityLoggers.agent<RunnerDescriptionGenerator>()
+        private val logger = UnrealPluginLoggers.get<RunnerDescriptionGenerator>()
     }
 
     fun generate(runnerParameters: Map<String, String>): String =

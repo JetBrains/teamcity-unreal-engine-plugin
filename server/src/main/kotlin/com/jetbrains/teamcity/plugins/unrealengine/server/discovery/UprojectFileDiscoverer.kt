@@ -1,9 +1,9 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.discovery
 
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.JsonEncoder
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineIdentifier
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineProject
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealTargetPlatform
 import jetbrains.buildServer.util.browser.Element
@@ -26,7 +26,7 @@ private data class UnrealEngineProjectDescriptor(
 class UprojectFileDiscoverer : UnrealProjectDiscoverer {
     companion object {
         private const val PROJECT_EXTENSION = ".uproject"
-        private val logger = TeamCityLoggers.server<UprojectFileDiscoverer>()
+        private val logger = UnrealPluginLoggers.get<UprojectFileDiscoverer>()
     }
 
     override fun discover(directory: Element): Collection<UnrealEngineProject> =

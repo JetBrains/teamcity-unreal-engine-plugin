@@ -3,7 +3,6 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent
 import com.jetbrains.teamcity.plugins.framework.agent.AgentParametersProvider
 import com.jetbrains.teamcity.plugins.framework.agent.TeamCityParameter
 import com.jetbrains.teamcity.plugins.framework.common.Environment
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.framework.resource.location.IniProperty
 import com.jetbrains.teamcity.plugins.framework.resource.location.ResourceLocationResult
 import com.jetbrains.teamcity.plugins.framework.resource.location.ResourceLocator
@@ -14,6 +13,7 @@ import com.jetbrains.teamcity.plugins.framework.resource.location.windows.regist
 import com.jetbrains.teamcity.plugins.framework.resource.location.windows.registry.WindowsRegistrySearchFilter
 import com.jetbrains.teamcity.plugins.unrealengine.common.JsonEncoder
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRunner
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -47,7 +47,7 @@ class EngineInstallationParametersProvider(
     private val environment: Environment,
 ) : AgentParametersProvider {
     companion object {
-        private val logger = TeamCityLoggers.agent<EngineInstallationParametersProvider>()
+        private val logger = UnrealPluginLoggers.get<EngineInstallationParametersProvider>()
         private val json = JsonEncoder.instance
     }
 

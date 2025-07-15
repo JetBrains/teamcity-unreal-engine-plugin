@@ -2,7 +2,7 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph
 
 import arrow.core.raise.Raise
 import arrow.core.raise.ensureNotNull
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphRunnerInternalSettings
 import jetbrains.buildServer.agent.BuildAgentConfiguration
 
@@ -28,7 +28,7 @@ class DistributedBuildSettingsCreator(
     private val agentConfiguration: BuildAgentConfiguration,
 ) {
     companion object {
-        private val logger = TeamCityLoggers.agent<DistributedBuildSettingsCreator>()
+        private val logger = UnrealPluginLoggers.get<DistributedBuildSettingsCreator>()
     }
 
     context(Raise<SettingsCreationError>)

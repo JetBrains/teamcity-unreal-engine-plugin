@@ -4,7 +4,6 @@ import arrow.core.getOrElse
 import arrow.core.raise.Raise
 import arrow.core.raise.either
 import com.jetbrains.teamcity.plugins.framework.common.Environment
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealBuildContext
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineCommandExecution
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineProgramCommandLine
@@ -14,6 +13,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.agent.WorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.agent.build.log.UnrealEngineProcessListenerFactory
 import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.AutomationTestLogEventHandler
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.RunAutomationTestsCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 
@@ -23,7 +23,7 @@ class RunAutomationTestsWorkflowCreator(
     private val processListenerFactory: UnrealEngineProcessListenerFactory,
 ) : WorkflowCreator {
     companion object {
-        private val logger = TeamCityLoggers.agent<RunAutomationTestsWorkflowCreator>()
+        private val logger = UnrealPluginLoggers.get<RunAutomationTestsWorkflowCreator>()
     }
 
     context(Raise<GenericError>, UnrealBuildContext)

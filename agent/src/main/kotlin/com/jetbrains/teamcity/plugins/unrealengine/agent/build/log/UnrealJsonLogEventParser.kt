@@ -1,7 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.agent.build.log
 
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.JsonEncoder
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -52,7 +52,7 @@ data class UnrealJsonLogEvent(
 class UnrealJsonLogEventParser {
     companion object {
         private val json = JsonEncoder.instance
-        private val logger = TeamCityLoggers.agent<UnrealJsonLogEventParser>()
+        private val logger = UnrealPluginLoggers.get<UnrealJsonLogEventParser>()
     }
 
     fun parse(text: String): UnrealJsonLogEvent? {

@@ -2,8 +2,8 @@ package com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.logError
 import jetbrains.buildServer.serverSide.BuildServerAdapter
 import jetbrains.buildServer.serverSide.SRunningBuild
@@ -12,7 +12,7 @@ class BuildGraphSetupBuildListener(
     private val orchestrator: BuildGraphDistributedSetupOrchestrator,
 ) : BuildServerAdapter() {
     companion object {
-        private val logger = TeamCityLoggers.server<BuildGraphSetupBuildListener>()
+        private val logger = UnrealPluginLoggers.get<BuildGraphSetupBuildListener>()
     }
 
     override fun beforeBuildFinish(runningBuild: SRunningBuild) =

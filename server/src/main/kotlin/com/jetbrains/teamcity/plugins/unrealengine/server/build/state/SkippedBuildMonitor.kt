@@ -1,7 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.build.state
 
 import arrow.core.raise.either
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.getGeneratedById
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.isMainNode
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.logResult
@@ -18,7 +18,7 @@ class SkippedBuildMonitor(
     private val stateTracker: DistributedBuildStateTracker,
 ) : BuildServerAdapter() {
     companion object {
-        private val logger = TeamCityLoggers.server<SkippedBuildMonitor>()
+        private val logger = UnrealPluginLoggers.get<SkippedBuildMonitor>()
     }
 
     override fun entryCreated(build: SFinishedBuild) =

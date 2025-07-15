@@ -4,6 +4,10 @@ The plugin provides several configuration options that can adjust its internal b
 Server-side options are represented as TeamCity [internal properties][teamcity.internal-properties].
 In most cases, you won't need to modify them.
 
+## Internal Properties
+
+### Distributed Build Event Bus
+
 * `teamcity.internal.unreal-engine.distributed-build-event-bus.worker-count`
 
     Specifies the number of workers responsible for processing the internal queue of events
@@ -18,6 +22,8 @@ In most cases, you won't need to modify them.
 
     **Default value:** 100
 
+### UGS Metadata Server
+
 * `teamcity.internal.unreal-engine.ugs-metadata-server.retry-count`
 
     Defines the number of retry attempts the UGS client will make for failed requests before giving up.
@@ -31,5 +37,33 @@ In most cases, you won't need to modify them.
     The value should be formatted according to the ISO-8601 standard.
 
     **Default value:** PT5S (5 seconds)
+
+## Debugging and Logging
+
+When you need to debug the plugin, you'll need to create a dedicated logger in the corresponding TeamCity Log4j configuration files:
+
+* Server: [TeamCity Server Logs - Changing Logging Settings](https://www.jetbrains.com/help/teamcity/teamcity-server-logs.html#Changing+Logging+Settings)
+* Agent: [Viewing Build Agent Logs - Log Files](https://www.jetbrains.com/help/teamcity/viewing-build-agent-logs.html#Log+Files)
+
+The plugin produces logs with the specific prefix `jetbrains.buildServer.unrealEngine`. To debug the plugin, add the following configuration to the appropriate Log4j configuration file (depending on whether you want to debug the server or agent components):
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration status="INFO">
+  <!-- loggers -->
+  <Loggers>
+    <!-- ... existing loggers ... -->
+    <Logger
+        name="jetbrains.buildServer.unrealEngine"
+        level="DEBUG"
+        additivity="false">
+      <AppenderRef ref="ROLL" />
+    </Logger>
+    <!-- ... existing loggers ... -->
+  </Loggers>
+</Configuration>
+```
+
+This configuration will enable DEBUG-level logging for all plugin components, helping you troubleshoot issues and understand the plugin's behavior in detail. This might be particularly helpful when you create a ticket in YouTrack or on GitHub and need to attach detailed logs.
 
 [teamcity.internal-properties]: https://www.jetbrains.com/help/teamcity/server-startup-properties.html#TeamCity+Internal+Properties

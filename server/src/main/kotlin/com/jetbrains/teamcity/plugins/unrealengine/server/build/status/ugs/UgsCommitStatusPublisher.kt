@@ -3,9 +3,9 @@ package com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs
 import arrow.core.getOrElse
 import arrow.core.raise.Raise
 import arrow.core.raise.either
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.Error
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensure
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensureNotNull
 import com.jetbrains.teamcity.plugins.unrealengine.common.raise
@@ -42,7 +42,7 @@ class UgsCommitStatusPublisher(
         webLinks,
     ) {
     companion object {
-        private val logger = TeamCityLoggers.server<UgsCommitStatusPublisher>()
+        private val logger = UnrealPluginLoggers.get<UgsCommitStatusPublisher>()
     }
 
     val parameters: Map<String, String> = myParams

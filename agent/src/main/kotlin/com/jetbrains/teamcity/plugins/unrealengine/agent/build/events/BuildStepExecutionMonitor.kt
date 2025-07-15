@@ -1,7 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.agent.build.events
 
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRunner
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.build.events.AgentBuildEvent
 import com.jetbrains.teamcity.plugins.unrealengine.common.build.events.AgentBuildEvent.*
 import com.jetbrains.teamcity.plugins.unrealengine.common.build.events.AgentBuildEventConverter
@@ -18,7 +18,7 @@ class BuildStepExecutionMonitor(
     private val eventConverter: AgentBuildEventConverter,
 ) : AgentLifeCycleAdapter() {
     companion object {
-        private val logger = TeamCityLoggers.agent<BuildStepExecutionMonitor>()
+        private val logger = UnrealPluginLoggers.get<BuildStepExecutionMonitor>()
     }
 
     override fun beforeRunnerStart(runner: BuildRunnerContext) {

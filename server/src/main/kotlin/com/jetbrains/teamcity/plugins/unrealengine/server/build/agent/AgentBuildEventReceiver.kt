@@ -4,10 +4,10 @@ import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
 import arrow.core.raise.either
 import arrow.core.raise.forEachAccumulating
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.Error
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.JsonEncoder
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.build.events.AgentBuildEvent
 import com.jetbrains.teamcity.plugins.unrealengine.common.build.events.AgentBuildEventConverter
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensureNotNull
@@ -31,7 +31,7 @@ class AgentBuildEventReceiver(
     private val serverResponsibility: ServerResponsibility,
 ) : ServiceMessageTranslator {
     companion object {
-        private val logger = TeamCityLoggers.server<AgentBuildEventReceiver>()
+        private val logger = UnrealPluginLoggers.get<AgentBuildEventReceiver>()
     }
 
     private val json = JsonEncoder.instance

@@ -1,13 +1,13 @@
 package com.jetbrains.teamcity.plugins.unrealengine.agent.reporting
 
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 
 // TeamCity test name format
 // <suite name>: <package/namespace name>.<class name>.<test method>(<test parameters>)
 // <class name> and <test method> cannot have dots in the names
 // <package/namespace name> and <class name> cannot have spaces in the names
 object TeamCityTestNameFormatter {
-    private val logger = TeamCityLoggers.server<TeamCityTestNameFormatter>()
+    private val logger = UnrealPluginLoggers.get<TeamCityTestNameFormatter>()
 
     fun format(
         name: String,

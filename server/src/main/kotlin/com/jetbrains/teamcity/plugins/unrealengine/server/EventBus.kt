@@ -1,6 +1,6 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server
 
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -23,7 +23,7 @@ class EventBus<T>(
     private val partitioner: (T) -> Int,
     private val onBufferOverflow: ((T) -> Unit)? = null,
 ) {
-    private val logger = TeamCityLoggers.server<EventBus<T>>()
+    private val logger = UnrealPluginLoggers.get<EventBus<T>>()
 
     private val workerChannels: List<Channel<T>> =
         (0..<config.workerCount)

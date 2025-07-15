@@ -1,8 +1,8 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.build.state
 
 import arrow.core.raise.Raise
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.Error
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.build.events.AgentBuildEvent
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensureNotNull
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.agent.AgentBuildEventHandler
@@ -13,7 +13,7 @@ class AgentBuildStateEventMonitor(
     private val buildManager: BuildsManager,
 ) : AgentBuildEventHandler {
     companion object {
-        private val logger = TeamCityLoggers.server<AgentBuildStateEventMonitor>()
+        private val logger = UnrealPluginLoggers.get<AgentBuildStateEventMonitor>()
     }
 
     context(Raise<Error>)
