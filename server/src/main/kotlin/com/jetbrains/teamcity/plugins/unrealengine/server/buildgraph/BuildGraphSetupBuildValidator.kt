@@ -7,7 +7,6 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.Error
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphSettings
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensureNotNull
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.asBuildPromotionEx
-import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.hasSingleDistributedBuildGraphStep
 import jetbrains.buildServer.serverSide.SBuild
 import jetbrains.buildServer.serverSide.SRunningBuild
 
@@ -30,15 +29,12 @@ class BuildGraphSetupBuildValidator(
 ) {
     context(Raise<Error>)
     fun validate(setupBuild: SRunningBuild): ValidationResult {
-        val buildType =
-            ensureNotNull(setupBuild.buildType) {
-                BuildSkipped("The running build \"${setupBuild.fullName}\" is missing a build type")
-            }
-
         val isBuildGraphSetup =
-            buildType.isVirtual &&
-                setupBuild.buildPromotion.hasSingleDistributedBuildGraphStep() &&
-                buildType.name == settings.setupBuildName
+            setupBuild.buildPromotion
+                .asBuildPromotionEx()
+                .attributes[settings.setupBuildMarker]
+                .toString()
+                .toBoolean()
 
         ensure(isBuildGraphSetup) {
             BuildSkipped("The running build \"${setupBuild.fullName}\" isn't a build graph setup build")

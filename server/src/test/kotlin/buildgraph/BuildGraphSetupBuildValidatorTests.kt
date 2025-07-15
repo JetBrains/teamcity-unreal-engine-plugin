@@ -15,7 +15,6 @@ import io.mockk.mockkStatic
 import jetbrains.buildServer.serverSide.BuildPromotion
 import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.SBuild
-import jetbrains.buildServer.serverSide.SBuildType
 import jetbrains.buildServer.serverSide.SRunningBuild
 import jetbrains.buildServer.serverSide.dependency.BuildDependencyEx
 import org.junit.jupiter.params.ParameterizedTest
@@ -26,7 +25,6 @@ class BuildGraphSetupBuildValidatorTests {
     private val validator = BuildGraphSetupBuildValidator(settings)
 
     init {
-        mockkStatic(BuildPromotion::hasSingleDistributedBuildGraphStep)
         mockkStatic(BuildPromotion::asBuildPromotionEx)
     }
 
@@ -36,17 +34,14 @@ class BuildGraphSetupBuildValidatorTests {
     )
 
     private fun `happy path cases`(): List<TestCase> {
-        val validBuildType =
-            mockk<SBuildType> {
-                every { isVirtual } returns true
-                every { name } returns settings.setupBuildName
-            }
-
         val originalBuild = mockk<SBuild>()
 
         val validPromotion =
-            mockk<BuildPromotion> {
-                every { hasSingleDistributedBuildGraphStep() } returns true
+            mockk<BuildPromotionEx> {
+                every { attributes } returns
+                    mapOf(
+                        settings.setupBuildMarker to true.toString(),
+                    )
             }
 
         val validPromotionEx =
@@ -60,13 +55,16 @@ class BuildGraphSetupBuildValidatorTests {
                                 }
                         },
                     )
+                every { attributes } returns
+                    mapOf(
+                        settings.setupBuildMarker to true.toString(),
+                    )
             }
 
         every { validPromotion.asBuildPromotionEx() } returns validPromotionEx
 
         val validBuild =
             mockk<SRunningBuild> {
-                every { buildType } returns validBuildType
                 every { buildPromotion } returns validPromotion
                 every { projectId } returns "project-1"
                 every { fullName } returns "Build #1"
@@ -80,35 +78,30 @@ class BuildGraphSetupBuildValidatorTests {
     }
 
     private fun `error cases`(): List<TestCase> {
-        val validBuildType =
-            mockk<SBuildType> {
-                every { isVirtual } returns true
-                every { name } returns settings.setupBuildName
-            }
-
-        val validPromotion =
-            mockk<BuildPromotion> {
-                every { hasSingleDistributedBuildGraphStep() } returns true
-            }
-
-        val invalidBuildType =
-            mockk<SBuildType> {
-                every { isVirtual } returns false
-                every { name } returns "Invalid"
-            }
-
-        val invalidBuild =
+        val notASetupBuild =
             mockk<SRunningBuild> {
-                every { buildType } returns invalidBuildType
-                every { buildPromotion } returns validPromotion
+                every { buildPromotion } returns
+                    mockk<BuildPromotion> {
+                        every { asBuildPromotionEx() } returns
+                            mockk {
+                                every { attributes } returns emptyMap()
+                            }
+                    }
                 every { projectId } returns "project-1"
                 every { fullName } returns "Build #2"
             }
 
+        val validAttributes = mapOf(settings.setupBuildMarker to true.toString())
+
         val missingProjectIdBuild =
             mockk<SRunningBuild> {
-                every { buildType } returns validBuildType
-                every { buildPromotion } returns validPromotion
+                every { buildPromotion } returns
+                    mockk {
+                        every { asBuildPromotionEx() } returns
+                            mockk {
+                                every { attributes } returns validAttributes
+                            }
+                    }
                 every { projectId } returns null
                 every { fullName } returns "Build #3"
             }
@@ -117,14 +110,14 @@ class BuildGraphSetupBuildValidatorTests {
             mockk<BuildPromotion> {
                 every { hasSingleDistributedBuildGraphStep() } returns true
                 every { asBuildPromotionEx() } returns
-                    mockk<BuildPromotionEx> {
+                    mockk {
+                        every { attributes } returns validAttributes
                         every { dependedOnMe } returns emptyList()
                     }
             }
 
         val buildWithNoDependencies =
             mockk<SRunningBuild> {
-                every { buildType } returns validBuildType
                 every { buildPromotion } returns promotionWithNoDependencies
                 every { projectId } returns "project-1"
                 every { fullName } returns "Build #4"
@@ -134,7 +127,8 @@ class BuildGraphSetupBuildValidatorTests {
             mockk<BuildPromotion> {
                 every { hasSingleDistributedBuildGraphStep() } returns true
                 every { asBuildPromotionEx() } returns
-                    mockk<BuildPromotionEx> {
+                    mockk {
+                        every { attributes } returns validAttributes
                         every { dependedOnMe } returns
                             listOf(
                                 mockk<BuildDependencyEx>(),
@@ -145,7 +139,6 @@ class BuildGraphSetupBuildValidatorTests {
 
         val buildWithMultipleDependencies =
             mockk<SRunningBuild> {
-                every { buildType } returns validBuildType
                 every { buildPromotion } returns promotionWithMultipleDependencies
                 every { projectId } returns "project-1"
                 every { fullName } returns "Build #5"
@@ -156,6 +149,7 @@ class BuildGraphSetupBuildValidatorTests {
                 every { hasSingleDistributedBuildGraphStep() } returns true
                 every { asBuildPromotionEx() } returns
                     mockk<BuildPromotionEx> {
+                        every { attributes } returns validAttributes
                         every { dependedOnMe } returns
                             listOf(
                                 mockk<BuildDependencyEx> {
@@ -170,7 +164,6 @@ class BuildGraphSetupBuildValidatorTests {
 
         val buildWithMissingAssociatedBuild =
             mockk<SRunningBuild> {
-                every { buildType } returns validBuildType
                 every { buildPromotion } returns promotionWithMissingAssociatedBuild
                 every { projectId } returns "project-1"
                 every { fullName } returns "Build #6"
@@ -178,7 +171,7 @@ class BuildGraphSetupBuildValidatorTests {
 
         return listOf(
             TestCase(
-                setupBuild = invalidBuild,
+                setupBuild = notASetupBuild,
                 expectedError = BuildSkipped("The running build \"Build #2\" isn't a build graph setup build"),
             ),
             TestCase(

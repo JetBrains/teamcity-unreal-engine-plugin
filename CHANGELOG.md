@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed BuildGraph setup builds being skipped when duplicate build names occur within the same project [TW-94428](https://youtrack.jetbrains.com/issue/TW-94428)
+
 ## 1.3.2 - 2025-05-26
 
 ### Fixed
