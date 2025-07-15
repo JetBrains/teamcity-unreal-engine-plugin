@@ -125,7 +125,7 @@ class BuildGraphDistributionConfigurer(
 
         val setupBuild =
             with(virtualBuildCreator.inContextOf(originalBuild)) {
-                virtualBuildCreator.create(settings.setupBuildName) {
+                virtualBuildCreator.create("Setup") {
                     val graphExportPath =
                         "%${AgentRuntimeProperties.BUILD_CHECKOUT_DIR}%/${settings.graphArtifactName}"
 
@@ -142,10 +142,12 @@ class BuildGraphDistributionConfigurer(
                                 ).toMap()
 
                     addUnrealRunner(
-                        settings.setupBuildName,
+                        "Setup",
                         setupRunnerParameters,
                     )
                 }
+            }.also {
+                it.setAttribute(settings.setupBuildMarker, true.toString())
             }
 
         val dependencyOptions = DependencyOptionSupportImpl().default()
