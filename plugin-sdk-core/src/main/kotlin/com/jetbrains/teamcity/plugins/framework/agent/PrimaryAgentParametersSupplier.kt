@@ -12,7 +12,7 @@ class PrimaryAgentParametersSupplier(
 ) : AgentParametersSupplier {
 
     companion object {
-        private val logger: Logger = TeamCityLoggers.agent<PrimaryAgentParametersSupplier>()
+        private val logger: Logger = TeamCityLoggers.get<PrimaryAgentParametersSupplier>()
     }
 
     private val parameters: List<TeamCityParameter> by lazy {

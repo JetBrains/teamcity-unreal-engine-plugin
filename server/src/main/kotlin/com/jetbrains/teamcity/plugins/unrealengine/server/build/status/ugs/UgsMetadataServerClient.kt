@@ -1,9 +1,9 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs
 
 import arrow.core.raise.Raise
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.Error
 import com.jetbrains.teamcity.plugins.unrealengine.common.JsonEncoder
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.ugs.UgsMetadataServerUrl
 import io.ktor.client.*
@@ -27,7 +27,7 @@ class UgsMetadataServerClient(
     private val settings: UgsMetadataServerSettings,
 ) : AutoCloseable {
     companion object {
-        private val logger = TeamCityLoggers.server<UgsMetadataServerClient>()
+        private val logger = UnrealPluginLoggers.get<UgsMetadataServerClient>()
         private val depotPathSplitter = PerforceDepotPathSplitter()
 
         @JvmStatic

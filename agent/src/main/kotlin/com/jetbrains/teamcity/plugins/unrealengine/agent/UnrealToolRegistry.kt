@@ -3,10 +3,10 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent
 import arrow.core.raise.Raise
 import com.jetbrains.teamcity.plugins.framework.common.Environment
 import com.jetbrains.teamcity.plugins.framework.common.OSType
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineVersion
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.EditorExecutableParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.raise
 
@@ -26,7 +26,7 @@ class UnrealToolRegistry(
 ) {
     companion object {
         private val unreal_version_5 = UnrealEngineVersion(5, 0, 0)
-        private val logger = TeamCityLoggers.agent<UnrealToolRegistry>()
+        private val logger = UnrealPluginLoggers.get<UnrealToolRegistry>()
     }
 
     context(Raise<GenericError>, CommandExecutionContext)

@@ -3,8 +3,8 @@ package com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphRunnerInternalSettings
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphSettings
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.toMap
@@ -30,7 +30,7 @@ class BuildGraphDistributionConfigurer(
     private val settings: BuildGraphSettings,
 ) : ProcessVirtualConfigurations {
     companion object {
-        private val logger = TeamCityLoggers.server<BuildGraphDistributionConfigurer>()
+        private val logger = UnrealPluginLoggers.get<BuildGraphDistributionConfigurer>()
     }
 
     override fun addToQueue(build: BuildPromotion): MutableList<BuildPromotion> =

@@ -2,7 +2,7 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import jetbrains.buildServer.RunBuildException
 import jetbrains.buildServer.agent.BuildFinishedStatus
 import jetbrains.buildServer.agent.runner.CommandExecution
@@ -14,7 +14,7 @@ class UnrealEngineBuildSession(
     private val unrealBuildContext: UnrealBuildContext,
 ) : MultiCommandBuildSession {
     companion object {
-        private val logger = TeamCityLoggers.agent<UnrealEngineBuildSession>()
+        private val logger = UnrealPluginLoggers.get<UnrealEngineBuildSession>()
     }
 
     private lateinit var workflow: Workflow

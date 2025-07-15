@@ -1,8 +1,8 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.discovery
 
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineProject
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRunner
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCookRunProjectPathParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.UnrealTargetPlatformsParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.UnrealEngineIdentifierParameter
@@ -18,7 +18,7 @@ class UnrealEngineRunnerDiscoverer(
     private val defaultRunnerParameters = defaultPropertiesProvider.getDefaultValues()
 
     companion object {
-        private val logger = TeamCityLoggers.server<UnrealEngineRunnerDiscoverer>()
+        private val logger = UnrealPluginLoggers.get<UnrealEngineRunnerDiscoverer>()
     }
 
     override fun discoverRunnersInDirectory(

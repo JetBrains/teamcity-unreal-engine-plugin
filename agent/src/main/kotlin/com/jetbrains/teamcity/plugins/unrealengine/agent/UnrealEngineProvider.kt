@@ -2,7 +2,6 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent
 
 import arrow.core.raise.Raise
 import arrow.core.raise.recover
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
 import com.jetbrains.teamcity.plugins.unrealengine.common.EngineDetectionMode
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
@@ -10,6 +9,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineIdentifier
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRootPath
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineRunner
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineVersion
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensure
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.EngineDetectionModeParameter.parseDetectionMode
 import com.jetbrains.teamcity.plugins.unrealengine.common.raise
@@ -25,7 +25,7 @@ class UnrealEngineProvider(
     private val engineVersionDetector: UnrealEngineSourceVersionDetector,
 ) {
     companion object {
-        private val logger = TeamCityLoggers.agent<UnrealEngineProvider>()
+        private val logger = UnrealPluginLoggers.get<UnrealEngineProvider>()
     }
 
     context(Raise<GenericError>, CommandExecutionContext)

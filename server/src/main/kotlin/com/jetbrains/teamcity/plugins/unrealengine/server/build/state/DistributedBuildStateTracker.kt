@@ -1,8 +1,8 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.build.state
 
 import arrow.core.raise.Raise
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.Error
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.build.events.RunnerInternalParameters
 import com.jetbrains.teamcity.plugins.unrealengine.common.build.events.StepOutcome
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensureNotNull
@@ -22,7 +22,7 @@ class DistributedBuildStateTracker(
     private val eventBus: DistributedBuildStateChangedEventBus,
 ) {
     companion object {
-        private val logger = TeamCityLoggers.server<DistributedBuildStateTracker>()
+        private val logger = UnrealPluginLoggers.get<DistributedBuildStateTracker>()
     }
 
     fun track(

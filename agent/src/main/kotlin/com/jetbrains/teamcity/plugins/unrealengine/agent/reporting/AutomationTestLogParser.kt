@@ -1,6 +1,6 @@
 package com.jetbrains.teamcity.plugins.unrealengine.agent.reporting
 
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 
 enum class TestResult {
     Unknown,
@@ -29,7 +29,7 @@ data class TestCompletedInfo(
 // Same regex approach to report tests is used in Rider (UnrealTestUnitTestRunner.cs)
 // and in Unreal Engine Gauntlet (Gauntlet.AutomationLogParser.cs)
 object AutomationTestLogParser {
-    private val agentLogger = TeamCityLoggers.agent<AutomationTestLogEventHandler>()
+    private val agentLogger = UnrealPluginLoggers.get<AutomationTestLogEventHandler>()
 
     @Suppress("ktlint:standard:max-line-length")
     private val testStartedPattern =

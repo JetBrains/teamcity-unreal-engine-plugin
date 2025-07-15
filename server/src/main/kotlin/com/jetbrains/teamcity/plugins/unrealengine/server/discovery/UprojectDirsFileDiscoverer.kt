@@ -1,14 +1,14 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.discovery
 
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineProject
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import jetbrains.buildServer.util.browser.Element
 
 class UprojectDirsFileDiscoverer(
     private val projectFileDiscoverer: UprojectFileDiscoverer,
 ) : UnrealProjectDiscoverer {
     companion object {
-        private val logger = TeamCityLoggers.server<UprojectDirsFileDiscoverer>()
+        private val logger = UnrealPluginLoggers.get<UprojectDirsFileDiscoverer>()
         private const val PROJECT_DIR_FILE_EXTENSION = ".uprojectdirs"
     }
 

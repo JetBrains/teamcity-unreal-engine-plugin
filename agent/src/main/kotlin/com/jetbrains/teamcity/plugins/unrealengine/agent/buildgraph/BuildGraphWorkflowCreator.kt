@@ -3,12 +3,12 @@ package com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph
 import arrow.core.getOrElse
 import arrow.core.raise.Raise
 import arrow.core.raise.either
-import com.jetbrains.teamcity.plugins.framework.common.TeamCityLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealBuildContext
 import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealEngineCommandExecution
 import com.jetbrains.teamcity.plugins.unrealengine.agent.Workflow
 import com.jetbrains.teamcity.plugins.unrealengine.agent.WorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
+import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphMode
 import com.jetbrains.teamcity.plugins.unrealengine.common.raise
@@ -18,7 +18,7 @@ class BuildGraphWorkflowCreator(
     private val distributedExecutor: DistributedExecutor,
 ) : WorkflowCreator {
     companion object {
-        private val logger = TeamCityLoggers.agent<BuildGraphWorkflowCreator>()
+        private val logger = UnrealPluginLoggers.get<BuildGraphWorkflowCreator>()
     }
 
     context(Raise<GenericError>, UnrealBuildContext)
