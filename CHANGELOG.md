@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed BuildGraph setup builds being skipped when duplicate build names occur within the same project [TW-94428](https://youtrack.jetbrains.com/issue/TW-94428)
+- Fixed a rare race condition during distributed BG setup where newly created dependencies weren't immediately
+  visible to the TeamCity background build update process, causing the composite build to finish too early
+  [TW-94598](https://youtrack.jetbrains.com/issue/TW-94598)
 
 ## 1.3.2 - 2025-05-26
 

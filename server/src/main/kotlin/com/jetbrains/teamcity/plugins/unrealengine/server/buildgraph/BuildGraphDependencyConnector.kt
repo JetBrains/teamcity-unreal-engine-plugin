@@ -50,13 +50,6 @@ class BuildGraphDependencyConnector(
         setupBuildPromotion.persist()
     }
 
-    private fun BuildPromotionEx.addDependencies(dependencies: Collection<BuildPromotionEx>) {
-        val options = DependencyOptionSupportImpl().default()
-        for (dependency in dependencies) {
-            addDependency(dependency, options)
-        }
-    }
-
     private fun BuildPromotionEx.addAsADependencyTo(dependents: Collection<BuildPromotionEx>) {
         val dependencyOptions = DependencyOptionSupportImpl().default()
         for (dependent in dependents) {

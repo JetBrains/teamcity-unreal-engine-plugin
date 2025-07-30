@@ -23,7 +23,10 @@ class BuildGraphDistributedSetupOrchestrator(
         val buildGraph = definitionLoader.loadFrom(validatedSetupBuild)
 
         val settings = settingsInitializer.initializeBuildSettings(originalBuild, buildGraph.badges)
-        val distributedBuild = buildCreator.create(originalBuild, buildGraph)
+        val distributedBuild =
+            buildCreator.create(originalBuild, buildGraph).also {
+                it.builds.onEach { build -> build.persist() }
+            }
 
         if (settings.badgePosting is BadgePostingConfig.Enabled) {
             buildStateTracker.track(originalBuild, distributedBuild)
