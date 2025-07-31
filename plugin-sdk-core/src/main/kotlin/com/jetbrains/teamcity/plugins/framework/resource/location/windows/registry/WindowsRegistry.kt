@@ -2,8 +2,9 @@ package com.jetbrains.teamcity.plugins.framework.resource.location.windows.regis
 
 import arrow.core.raise.Raise
 import arrow.core.raise.catch
-import arrow.core.raise.ensure
 import com.jetbrains.teamcity.plugins.framework.common.CommandLineRunner
+import com.jetbrains.teamcity.plugins.framework.common.ensure
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.framework.resource.location.ResourceLocationResult
 import com.jetbrains.teamcity.plugins.framework.resource.location.queries.WindowsResourceLocationContext
 
@@ -12,12 +13,12 @@ interface WindowsRegistrySearchFilter {
     fun accept(value: WindowsRegistryEntry.Value): Boolean
 }
 
-context(Raise<ResourceLocationResult.Error>, WindowsResourceLocationContext)
+context(_: Raise<ResourceLocationResult.Error>, context: WindowsResourceLocationContext)
 internal fun windowsRegistry(path: String, filter: WindowsRegistrySearchFilter): List<WindowsRegistryEntry> {
     val command = WindowsRegistryCommands.query(path)
     var registrySearchResult: CommandLineRunner.RunResult? = null
     catch({
-        registrySearchResult = commandLineRunner.run(command)
+        registrySearchResult = context.commandLineRunner.run(command)
     }) {
         raise(ResourceLocationResult.Error("Unknown error during Windows registry lookup", it))
     }

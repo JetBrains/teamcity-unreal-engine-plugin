@@ -45,14 +45,14 @@ tasks {
     compileKotlin {
 		compilerOptions {
 			allWarningsAsErrors.set(true)
-            freeCompilerArgs.add("-Xcontext-receivers")
+            freeCompilerArgs.add("-Xcontext-parameters")
             jvmTarget.set(JvmTarget.JVM_11)
 		}
     }
 
     compileTestKotlin {
         compilerOptions {
-            freeCompilerArgs.add("-Xcontext-receivers")
+            freeCompilerArgs.add("-Xcontext-parameters")
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }

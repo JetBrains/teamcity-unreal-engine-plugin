@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.0.10"
+kotlin = "2.2.0"
 coroutines = "1.9.0"
 teamcity = "2024.07"
 
@@ -8,15 +8,15 @@ kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "
 teamcity-agent-api = { module = "org.jetbrains.teamcity:agent-api", version.ref = "teamcity" }
 teamcity-common-api = { module = "org.jetbrains.teamcity:common-api", version.ref = "teamcity" }
 teamcity-tests-support = { module = "org.jetbrains.teamcity:tests-support", version.ref = "teamcity" }
-kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.7.3" }
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.9.0" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
-arrow-core = { module = "io.arrow-kt:arrow-core", version = "1.2.4" }
+arrow-core = { module = "io.arrow-kt:arrow-core", version = "2.1.2" }
 commons-configuration = { module = "org.apache.commons:commons-configuration2", version = "2.10.1" }
 
-mockk = { module = "io.mockk:mockk", version = "1.13.13" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.11.3" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.11.3" }
+mockk = { module = "io.mockk:mockk", version = "1.14.5" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.13.4" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.13.4" }
 constraint-transitive-icu4j = { module = "com.ibm.icu:icu4j", version = { require = "3.4.4" } }
 
 [plugins]

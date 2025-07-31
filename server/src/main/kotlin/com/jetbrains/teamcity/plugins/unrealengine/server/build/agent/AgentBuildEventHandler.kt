@@ -5,7 +5,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.Error
 import com.jetbrains.teamcity.plugins.unrealengine.common.build.events.AgentBuildEvent
 
 interface AgentBuildEventHandler {
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     suspend fun handleBuildEvent(
         buildId: Long,
         event: AgentBuildEvent,

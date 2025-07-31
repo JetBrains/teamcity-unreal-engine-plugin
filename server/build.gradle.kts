@@ -68,17 +68,17 @@ val buildFront: TaskProvider<Task> = tasks.register("buildFront") {
     outputs.dir(output)
 
     doLast {
-        exec {
+        providers.exec {
             workingDir("./frontend")
             commandLine("docker", "build", "-f", "./build.Dockerfile", "-t", "unreal-runner-frontend-build", ".")
         }
-        exec {
+        providers.exec {
             commandLine("docker", "run", "--name", "unreal-runner-frontend-build", "unreal-runner-frontend-build")
         }
-        exec {
+        providers.exec {
             commandLine("docker", "cp", "unreal-runner-frontend-build:/app/dist/.", output)
         }
-        exec {
+        providers.exec {
             commandLine("docker", "rm", "-v", "-f", "unreal-runner-frontend-build")
         }
     }

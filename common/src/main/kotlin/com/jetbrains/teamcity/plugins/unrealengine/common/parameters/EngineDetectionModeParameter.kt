@@ -1,6 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.parameters
 
 import arrow.core.raise.Raise
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.EngineDetectionMode
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealEngineIdentifier
@@ -20,20 +21,30 @@ object EngineDetectionModeParameter : SelectParameter() {
 
     override val options = listOf(automatic, manual)
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parseDetectionMode(runnerParameters: Map<String, String>): EngineDetectionMode =
         when (runnerParameters[name]) {
             automatic.name -> {
                 val engineIdentifier = runnerParameters[UnrealEngineIdentifierParameter.name]
                 if (engineIdentifier.isNullOrEmpty()) {
-                    raise(PropertyValidationError(UnrealEngineIdentifierParameter.name, "The engine version cannot be empty."))
+                    raise(
+                        PropertyValidationError(
+                            UnrealEngineIdentifierParameter.name,
+                            "The engine version cannot be empty.",
+                        ),
+                    )
                 }
                 EngineDetectionMode.Automatic(UnrealEngineIdentifier(engineIdentifier))
             }
             manual.name -> {
                 val engineRootDirectory = runnerParameters[UnrealEngineRootParameter.name]
                 if (engineRootDirectory.isNullOrEmpty()) {
-                    raise(PropertyValidationError(UnrealEngineRootParameter.name, "The engine root path must be set."))
+                    raise(
+                        PropertyValidationError(
+                            UnrealEngineRootParameter.name,
+                            "The engine root path must be set.",
+                        ),
+                    )
                 }
                 EngineDetectionMode.Manual(UnrealEngineRootPath(engineRootDirectory))
             }

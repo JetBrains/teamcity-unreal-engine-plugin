@@ -1,6 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.commandlets
 
 import arrow.core.raise.Raise
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.TextInputParameter
@@ -35,7 +36,7 @@ object CommandletNameParameter : TextInputParameter {
     override val expandable = false
     override val advanced = false
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parseCommandlet(runnerParameters: Map<String, String>): Commandlet {
         val commandlet = runnerParameters[name]?.trim()
         if (commandlet.isNullOrEmpty()) {

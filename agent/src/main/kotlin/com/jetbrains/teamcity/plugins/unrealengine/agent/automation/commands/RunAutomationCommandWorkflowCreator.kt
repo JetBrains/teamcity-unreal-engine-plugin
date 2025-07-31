@@ -25,19 +25,19 @@ class RunAutomationCommandWorkflowCreator(
         private val logger = UnrealPluginLoggers.get<RunAutomationCommandWorkflowCreator>()
     }
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     override suspend fun create() = Workflow(getCommands())
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     private suspend fun getCommands(): List<UnrealEngineCommandExecution> =
         listOf(
             run(),
         )
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     private suspend fun run(): UnrealEngineCommandExecution {
         val command =
-            either { RunAutomationCommand.from(runnerParameters) }.getOrElse {
+            either { RunAutomationCommand.from(context.runnerParameters) }.getOrElse {
                 it.forEach { error ->
                     logger.error("An error occurred during command creation: ${error.message}")
                 }
@@ -49,9 +49,9 @@ class RunAutomationCommandWorkflowCreator(
         return UnrealEngineCommandExecution(
             UnrealEngineProgramCommandLine(
                 environment,
-                buildParameters.environmentVariables,
-                workingDirectory,
-                toolRegistry.automationTool(runnerParameters).executablePath,
+                context.buildParameters.environmentVariables,
+                context.workingDirectory,
+                toolRegistry.automationTool(context.runnerParameters).executablePath,
                 arguments,
             ),
             processListenerFactory.create(),

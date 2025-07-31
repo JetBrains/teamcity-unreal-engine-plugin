@@ -3,8 +3,9 @@ package com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph
 import arrow.core.Either
 import arrow.core.raise.Raise
 import arrow.core.raise.either
-import arrow.core.raise.ensure
-import arrow.core.raise.ensureNotNull
+import com.jetbrains.teamcity.plugins.framework.common.ensure
+import com.jetbrains.teamcity.plugins.framework.common.ensureNotNull
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.Error
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
@@ -56,7 +57,7 @@ class BuildGraphBadgePublisher(
         val reason: String,
     ) : Error
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun handleStateChange(event: DistributedBuildStateChanged) {
         val build =
             ensureNotNull(buildsManager.findBuildInstanceById(event.buildId)) {
@@ -64,7 +65,9 @@ class BuildGraphBadgePublisher(
             }
 
         ensure(
-            build.buildPromotion.asBuildPromotionEx().getAttribute(buildGraphSettings.buildGraphGeneratedMarker) != null,
+            build.buildPromotion
+                .asBuildPromotionEx()
+                .getAttribute(buildGraphSettings.buildGraphGeneratedMarker) != null,
         ) {
             ProcessingSkipped("Build isn't part of a distributed BuildGraph build")
         }
@@ -111,7 +114,7 @@ class BuildGraphBadgePublisher(
         }
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private fun SBuild.getPerforceChangelists(): List<Long> {
         val changeLists =
             revisions

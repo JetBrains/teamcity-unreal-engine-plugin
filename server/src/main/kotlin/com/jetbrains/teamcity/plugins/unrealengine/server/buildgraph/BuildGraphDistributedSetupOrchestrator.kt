@@ -17,7 +17,7 @@ class BuildGraphDistributedSetupOrchestrator(
     private val settingsInitializer: BuildGraphSettingsInitializer,
     private val buildQueue: BuildQueueEx,
 ) {
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     fun setupDistributedBuild(setupBuild: SRunningBuild) {
         val (validatedSetupBuild, originalBuild) = validator.validate(setupBuild)
         val buildGraph = definitionLoader.loadFrom(validatedSetupBuild)

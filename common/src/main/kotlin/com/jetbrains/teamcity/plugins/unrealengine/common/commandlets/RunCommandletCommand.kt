@@ -2,7 +2,7 @@ package com.jetbrains.teamcity.plugins.unrealengine.common.commandlets
 
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
-import arrow.core.raise.zipOrAccumulate
+import com.jetbrains.teamcity.plugins.framework.common.zipOrAccumulate
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
@@ -23,10 +23,8 @@ class RunCommandletCommand(
     val extraArguments: List<String> = emptyList(),
 ) : UnrealCommand {
     companion object {
-        context(Raise<NonEmptyList<PropertyValidationError>>)
-        fun from(
-            runnerParameters: Map<String, String>,
-        ): RunCommandletCommand =
+        context(_: Raise<NonEmptyList<PropertyValidationError>>)
+        fun from(runnerParameters: Map<String, String>): RunCommandletCommand =
             zipOrAccumulate(
                 { CommandletProjectPathParameter.parseProjectPath(runnerParameters) },
                 { CommandletNameParameter.parseCommandlet(runnerParameters) },
@@ -40,13 +38,13 @@ class RunCommandletCommand(
             }
     }
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     override fun toArguments(): List<String> =
         buildList {
             projectPath?.let {
-                val resolvedProjectPath = resolveUserPath(it.value)
+                val resolvedProjectPath = context.resolveUserPath(it.value)
                 ensure(
-                    fileExists(resolvedProjectPath),
+                    context.fileExists(resolvedProjectPath),
                     "Could not find the specified project file. Path: $resolvedProjectPath",
                 )
                 add(resolvedProjectPath)

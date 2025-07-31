@@ -29,7 +29,7 @@ class UnrealToolRegistry(
         private val logger = UnrealPluginLoggers.get<UnrealToolRegistry>()
     }
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     suspend fun automationTool(parameters: Map<String, String>): UnrealTool {
         val engine = engineProvider.findEngine(parameters)
 
@@ -39,7 +39,7 @@ class UnrealToolRegistry(
         )
     }
 
-    context(CommandExecutionContext, Raise<GenericError>)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     suspend fun editor(parameters: Map<String, String>): UnrealTool {
         val engine = engineProvider.findEngine(parameters)
 
@@ -51,12 +51,12 @@ class UnrealToolRegistry(
         )
     }
 
-    context(CommandExecutionContext)
+    context(context: CommandExecutionContext)
     private fun getAutomationToolFullPath(engine: UnrealEngine): String {
         val onWindows = environment.osType == OSType.Windows
         val scriptExtension = if (onWindows) ".bat" else ".sh"
 
-        return resolvePath(
+        return context.resolvePath(
             engine.path.value,
             "Engine",
             "Build",
@@ -65,14 +65,14 @@ class UnrealToolRegistry(
         )
     }
 
-    context(CommandExecutionContext, Raise<GenericError>)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     private fun getEditorFullPath(
         engine: UnrealEngine,
         executable: String? = null,
     ): String {
         if (executable.isNullOrBlank()) {
             val defaultPath =
-                resolvePath(
+                context.resolvePath(
                     engine.path.value,
                     getDefaultRelativePlatformPath(),
                     defaultEditorName(engine).ensureProperExtension(),
@@ -82,21 +82,26 @@ class UnrealToolRegistry(
         }
 
         return when {
-            isAbsolute(executable) -> {
+            context.isAbsolute(executable) -> {
                 logger.debug(
                     "Unreal Editor executable was specified as an absolute path ($executable). Using it directly, bypassing engine detection logic",
                 )
-                resolvePath(executable.ensureProperExtension())
+                context.resolvePath(executable.ensureProperExtension())
             }
             isFileName(executable) -> {
-                val path = resolvePath(engine.path.value, getDefaultRelativePlatformPath(), executable.ensureProperExtension())
+                val path =
+                    context.resolvePath(
+                        engine.path.value,
+                        getDefaultRelativePlatformPath(),
+                        executable.ensureProperExtension(),
+                    )
                 logger.debug(
                     "Unreal Editor executable was specified as a file name ($executable). Attempting to use it with the default path: $path",
                 )
                 path
             }
             else -> {
-                val path = resolvePath(engine.path.value, executable.ensureProperExtension())
+                val path = context.resolvePath(engine.path.value, executable.ensureProperExtension())
                 logger.debug(
                     "Unreal Editor executable was specified as a relative path ($executable). Using it relative to the detected Engine root: $path",
                 )
@@ -105,10 +110,13 @@ class UnrealToolRegistry(
         }
     }
 
-    context(CommandExecutionContext)
-    private fun isFileName(path: String): Boolean = !path.contains("/") && !path.contains("\\") && !isAbsolute(path) && path.isNotEmpty()
+    context(context: CommandExecutionContext)
+    private fun isFileName(path: String): Boolean =
+        !path.contains("/") && !path.contains("\\") &&
+            !context.isAbsolute(
+                path,
+            ) && path.isNotEmpty()
 
-    context(CommandExecutionContext)
     private fun String.ensureProperExtension() =
         when (environment.osType) {
             OSType.Unknown, OSType.Linux, OSType.MacOs -> removeSuffix(".exe")
@@ -117,10 +125,10 @@ class UnrealToolRegistry(
 
     private fun String.ensureSuffix(suffix: String) = if (this.endsWith(suffix)) this else this + suffix
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>)
     private fun getDefaultRelativePlatformPath() = "./Engine/Binaries/${getPlatformFolder()}"
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>)
     private fun getPlatformFolder() =
         when (environment.osType) {
             OSType.Windows -> "Win64"

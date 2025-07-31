@@ -16,7 +16,7 @@ class AgentBuildStateEventMonitor(
         private val logger = UnrealPluginLoggers.get<AgentBuildStateEventMonitor>()
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     override suspend fun handleBuildEvent(
         buildId: Long,
         event: AgentBuildEvent,
@@ -47,7 +47,6 @@ class AgentBuildStateEventMonitor(
                     )
                 is AgentBuildEvent.BuildStepStarted -> DistributedBuildEvent.BuildStepStarted(build, event.name)
                 is AgentBuildEvent.BuildStepInterrupted -> DistributedBuildEvent.BuildStepInterrupted(build, event.name)
-                else -> return
             }
 
         stateTracker.handleBuildEvent(serverSideEvent)

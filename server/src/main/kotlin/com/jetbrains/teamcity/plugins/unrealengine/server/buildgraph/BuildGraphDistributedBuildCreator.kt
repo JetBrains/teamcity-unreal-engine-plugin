@@ -18,7 +18,7 @@ import jetbrains.buildServer.serverSide.SRunningBuild
 class BuildGraphDistributedBuildCreator(
     private val virtualBuildCreator: BuildGraphVirtualBuildCreator,
 ) {
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     fun create(
         originalBuild: SBuild,
         buildGraph: BuildGraph<BuildGraphNodeGroup>,
@@ -27,7 +27,7 @@ class BuildGraphDistributedBuildCreator(
             createDistributedBuild(buildGraph)
         }
 
-    context(BuildGraphVirtualBuildCreator.VirtualBuildCreationContext)
+    context(context: BuildGraphVirtualBuildCreator.VirtualBuildCreationContext)
     private fun createDistributedBuild(buildGraph: BuildGraph<BuildGraphNodeGroup>): DistributedBuild {
         val groupDependencies = mutableMapOf<BuildGraphNodeGroup, MutableList<BuildPromotionEx>>()
 
@@ -48,10 +48,14 @@ class BuildGraphDistributedBuildCreator(
         return DistributedBuild(buildsToAdd)
     }
 
-    context(BuildGraphVirtualBuildCreator.VirtualBuildCreationContext)
+    context(context: BuildGraphVirtualBuildCreator.VirtualBuildCreationContext)
     private fun createBuildForGroupOfNodes(group: BuildGraphNodeGroup): BuildPromotionEx {
-        val originalRunnerParameters = originalBuild.activeRunners().single().parameters
-        val originalBuildId = originalBuild.id.toString()
+        val originalRunnerParameters =
+            context.originalBuild
+                .activeRunners()
+                .single()
+                .parameters
+        val originalBuildId = context.originalBuild.id.toString()
 
         return virtualBuildCreator.create(group.name) {
             for (node in group.nodes) {
@@ -67,7 +71,7 @@ class BuildGraphDistributedBuildCreator(
 
             // This cast is safe because we're operating on a finishing build (Setup),
             // which already has its build number resolved.
-            buildNumberPattern = (originalBuild.associatedBuild as SRunningBuild).buildNumber
+            buildNumberPattern = (context.originalBuild.associatedBuild as SRunningBuild).buildNumber
 
             if (group.agents.any()) {
                 addRequirement(

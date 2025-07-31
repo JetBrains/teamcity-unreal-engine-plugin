@@ -1,7 +1,8 @@
 package com.jetbrains.teamcity.plugins.framework.resource.location
 
 import arrow.core.raise.Raise
-import arrow.core.raise.ensure
+import com.jetbrains.teamcity.plugins.framework.common.ensure
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import org.apache.commons.configuration2.INIConfiguration
 import java.io.Reader
 
@@ -10,7 +11,7 @@ data class IniProperty(
     val value: String,
 )
 
-context(Raise<ResourceLocationResult.Error>)
+context(_: Raise<ResourceLocationResult.Error>)
 internal fun Reader.parseIni(sectionName: String? = null): List<IniProperty> {
     val config = INIConfiguration()
 

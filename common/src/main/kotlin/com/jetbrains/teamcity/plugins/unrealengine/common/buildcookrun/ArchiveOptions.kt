@@ -9,13 +9,13 @@ data class ArchiveOptions(
         fun from(runnerParameters: Map<String, String>) = ArchiveOptions(runnerParameters[ArchiveDirectoryParameter.name])
     }
 
-    context(CommandExecutionContext)
+    context(context: CommandExecutionContext)
     fun toArguments() =
         buildList {
             add("-archive")
 
             archiveDirectory?.let {
-                add("-archivedirectory=${resolveUserPath(it)}")
+                add("-archivedirectory=${context.resolveUserPath(it)}")
             }
         }
 }

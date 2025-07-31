@@ -8,6 +8,6 @@ interface ResourceLocationContext
 open class ResourceLocationQuery<TContext : ResourceLocationContext, TResult> internal constructor (
     private val getValue: context(TContext, Raise<ResourceLocationResult.Error>) () -> TResult
 ) {
-    context(TContext, Raise<ResourceLocationResult.Error>)
-    @PublishedApi internal fun execute(): TResult = getValue(this@TContext, this@Raise)
+    context(context: TContext, raise: Raise<ResourceLocationResult.Error>)
+    @PublishedApi internal fun execute(): TResult = getValue(context, raise)
 }

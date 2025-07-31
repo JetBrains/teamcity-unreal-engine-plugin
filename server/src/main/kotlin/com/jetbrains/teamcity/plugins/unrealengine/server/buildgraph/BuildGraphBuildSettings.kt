@@ -42,7 +42,7 @@ fun SBuild.addBuildGraphBuildSettings(settings: BuildGraphBuildSettings) {
     settingStorage.putValues(properties.encodeToStringMap(settings))
 }
 
-context(Raise<Error>)
+context(_: Raise<Error>)
 fun SBuild.getBuildGraphBuildSettings(): BuildGraphBuildSettings {
     val settingsMap =
         ensureNotNull(

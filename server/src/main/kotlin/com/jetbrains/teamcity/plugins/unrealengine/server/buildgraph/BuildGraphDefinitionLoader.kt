@@ -12,7 +12,7 @@ class BuildGraphDefinitionLoader(
     private val parser: BuildGraphParser,
     private val settings: BuildGraphSettings,
 ) {
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     fun loadFrom(setupBuild: ValidatedSetupBuild): BuildGraph<BuildGraphNodeGroup> {
         val buildGraphFile =
             ensureNotNull(

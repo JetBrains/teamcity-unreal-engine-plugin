@@ -42,7 +42,7 @@ class UnrealEngineSourceVersionDetector(
         private val versionPartRegex = "^#define\\s+ENGINE_(\\w+)_VERSION\\s+(\\d+)\$".toRegex()
     }
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     suspend fun detect(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion =
         recover({
             lookUpInBuildVersionFile(engineRootPath)
@@ -54,13 +54,13 @@ class UnrealEngineSourceVersionDetector(
             lookUpInCppVersionHeaderFile(engineRootPath)
         }
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     private suspend fun lookUpInBuildVersionFile(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion {
         val locationResults =
             resourceLocator.locateResources {
                 anyOS(
                     {
-                        file(resolvePath(engineRootPath.value, "Engine/Build/Build.version"))
+                        file(context.resolvePath(engineRootPath.value, "Engine/Build/Build.version"))
                             .json<BuildVersion>(json)
                             .map { UnrealEngineVersion(it.majorVersion, it.minorVersion, it.patchVersion) }
                     },
@@ -82,17 +82,21 @@ class UnrealEngineSourceVersionDetector(
         }
     }
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     private suspend fun lookUpInCppVersionHeaderFile(engineRootPath: UnrealEngineRootPath): UnrealEngineVersion {
         val locationResults =
             resourceLocator.locateResources {
                 anyOS(
                     {
-                        file(resolvePath(engineRootPath.value, "Engine/Source/Runtime/Launch/Resources/Version.h"))
-                            .filteredLines(
-                                accept = { line -> versionPartRegex.matches(line) },
-                                continueReading = { _, acceptedSoFar -> acceptedSoFar != BuildVersion.PART_COUNT },
-                            )
+                        file(
+                            context.resolvePath(
+                                engineRootPath.value,
+                                "Engine/Source/Runtime/Launch/Resources/Version.h",
+                            ),
+                        ).filteredLines(
+                            accept = { line -> versionPartRegex.matches(line) },
+                            continueReading = { _, acceptedSoFar -> acceptedSoFar != BuildVersion.PART_COUNT },
+                        )
                     },
                 )
             }

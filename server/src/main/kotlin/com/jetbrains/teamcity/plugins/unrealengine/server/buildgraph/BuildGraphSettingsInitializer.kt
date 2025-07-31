@@ -9,7 +9,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.activeRunne
 import jetbrains.buildServer.serverSide.SBuild
 
 class BuildGraphSettingsInitializer {
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     fun initializeBuildSettings(
         originalBuild: SBuild,
         badges: Collection<Badge>,

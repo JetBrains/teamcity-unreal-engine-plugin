@@ -106,7 +106,7 @@ class UgsCommitStatusPublisher(
         private val metadataServerClient: UgsMetadataServerClient,
         private val links: RelativeWebLinks,
     ) {
-        context(Raise<Error>)
+        context(_: Raise<Error>)
         suspend fun execute(
             event: CommitStatusPublisher.Event,
             revision: BuildRevision,

@@ -5,6 +5,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.Error
 import com.jetbrains.teamcity.plugins.unrealengine.common.build.events.StepOutcome
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphSettings
 import com.jetbrains.teamcity.plugins.unrealengine.common.ugs.UgsMetadataServerUrl
+import com.jetbrains.teamcity.plugins.unrealengine.server.build.getUnrealDataStorage
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildState
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildState.*
 import com.jetbrains.teamcity.plugins.unrealengine.server.build.state.DistributedBuildStateChanged
@@ -15,7 +16,6 @@ import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.Badge
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BadgePostingConfig
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphBadgePublisher
 import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.BuildGraphBuildSettings
-import com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph.getBuildGraphBuildSettings
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.getPerforceChangelistNumber
 import io.mockk.Called
 import io.mockk.Runs
@@ -31,10 +31,14 @@ import io.mockk.verify
 import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.BuildRevision
 import jetbrains.buildServer.serverSide.BuildsManager
+import jetbrains.buildServer.serverSide.CustomDataStorage
 import jetbrains.buildServer.serverSide.RelativeWebLinks
 import jetbrains.buildServer.serverSide.SBuild
 import jetbrains.buildServer.swarm.SwarmClientManager
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.properties.Properties
+import kotlinx.serialization.properties.encodeToStringMap
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
@@ -48,6 +52,7 @@ class BuildGraphBadgePublisherTests {
     private val links = mockk<RelativeWebLinks>()
     private val ugsMetadataServerClient = mockk<UgsMetadataServerClient>()
     private val build = mockk<SBuild>()
+    private val unrealDataStorage = mockk<CustomDataStorage>()
 
     private val stateAfterUpdate =
         DistributedBuildState(
@@ -107,7 +112,7 @@ class BuildGraphBadgePublisherTests {
         )
 
     init {
-        mockkStatic(SBuild::getBuildGraphBuildSettings)
+        mockkStatic(SBuild::getUnrealDataStorage)
         mockkStatic(BuildRevision::getPerforceChangelistNumber)
     }
 
@@ -118,6 +123,11 @@ class BuildGraphBadgePublisherTests {
         every { buildGraphSettings.buildGraphGeneratedMarker } returns "marker"
 
         with(build) {
+            every { buildId } returns 0xC00FFEE
+            every { getUnrealDataStorage(any()) } returns
+                unrealDataStorage.apply {
+                    every { values } returns emptyMap()
+                }
             every { buildPromotion } returns
                 mockk<BuildPromotionEx> {
                     every { getAttribute("marker") } returns true.toString()
@@ -175,7 +185,7 @@ class BuildGraphBadgePublisherTests {
     fun `notifies about started badge`(case: BadgeUpdateTestCase) =
         runTest {
             // arrange
-            val config = build.enableBadgePosting(case.badges)
+            val config = enableBadgePosting(case.badges)
 
             // act
             act(case.event)
@@ -215,7 +225,7 @@ class BuildGraphBadgePublisherTests {
     fun `does not notify about already started badge`(case: BadgeUpdateTestCase) =
         runTest {
             // arrange
-            build.enableBadgePosting(case.badges)
+            enableBadgePosting(case.badges)
 
             // act
             act(case.event)
@@ -243,7 +253,7 @@ class BuildGraphBadgePublisherTests {
     fun `notifies about succeeded badge`(case: BadgeUpdateTestCase) =
         runTest {
             // arrange
-            val config = build.enableBadgePosting(case.badges)
+            val config = enableBadgePosting(case.badges)
 
             // act
             act(case.event)
@@ -283,7 +293,7 @@ class BuildGraphBadgePublisherTests {
     fun `notifies about failed badge`(case: BadgeUpdateTestCase) =
         runTest {
             // arrange
-            val config = build.enableBadgePosting(case.badges)
+            val config = enableBadgePosting(case.badges)
 
             // act
             act(case.event)
@@ -328,7 +338,7 @@ class BuildGraphBadgePublisherTests {
     fun `does not notify about already failed badge`(case: BadgeUpdateTestCase) =
         runTest {
             // arrange
-            build.enableBadgePosting(case.badges)
+            enableBadgePosting(case.badges)
 
             // act
             act(case.event)
@@ -361,7 +371,7 @@ class BuildGraphBadgePublisherTests {
     fun `notifies about skipped badge`(case: BadgeUpdateTestCase) =
         runTest {
             // arrange
-            val config = build.enableBadgePosting(case.badges)
+            val config = enableBadgePosting(case.badges)
 
             // act
             act(case.event)
@@ -406,7 +416,7 @@ class BuildGraphBadgePublisherTests {
     fun `does not notify about skipped badge`(case: BadgeUpdateTestCase) =
         runTest {
             // arrange
-            build.enableBadgePosting(case.badges)
+            enableBadgePosting(case.badges)
 
             // act
             act(case.event)
@@ -425,13 +435,10 @@ class BuildGraphBadgePublisherTests {
         createInstance().consume(event)
     }
 
-    private fun SBuild.enableBadgePosting(badges: Collection<Badge>): BadgePostingConfig.Enabled {
+    @OptIn(ExperimentalSerializationApi::class)
+    private fun enableBadgePosting(badges: Collection<Badge>): BadgePostingConfig.Enabled {
         val badgePostingConfig = BadgePostingConfig.Enabled(UgsMetadataServerUrl("url"), badges)
-        every {
-            with(any<Raise<Error>>()) {
-                getBuildGraphBuildSettings()
-            }
-        } returns BuildGraphBuildSettings(badgePostingConfig)
+        every { unrealDataStorage.values } returns Properties.encodeToStringMap(BuildGraphBuildSettings(badgePostingConfig))
         return badgePostingConfig
     }
 

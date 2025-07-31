@@ -1,8 +1,8 @@
 package com.jetbrains.teamcity.plugins.unrealengine.server.buildgraph
 
 import arrow.core.raise.Raise
-import arrow.core.raise.ensure
-import arrow.core.raise.ensureNotNull
+import com.jetbrains.teamcity.plugins.framework.common.ensure
+import com.jetbrains.teamcity.plugins.framework.common.ensureNotNull
 import com.jetbrains.teamcity.plugins.unrealengine.common.Error
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphSettings
 import com.jetbrains.teamcity.plugins.unrealengine.common.ensureNotNull
@@ -27,7 +27,7 @@ value class BuildSkipped(
 class BuildGraphSetupBuildValidator(
     private val settings: BuildGraphSettings,
 ) {
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     fun validate(setupBuild: SRunningBuild): ValidationResult {
         val isBuildGraphSetup =
             setupBuild.buildPromotion

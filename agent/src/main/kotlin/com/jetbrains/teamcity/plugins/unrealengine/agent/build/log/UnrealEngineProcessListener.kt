@@ -11,9 +11,13 @@ import jetbrains.buildServer.agent.runner.ProcessListenerAdapter
 class UnrealEngineProcessListenerFactory(
     private val logEventParser: UnrealLogEventParser,
 ) {
-    context(UnrealBuildContext)
+    context(context: UnrealBuildContext)
     fun create(vararg handlers: LogEventHandler) =
-        UnrealEngineProcessListener(build.buildLogger, logEventParser, handlers.asList())
+        UnrealEngineProcessListener(
+            context.build.buildLogger,
+            logEventParser,
+            handlers.asList(),
+        )
 }
 
 class UnrealEngineProcessListener(

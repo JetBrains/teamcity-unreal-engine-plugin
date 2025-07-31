@@ -1,7 +1,8 @@
 package com.jetbrains.teamcity.plugins.unrealengine.agent.buildgraph
 
 import arrow.core.raise.Raise
-import arrow.core.raise.ensureNotNull
+import com.jetbrains.teamcity.plugins.framework.common.ensureNotNull
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph.BuildGraphRunnerInternalSettings
 import jetbrains.buildServer.agent.BuildAgentConfiguration
@@ -31,7 +32,7 @@ class DistributedBuildSettingsCreator(
         private val logger = UnrealPluginLoggers.get<DistributedBuildSettingsCreator>()
     }
 
-    context(Raise<SettingsCreationError>)
+    context(_: Raise<SettingsCreationError>)
     fun from(runnerParameters: Map<String, String>): DistributedBuildSettings {
         val runnerInternalSettings =
             runCatching {
@@ -44,7 +45,8 @@ class DistributedBuildSettingsCreator(
         val sharedDirAgentParameter = "unreal-engine.build-graph.agent.shared-dir"
         val sharedStorageDir = agentConfiguration.configurationParameters[sharedDirAgentParameter]
         ensureNotNull(sharedStorageDir) {
-            val message = "BuildGraph shared storage directory parameter ($sharedDirAgentParameter) is not specified on the agent"
+            val message =
+                "BuildGraph shared storage directory parameter ($sharedDirAgentParameter) is not specified on the agent"
             logger.error(message)
             SettingsCreationError(message)
         }

@@ -24,33 +24,33 @@ class BuildGraphVirtualBuildCreator(
     fun inContextOf(originalBuild: BuildPromotion): VirtualBuildCreationContext =
         VirtualBuildCreationContext(originalBuild.asBuildPromotionEx())
 
-    context(VirtualBuildCreationContext)
+    context(context: VirtualBuildCreationContext)
     fun create(
         name: String,
         configureSettings: BuildTypeSettings.() -> Unit,
     ): BuildPromotionEx {
-        val buildCreator = buildGeneratorFactory.create(originalBuild)
+        val buildCreator = buildGeneratorFactory.create(context.originalBuild)
 
         val virtualBuildTypeSettings =
             VirtualBuildTypeSettings(
-                originalBuild.generateIdForVirtualBuild(name).toExternalId(),
+                context.originalBuild.generateIdForVirtualBuild(name).toExternalId(),
                 name,
             ).setParameters(
-                originalBuild.parameters.map { SimpleParameter(it.key, it.value) },
+                context.originalBuild.parameters.map { SimpleParameter(it.key, it.value) },
             )
 
         val build =
             buildCreator
                 .getOrCreate(virtualBuildTypeSettings) { buildConfiguration, _ ->
-                    buildConfiguration.checkoutDirectory = originalBuild.checkoutDirectory
-                    buildConfiguration.checkoutType = originalBuild.buildSettings.checkoutType
+                    buildConfiguration.checkoutDirectory = context.originalBuild.checkoutDirectory
+                    buildConfiguration.checkoutType = context.originalBuild.buildSettings.checkoutType
                     configureSettings(buildConfiguration)
                     val changed = true
                     changed
                 }.asBuildPromotionEx()
 
-        build.setRevisionsFrom(originalBuild)
-        build.markAsGeneratedBy(originalBuild)
+        build.setRevisionsFrom(context.originalBuild)
+        build.markAsGeneratedBy(context.originalBuild)
 
         return build
     }

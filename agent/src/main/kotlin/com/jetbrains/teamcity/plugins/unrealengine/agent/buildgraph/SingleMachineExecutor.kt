@@ -16,18 +16,18 @@ class SingleMachineExecutor(
     private val toolRegistry: UnrealToolRegistry,
     private val processListenerFactory: UnrealEngineProcessListenerFactory,
 ) {
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     suspend fun execute(command: BuildGraphCommand): List<UnrealEngineCommandExecution> =
         listOf(
             UnrealEngineCommandExecution(
                 UnrealEngineProgramCommandLine(
                     environment,
-                    buildParameters.environmentVariables,
-                    workingDirectory,
-                    toolRegistry.automationTool(runnerParameters).executablePath,
+                    context.buildParameters.environmentVariables,
+                    context.workingDirectory,
+                    toolRegistry.automationTool(context.runnerParameters).executablePath,
                     command.toArguments(),
                 ),
-                processListenerFactory.create(AutomationTestLogEventHandler()),
+                processListenerFactory.create(AutomationTestLogEventHandler(context)),
             ),
         )
 }

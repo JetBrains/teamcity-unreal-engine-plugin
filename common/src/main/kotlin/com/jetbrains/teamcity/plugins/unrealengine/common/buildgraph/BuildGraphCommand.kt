@@ -2,7 +2,7 @@ package com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph
 
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
-import arrow.core.raise.zipOrAccumulate
+import com.jetbrains.teamcity.plugins.framework.common.zipOrAccumulate
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
@@ -18,7 +18,7 @@ data class BuildGraphCommand(
     val extraArguments: List<String> = emptyList(),
 ) : UnrealCommand {
     companion object {
-        context(Raise<NonEmptyList<PropertyValidationError>>)
+        context(_: Raise<NonEmptyList<PropertyValidationError>>)
         fun from(runnerParameters: Map<String, String>): BuildGraphCommand =
             zipOrAccumulate(
                 { BuildGraphScriptPathParameter.parseScriptPath(runnerParameters) },
@@ -36,14 +36,14 @@ data class BuildGraphCommand(
             }
     }
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     override fun toArguments() =
         buildList {
             add("BuildGraph")
 
-            val resolvedScriptPath = resolveUserPath(scriptPath.value)
+            val resolvedScriptPath = context.resolveUserPath(scriptPath.value)
             ensure(
-                fileExists(resolvedScriptPath),
+                context.fileExists(resolvedScriptPath),
                 "Could not find the specified BuildGraph script file. Path: $resolvedScriptPath",
             )
 

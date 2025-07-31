@@ -2,7 +2,7 @@ package com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun
 
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
-import arrow.core.raise.zipOrAccumulate
+import com.jetbrains.teamcity.plugins.framework.common.zipOrAccumulate
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
@@ -21,7 +21,7 @@ data class BuildCookRunCommand(
     val extraArguments: List<String> = emptyList(),
 ) : UnrealCommand {
     companion object {
-        context(Raise<NonEmptyList<PropertyValidationError>>)
+        context(_: Raise<NonEmptyList<PropertyValidationError>>)
         fun from(runnerParameters: Map<String, String>) =
             zipOrAccumulate(
                 { BuildCookRunProjectPathParameter.parseProjectPath(runnerParameters) },
@@ -51,14 +51,14 @@ data class BuildCookRunCommand(
             }
     }
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     override fun toArguments() =
         buildList {
             add("BuildCookRun")
 
-            val resolvedProjectPath = resolveUserPath(projectPath.value)
+            val resolvedProjectPath = context.resolveUserPath(projectPath.value)
             ensure(
-                fileExists(resolvedProjectPath),
+                context.fileExists(resolvedProjectPath),
                 "Could not find the specified project file. Path: $resolvedProjectPath",
             )
             add("-project=$resolvedProjectPath")

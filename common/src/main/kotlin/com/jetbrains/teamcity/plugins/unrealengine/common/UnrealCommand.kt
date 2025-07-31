@@ -1,3 +1,5 @@
+@file:Suppress("ktlint")
+
 package com.jetbrains.teamcity.plugins.unrealengine.common
 
 import arrow.core.raise.Raise
@@ -13,6 +15,6 @@ enum class UnrealCommandType(
 }
 
 interface UnrealCommand {
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(raise: Raise<GenericError>, context: CommandExecutionContext)
     fun toArguments(): List<String>
 }

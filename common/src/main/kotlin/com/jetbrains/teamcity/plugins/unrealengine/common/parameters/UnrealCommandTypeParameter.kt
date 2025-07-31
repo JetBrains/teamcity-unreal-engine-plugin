@@ -1,7 +1,8 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.parameters
 
 import arrow.core.raise.Raise
-import arrow.core.raise.ensureNotNull
+import com.jetbrains.teamcity.plugins.framework.common.ensureNotNull
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealCommandType
 import kotlin.enums.enumEntries
@@ -51,9 +52,15 @@ object UnrealCommandTypeParameter : SelectParameter() {
         val viewPage: String,
     )
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parse(runnerParameters: Map<String, String>): UnrealCommandType {
-        val commandTypeRaw = runnerParameters[name] ?: raise(PropertyValidationError(name, "Unreal command type is missing"))
+        val commandTypeRaw =
+            runnerParameters[name] ?: raise(
+                PropertyValidationError(
+                    name,
+                    "Unreal command type is missing",
+                ),
+            )
         val commandType = enumEntries<UnrealCommandType>().find { it.value == commandTypeRaw }
         ensureNotNull(commandType) { PropertyValidationError(name, "Unknown Unreal command $commandTypeRaw") }
         return commandType
