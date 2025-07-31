@@ -1,6 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests
 
 import arrow.core.raise.Raise
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests.ExecCommand.*
 import com.jetbrains.teamcity.plugins.unrealengine.common.enumValueOfOrNull
@@ -31,9 +32,15 @@ object AutomationTestsExecCommandParameter : SelectParameter() {
     override val options: List<SelectOption>
         get() = listOf(all, filter, list)
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parse(runnerParameters: Map<String, String>): ExecCommand {
-        val type = runnerParameters[name] ?: raise(PropertyValidationError(name, "Automation exec command is missing."))
+        val type =
+            runnerParameters[name] ?: raise(
+                PropertyValidationError(
+                    name,
+                    "Automation exec command is missing.",
+                ),
+            )
 
         return when (type) {
             all.name -> RunAll
@@ -41,7 +48,12 @@ object AutomationTestsExecCommandParameter : SelectParameter() {
             filter.name ->
                 RunFilter(
                     AutomationTestsFilterParameter.parse(runnerParameters)
-                        ?: raise(PropertyValidationError(AutomationTestsFilterParameter.name, "Empty test filter.")),
+                        ?: raise(
+                            PropertyValidationError(
+                                AutomationTestsFilterParameter.name,
+                                "Empty test filter.",
+                            ),
+                        ),
                 )
 
             list.name -> {

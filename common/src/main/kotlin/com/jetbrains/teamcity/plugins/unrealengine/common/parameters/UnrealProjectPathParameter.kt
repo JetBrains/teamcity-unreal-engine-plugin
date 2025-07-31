@@ -1,6 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.parameters
 
 import arrow.core.raise.Raise
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealProjectPath
 
@@ -17,7 +18,7 @@ class UnrealProjectPathParameter(
     override val expandable = false
     override val advanced = false
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parseProjectPath(runnerParameters: Map<String, String>): UnrealProjectPath {
         val projectPath = runnerParameters[name]
         if (projectPath.isNullOrEmpty()) {

@@ -21,13 +21,13 @@ class BuildGraphWorkflowCreator(
         private val logger = UnrealPluginLoggers.get<BuildGraphWorkflowCreator>()
     }
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     override suspend fun create(): Workflow = Workflow(getCommands())
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     private suspend fun getCommands(): List<UnrealEngineCommandExecution> {
         val command =
-            either { BuildGraphCommand.from(runnerParameters) }.getOrElse {
+            either { BuildGraphCommand.from(context.runnerParameters) }.getOrElse {
                 it.forEach { error ->
                     logger.error("An error occurred during command creation: ${error.message}")
                 }

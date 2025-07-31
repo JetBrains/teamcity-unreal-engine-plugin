@@ -59,10 +59,10 @@ class UgsMetadataServerClient(
             }
         }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     suspend fun testConnection(url: UgsMetadataServerUrl) = getApiVersion(url)
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun getApiVersion(url: UgsMetadataServerUrl) =
         performRequest("${url.ensureTrailingSlash()}api/latest") {
             method = HttpMethod.Get
@@ -72,7 +72,7 @@ class UgsMetadataServerClient(
             }
         }.body<LatestData?>()?.version ?: 1
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     suspend fun postBuildMetadata(
         url: UgsMetadataServerUrl,
         metadata: UgsBuildMetadata,
@@ -84,7 +84,7 @@ class UgsMetadataServerClient(
         }
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun postBuildMetadataV1(
         url: UgsMetadataServerUrl,
         metadata: UgsBuildMetadata,
@@ -107,7 +107,7 @@ class UgsMetadataServerClient(
         }
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun postBuildMetadataV2(
         url: UgsMetadataServerUrl,
         metadata: UgsBuildMetadata,
@@ -139,7 +139,7 @@ class UgsMetadataServerClient(
         }
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun performRequest(
         url: String,
         block: HttpRequestBuilder.() -> Unit = {},

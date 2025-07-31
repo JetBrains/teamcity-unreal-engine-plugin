@@ -2,7 +2,7 @@ package com.jetbrains.teamcity.plugins.unrealengine.common.automation.tests
 
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
-import arrow.core.raise.zipOrAccumulate
+import com.jetbrains.teamcity.plugins.framework.common.zipOrAccumulate
 import com.jetbrains.teamcity.plugins.unrealengine.common.CommandExecutionContext
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
@@ -43,7 +43,7 @@ data class RunAutomationTestsCommand(
     val extraArguments: List<String> = emptyList(),
 ) : UnrealCommand {
     companion object {
-        context(Raise<NonEmptyList<PropertyValidationError>>)
+        context(_: Raise<NonEmptyList<PropertyValidationError>>)
         fun from(runnerParameters: Map<String, String>) =
             zipOrAccumulate(
                 { AutomationTestsProjectPathParameter.parseProjectPath(runnerParameters) },
@@ -61,12 +61,12 @@ data class RunAutomationTestsCommand(
             }
     }
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     override fun toArguments() =
         buildList {
-            val resolvedProjectPath = resolveUserPath(projectPath.value)
+            val resolvedProjectPath = context.resolveUserPath(projectPath.value)
             ensure(
-                fileExists(resolvedProjectPath),
+                context.fileExists(resolvedProjectPath),
                 "Could not find the specified project file. Path: $resolvedProjectPath",
             )
             add(resolvedProjectPath)

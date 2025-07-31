@@ -6,8 +6,9 @@ import com.jetbrains.teamcity.plugins.unrealengine.agent.build.log.LogEventHandl
 import com.jetbrains.teamcity.plugins.unrealengine.agent.build.log.UnrealLogEvent
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessage
 
-context(UnrealBuildContext)
-class AutomationTestLogEventHandler : LogEventHandler {
+class AutomationTestLogEventHandler(
+    private val context: UnrealBuildContext,
+) : LogEventHandler {
     override fun tryHandleEvent(event: UnrealLogEvent): Boolean =
         tryHandleTestStarted(event.message) || tryHandleTestCompleted(event.message)
 
@@ -25,10 +26,11 @@ class AutomationTestLogEventHandler : LogEventHandler {
         return true
     }
 
-    private fun writeServiceMessages(messages: Sequence<ServiceMessage>) = messages.forEach { build.buildLogger.message(it.asString()) }
+    private fun writeServiceMessages(messages: Sequence<ServiceMessage>) =
+        messages.forEach { context.build.buildLogger.message(it.asString()) }
 
     private fun writeOriginalMessage(message: String) {
-        build.buildLogger.message(message)
+        context.build.buildLogger.message(message)
         buildStdOutLogger.info(message)
     }
 

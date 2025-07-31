@@ -78,7 +78,7 @@ class QueryBuilder<T>(
         })
     }
 
-    context(ResourceLocationContext)
+    context(context: ResourceLocationContext)
     internal suspend fun executeQueries(): List<ResourceLocationResult<T>> = coroutineScope {
         queries.map {
             async(Dispatchers.IO) {

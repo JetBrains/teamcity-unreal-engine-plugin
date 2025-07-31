@@ -4,8 +4,8 @@ import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
 import arrow.core.raise.either
-import arrow.core.raise.ensure
 import arrow.core.raise.zipOrAccumulate
+import com.jetbrains.teamcity.plugins.framework.common.ensure
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.TextInputParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.ugs.UgsMetadataServerUrl
@@ -20,10 +20,15 @@ object ServerUrlParameter : TextInputParameter {
     override val displayName = "The metadata server URL"
     override val defaultValue = ""
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parse(properties: Map<String, String>): UgsMetadataServerUrl {
         val serverUrl = properties[name]?.trim()
-        ensure(!serverUrl.isNullOrEmpty()) { PropertyValidationError(name, "The metadata server URL cannot be empty") }
+        ensure(!serverUrl.isNullOrEmpty()) {
+            PropertyValidationError(
+                name,
+                "The metadata server URL cannot be empty",
+            )
+        }
 
         return UgsMetadataServerUrl(serverUrl)
     }
@@ -39,7 +44,7 @@ object BadgeNameParameter : TextInputParameter {
     override val displayName = "Badge"
     override val defaultValue = ""
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parse(properties: Map<String, String>): UgsBadgeName {
         val badgeName = properties[name]?.trim()
         ensure(!badgeName.isNullOrEmpty()) { PropertyValidationError(name, "The badge name cannot be empty") }
@@ -62,7 +67,7 @@ object ProjectParameter : TextInputParameter {
     override val displayName = "Project"
     override val defaultValue = ""
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parse(properties: Map<String, String>): UgsProject {
         val project = properties[name]?.trim()
         ensure(!project.isNullOrEmpty()) { PropertyValidationError(name, "The project path cannot be empty") }

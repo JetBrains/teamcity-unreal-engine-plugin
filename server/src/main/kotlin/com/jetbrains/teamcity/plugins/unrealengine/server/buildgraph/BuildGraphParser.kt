@@ -62,8 +62,8 @@ class BuildGraphParser {
         private val json = JsonEncoder.instance
     }
 
-    context(Raise<Error>)
     @OptIn(ExperimentalSerializationApi::class)
+    context(_: Raise<Error>)
     fun parse(stream: InputStream): BuildGraph<BuildGraphNodeGroup> {
         val buildGraph =
             try {

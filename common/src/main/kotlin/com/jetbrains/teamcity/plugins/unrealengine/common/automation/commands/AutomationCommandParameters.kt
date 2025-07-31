@@ -1,6 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.automation.commands
 
 import arrow.core.raise.Raise
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.TextInputParameter
 import jetbrains.buildServer.util.StringUtil
@@ -15,7 +16,7 @@ object AutomationCommandNameParameter : TextInputParameter {
     override val expandable = false
     override val advanced = false
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parseCommand(runnerParameters: Map<String, String>): AutomationCommand {
         val command = runnerParameters[name]?.trim()
 

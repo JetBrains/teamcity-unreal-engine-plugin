@@ -24,13 +24,13 @@ class DistributedBuildStateStorage {
         )
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     fun get(build: SBuild): DistributedBuildState {
         val stateMap = ensureNotNull(build.buildStateStorage.values, "There is no state associated with this build")
         return properties.decodeFromStringMap<DistributedBuildState>(stateMap)
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     fun update(
         build: SBuild,
         steps: Sequence<DistributedBuildState.BuildStep>,

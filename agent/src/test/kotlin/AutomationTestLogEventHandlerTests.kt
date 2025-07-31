@@ -16,7 +16,7 @@ import kotlin.test.Test
 class AutomationTestLogEventHandlerTests {
     private val buildLoggerMock = mockk<BuildProgressLogger>(relaxed = true)
     private val buildContext = createTestUnrealBuildContext()
-    private val handler = with(buildContext) { AutomationTestLogEventHandler() }
+    private val handler = AutomationTestLogEventHandler(buildContext)
 
     @BeforeEach
     fun init() {

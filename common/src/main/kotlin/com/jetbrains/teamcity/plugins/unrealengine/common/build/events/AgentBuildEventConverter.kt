@@ -28,8 +28,8 @@ class AgentBuildEventConverter {
 
     private val properties = Properties(serializersModule)
 
-    context(Raise<Error>)
     @OptIn(ExperimentalSerializationApi::class)
+    context(_: Raise<Error>)
     fun fromMap(map: Map<String, String>): AgentBuildEvent {
         try {
             return properties.decodeFromStringMap<AgentBuildEvent>(map)

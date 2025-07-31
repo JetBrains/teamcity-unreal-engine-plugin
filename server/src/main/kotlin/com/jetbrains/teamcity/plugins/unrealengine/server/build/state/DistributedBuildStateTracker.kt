@@ -64,7 +64,7 @@ class DistributedBuildStateTracker(
     private fun MutableMap<String, String>.notifyServerAboutExecution() =
         put(RunnerInternalParameters.BUILD_STEP_NOTIFICATIONS_ENABLED, true.toString())
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     suspend fun handleBuildEvent(event: DistributedBuildEvent) {
         val parentBuild = promotionManager.findParentBuild(event.build) ?: return
 
@@ -81,7 +81,7 @@ class DistributedBuildStateTracker(
         }
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun buildStepStarted(
         parentBuild: SBuild,
         event: BuildStepStarted,
@@ -103,7 +103,7 @@ class DistributedBuildStateTracker(
         return updatedState
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun buildStepFinished(
         parentBuild: SBuild,
         event: BuildStepCompleted,
@@ -138,7 +138,7 @@ class DistributedBuildStateTracker(
         return updatedState
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun buildStepInterrupted(
         parentBuild: SBuild,
         event: BuildStepInterrupted,
@@ -168,7 +168,7 @@ class DistributedBuildStateTracker(
         return updatedState
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun buildSkipped(
         parentBuild: SBuild,
         eventBuild: SBuild,
@@ -194,7 +194,7 @@ class DistributedBuildStateTracker(
         return updatedState
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private fun DistributedBuildState.findBuild(name: String): DistributedBuildState.Build =
         builds
             .firstOrNull { it.name == name }

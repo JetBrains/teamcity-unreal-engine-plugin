@@ -1,6 +1,7 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common
 
 import arrow.core.raise.Raise
+import arrow.core.raise.RaiseDSL
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 
@@ -14,19 +15,27 @@ data class GenericError(
     val exception: Throwable? = null,
 ) : Error
 
-fun Raise<GenericError>.raise(message: String): Nothing = raise(GenericError(message))
+@RaiseDSL
+context(raise: Raise<GenericError>)
+fun raise(message: String): Nothing = raise.raise(GenericError(message))
 
-fun Raise<GenericError>.raise(
+@RaiseDSL
+context(raise: Raise<GenericError>)
+fun raise(
     message: String,
     exception: Throwable?,
-): Nothing = raise(GenericError(message, exception))
+): Nothing = raise.raise(GenericError(message, exception))
 
-fun Raise<GenericError>.ensure(
+@RaiseDSL
+context(raise: Raise<GenericError>)
+fun ensure(
     condition: Boolean,
     message: String,
-) = ensure(condition) { raise(message) }
+) = raise.ensure(condition) { raise(message) }
 
-fun <T : Any> Raise<GenericError>.ensureNotNull(
+@RaiseDSL
+context(raise: Raise<GenericError>)
+fun <T : Any> ensureNotNull(
     value: T?,
     message: String,
-): T = ensureNotNull(value) { raise(message) }
+): T = raise.ensureNotNull(value) { raise(message) }

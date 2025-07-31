@@ -1,9 +1,10 @@
 package com.jetbrains.teamcity.plugins.framework.resource.location
 
 import arrow.core.raise.Raise
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import java.io.Reader
 
-context(Raise<ResourceLocationResult.Error>)
+context(_: Raise<ResourceLocationResult.Error>)
 @PublishedApi internal fun Reader.text(): String = try {
     readText()
 } catch (e: Throwable) {

@@ -25,19 +25,19 @@ class BuildCookRunWorkflowCreator(
         private val logger = UnrealPluginLoggers.get<BuildCookRunWorkflowCreator>()
     }
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     override suspend fun create(): Workflow = Workflow(getCommands())
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     private suspend fun getCommands() =
         listOf(
             buildCookRun(),
         )
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     private suspend fun buildCookRun(): UnrealEngineCommandExecution {
         val command =
-            either { BuildCookRunCommand.from(runnerParameters) }.getOrElse {
+            either { BuildCookRunCommand.from(context.runnerParameters) }.getOrElse {
                 it.forEach { error ->
                     logger.error("An error occurred during command creation: ${error.message}")
                 }
@@ -49,9 +49,9 @@ class BuildCookRunWorkflowCreator(
         return UnrealEngineCommandExecution(
             UnrealEngineProgramCommandLine(
                 environment,
-                buildParameters.environmentVariables,
-                workingDirectory,
-                toolRegistry.automationTool(runnerParameters).executablePath,
+                context.buildParameters.environmentVariables,
+                context.workingDirectory,
+                toolRegistry.automationTool(context.runnerParameters).executablePath,
                 arguments,
             ),
             processListenerFactory.create(),

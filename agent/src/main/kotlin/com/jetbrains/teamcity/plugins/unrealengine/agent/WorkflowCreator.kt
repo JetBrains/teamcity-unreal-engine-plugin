@@ -14,22 +14,22 @@ data class Workflow(
     private val commandsQueue = ArrayDeque(commands)
 
     companion object {
-        context(UnrealBuildContext)
+        context(context: UnrealBuildContext)
         private fun workflowCompleted(commandExitCodes: List<Int>): BuildFinishedStatus =
-            if (commandExitCodes.all { it == 0 } || !build.failBuildOnExitCode) {
+            if (commandExitCodes.all { it == 0 } || !context.build.failBuildOnExitCode) {
                 BuildFinishedStatus.FINISHED_SUCCESS
             } else {
                 commandExitCodes.filter { it != 0 }.forEach { reportBuildProblem(it) }
                 BuildFinishedStatus.FINISHED_WITH_PROBLEMS
             }
 
-        context(UnrealBuildContext)
+        context(context: UnrealBuildContext)
         private fun reportBuildProblem(nonZeroExitCode: Int) {
-            build.buildLogger.logBuildProblem(
+            context.build.buildLogger.logBuildProblem(
                 ExitCodeProblemBuilder()
                     .setExitCode(nonZeroExitCode)
-                    .setRunnerId(runnerId)
-                    .setRunnerName(runnerName)
+                    .setRunnerId(context.runnerId)
+                    .setRunnerName(context.runnerName)
                     .setRunnerType(UnrealEngineRunner.RUN_TYPE)
                     .build(),
             )
@@ -40,6 +40,6 @@ data class Workflow(
 }
 
 interface WorkflowCreator {
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     suspend fun create(): Workflow
 }

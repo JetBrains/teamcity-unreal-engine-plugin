@@ -2,7 +2,8 @@ package com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun
 
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise
-import arrow.core.raise.ensureNotNull
+import com.jetbrains.teamcity.plugins.framework.common.ensureNotNull
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealTargetPlatform
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.MultiSelectParameter
@@ -53,7 +54,7 @@ object UnrealTargetPlatformsParameter {
         override val options = UnrealTargetPlatformsParameter.options
     }
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parseTargetPlatforms(
         runnerParameters: Map<String, String>,
         name: String,

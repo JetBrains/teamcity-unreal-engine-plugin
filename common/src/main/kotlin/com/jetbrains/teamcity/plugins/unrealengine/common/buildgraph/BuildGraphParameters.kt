@@ -1,7 +1,8 @@
 package com.jetbrains.teamcity.plugins.unrealengine.common.buildgraph
 
 import arrow.core.raise.Raise
-import arrow.core.raise.ensure
+import com.jetbrains.teamcity.plugins.framework.common.ensure
+import com.jetbrains.teamcity.plugins.framework.common.raise
 import com.jetbrains.teamcity.plugins.unrealengine.common.PropertyValidationError
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.CheckboxParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.RunnerParameter
@@ -20,7 +21,7 @@ object BuildGraphScriptPathParameter : TextInputParameter {
     override val expandable = false
     override val advanced = false
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parseScriptPath(runnerParameters: Map<String, String>): BuildGraphScriptPath {
         val scriptPath = runnerParameters[name]
         if (scriptPath.isNullOrEmpty()) {
@@ -41,7 +42,7 @@ object BuildGraphTargetNodeParameter : TextInputParameter {
     override val expandable = false
     override val advanced = false
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parseTargetNode(runnerParameters: Map<String, String>): BuildGraphTargetNode {
         val targetNode = runnerParameters[name]
         if (targetNode.isNullOrEmpty()) {
@@ -62,7 +63,7 @@ object BuildGraphOptionsParameter : RunnerParameter {
         should be passed to your BuildGraph script.
         """.trimIndent()
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parseOptions(runnerParameters: Map<String, String>): List<BuildGraphOption> {
         val optionsString = runnerParameters[name]
         if (optionsString.isNullOrEmpty()) {
@@ -104,7 +105,7 @@ object BuildGraphModeParameter : SelectParameter() {
     override val defaultValue = singleMachine.name
     override val options = listOf(singleMachine, distributed)
 
-    context(Raise<PropertyValidationError>)
+    context(_: Raise<PropertyValidationError>)
     fun parse(runnerParameters: Map<String, String>): BuildGraphMode {
         val modeRaw = runnerParameters[name] ?: return BuildGraphMode.SingleMachine
 
@@ -115,7 +116,10 @@ object BuildGraphModeParameter : SelectParameter() {
                 val metadataServerUrl = runnerParameters[UgsMetadataServerUrlParameter.name]
                 if (postBadges) {
                     ensure(!metadataServerUrl.isNullOrBlank()) {
-                        PropertyValidationError(UgsMetadataServerUrlParameter.name, "Metadata server URL should not be empty")
+                        PropertyValidationError(
+                            UgsMetadataServerUrlParameter.name,
+                            "Metadata server URL should not be empty",
+                        )
                     }
                 }
                 BuildGraphMode.Distributed(if (postBadges) UgsMetadataServerUrl(metadataServerUrl!!) else null)

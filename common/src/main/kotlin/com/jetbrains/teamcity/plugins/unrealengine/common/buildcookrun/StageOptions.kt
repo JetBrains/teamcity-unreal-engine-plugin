@@ -18,13 +18,13 @@ data class StageOptions(
             )
     }
 
-    context(CommandExecutionContext)
+    context(context: CommandExecutionContext)
     fun toArguments() =
         buildList {
             add("-stage")
 
             stagingDirectory?.let {
-                add("-stagingdirectory=${resolveUserPath(it)}")
+                add("-stagingdirectory=${context.resolveUserPath(it)}")
             }
 
             if (usePak) {

@@ -25,19 +25,19 @@ class CommandletWorkflowCreator(
         private val logger = UnrealPluginLoggers.get<CommandletWorkflowCreator>()
     }
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     override suspend fun create() = Workflow(getCommands())
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     private suspend fun getCommands(): List<UnrealEngineCommandExecution> =
         listOf(
             run(),
         )
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     private suspend fun run(): UnrealEngineCommandExecution {
         val command =
-            either { RunCommandletCommand.from(runnerParameters) }.getOrElse {
+            either { RunCommandletCommand.from(context.runnerParameters) }.getOrElse {
                 it.forEach { error ->
                     logger.error("An error occurred during command creation: ${error.message}")
                 }
@@ -49,9 +49,9 @@ class CommandletWorkflowCreator(
         return UnrealEngineCommandExecution(
             UnrealEngineProgramCommandLine(
                 environment,
-                buildParameters.environmentVariables,
-                workingDirectory,
-                toolRegistry.editor(runnerParameters).executablePath,
+                context.buildParameters.environmentVariables,
+                context.workingDirectory,
+                toolRegistry.editor(context.runnerParameters).executablePath,
                 arguments,
             ),
             processListenerFactory.create(),

@@ -23,11 +23,11 @@ class DistributedExecutor(
     private val settingsCreator: DistributedBuildSettingsCreator,
     private val processListenerFactory: UnrealEngineProcessListenerFactory,
 ) {
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     suspend fun execute(command: BuildGraphCommand): List<UnrealEngineCommandExecution> {
         val settings =
             either {
-                settingsCreator.from(runnerParameters)
+                settingsCreator.from(context.runnerParameters)
             }.getOrElse {
                 raise("Unable to get distributed BuildGraph build settings. Error: ${it.message}")
             }
@@ -46,7 +46,7 @@ class DistributedExecutor(
         }
     }
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     private suspend fun setupCommand(
         settings: DistributedBuildSettings.SetupBuildSettings,
         command: BuildGraphCommand,
@@ -67,7 +67,7 @@ class DistributedExecutor(
         )
     }
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     private suspend fun executeCommand(
         settings: DistributedBuildSettings.RegularBuildSettings,
         command: BuildGraphCommand,
@@ -80,11 +80,11 @@ class DistributedExecutor(
                     "-SharedStorageDir=$sharedDir",
                     "-WriteToSharedStorage",
                 ),
-            processListenerFactory.create(AutomationTestLogEventHandler()),
+            processListenerFactory.create(AutomationTestLogEventHandler(context)),
         )
     }
 
-    context(Raise<GenericError>, UnrealBuildContext)
+    context(_: Raise<GenericError>, context: UnrealBuildContext)
     private suspend fun createUnrealCommandExecution(
         arguments: List<String>,
         processListener: ProcessListener,
@@ -92,17 +92,17 @@ class DistributedExecutor(
         UnrealEngineCommandExecution(
             UnrealEngineProgramCommandLine(
                 environment,
-                buildParameters.environmentVariables,
-                workingDirectory,
-                toolRegistry.automationTool(runnerParameters).executablePath,
+                context.buildParameters.environmentVariables,
+                context.workingDirectory,
+                toolRegistry.automationTool(context.runnerParameters).executablePath,
                 arguments,
             ),
             processListener,
         )
 
-    context(UnrealBuildContext)
+    context(context: UnrealBuildContext)
     private fun ensureSharedDirectoryForBuild(
         root: String,
         compositeBuildId: String,
-    ) = createDirectory(resolvePath(root, compositeBuildId))
+    ) = context.createDirectory(context.resolvePath(root, compositeBuildId))
 }

@@ -50,13 +50,13 @@ tasks {
     compileKotlin {
         compilerOptions {
             allWarningsAsErrors.set(true)
-            freeCompilerArgs.add("-Xcontext-receivers")
+            freeCompilerArgs.add("-Xcontext-parameters")
         }
     }
 
     compileTestKotlin {
         compilerOptions {
-            freeCompilerArgs.add("-Xcontext-receivers")
+            freeCompilerArgs.add("-Xcontext-parameters")
         }
     }
 

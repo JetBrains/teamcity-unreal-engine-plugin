@@ -28,7 +28,7 @@ class UnrealEngineProvider(
         private val logger = UnrealPluginLoggers.get<UnrealEngineProvider>()
     }
 
-    context(Raise<GenericError>, CommandExecutionContext)
+    context(_: Raise<GenericError>, context: CommandExecutionContext)
     suspend fun findEngine(runnerParameters: Map<String, String>): UnrealEngine {
         val mode = recover({ parseDetectionMode(runnerParameters) }) { raise(it.message) }
 
@@ -38,7 +38,7 @@ class UnrealEngineProvider(
                     findAmongAgentInstalledEngines(mode.identifier)
                 }
                 is EngineDetectionMode.Manual -> {
-                    UnrealEngineRootPath(resolveUserPath(mode.engineRootPath.value))
+                    UnrealEngineRootPath(context.resolveUserPath(mode.engineRootPath.value))
                 }
             }
 
@@ -47,7 +47,7 @@ class UnrealEngineProvider(
         return UnrealEngine(rootPath, engineVersion)
     }
 
-    context(Raise<GenericError>)
+    context(_: Raise<GenericError>)
     private fun findAmongAgentInstalledEngines(engineIdentifier: UnrealEngineIdentifier): UnrealEngineRootPath {
         val matchingEngineIdentifiers =
             agentConfiguration.configurationParameters.keys

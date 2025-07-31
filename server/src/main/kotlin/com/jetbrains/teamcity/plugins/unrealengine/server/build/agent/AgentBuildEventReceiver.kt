@@ -55,7 +55,7 @@ class AgentBuildEventReceiver(
         return mutableListOf()
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private fun processServiceMessage(
         build: SRunningBuild,
         serviceMessage: ServiceMessage,
@@ -85,7 +85,7 @@ class AgentBuildEventReceiver(
             )
         }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun processMultiNodeEvent(event: MultiNodesEvents.Event) {
         val serializedEvent = ensureNotNull(event.stringArg, "Multi-node event is missing a payload")
         val multiNodeEvent = json.decodeFromString<UnrealMultiNodeAgentBuildEvent>(serializedEvent)
@@ -98,7 +98,7 @@ class AgentBuildEventReceiver(
         callHandlers(multiNodeEvent.buildId, multiNodeEvent.event)
     }
 
-    context(Raise<Error>)
+    context(_: Raise<Error>)
     private suspend fun callHandlers(
         buildId: Long,
         agentEvent: AgentBuildEvent,
