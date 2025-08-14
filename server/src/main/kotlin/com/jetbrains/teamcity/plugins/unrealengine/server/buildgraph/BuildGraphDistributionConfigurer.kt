@@ -145,6 +145,10 @@ class BuildGraphDistributionConfigurer(
                         "Setup",
                         setupRunnerParameters,
                     )
+
+                    originalBuild.requirements.forEach { requirement ->
+                        addRequirement(requirement)
+                    }
                 }
             }.also {
                 it.setAttribute(settings.setupBuildMarker, true.toString())
