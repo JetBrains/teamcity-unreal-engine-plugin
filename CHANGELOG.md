@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed distributed BuildGraph Setup builds not respecting agent requirements from the original build, which could cause
+  failures when Setup builds ran on incompatible agents [TW-95143](https://youtrack.jetbrains.com/issue/TW-95143)
+
 ## 1.3.3 - 2025-07-31
 
 ### Fixed
