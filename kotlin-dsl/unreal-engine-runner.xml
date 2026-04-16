@@ -137,6 +137,66 @@
                                 The default value is "true".
                             </description>
                         </param>
+
+                        <param name="build-cook-run-generate-chunks" dslName="generateChunks" type="boolean" trueValue="true" falseValue="">
+                            <description>
+                                Generate chunk manifests during cooking.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-iterative-cooking" dslName="iterativeCooking" type="boolean" trueValue="true" falseValue="">
+                            <description>
+                                Use iterative cooking to process only changed assets.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-cook-all" dslName="cookAll" type="boolean" trueValue="true" falseValue="">
+                            <description>
+                                Cook all available project content.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-cook-maps-only" dslName="cookMapsOnly" type="boolean" trueValue="true" falseValue="">
+                            <description>
+                                With cook-all, limit output to maps and their dependencies.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-cook-partial-gc" dslName="cookPartialGC" type="boolean" trueValue="true" falseValue="">
+                            <description>
+                                Allow partial garbage collection while cooking.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-fast-cook" dslName="fastCook" type="boolean" trueValue="true" falseValue="">
+                            <description>
+                                Enable FastCook mode when supported by the target platform.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-ignore-cook-errors" dslName="ignoreCookErrors" type="boolean" trueValue="true" falseValue="">
+                            <description>
+                                Continue packaging even if cook reports errors.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-skip-editor-content" dslName="skipCookingEditorContent" type="boolean" trueValue="true" falseValue="">
+                            <description>
+                                Skip cooking editor-only content.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-exclude-editor-content" dslName="excludeEditorContent" type="boolean" trueValue="true" falseValue="">
+                            <description>
+                                Exclude editor-only content from the cooked output.
+                            </description>
+                        </param>
+
+                        <param name="build-cook-run-additional-cooker-options" dslName="additionalCookerOptions" type="string">
+                            <description>
+                                Additional options passed to `-AdditionalCookerOptions`.
+                            </description>
+                        </param>
                     </option>
                     <option name="skipCook" value="false"/>
                 </param>
@@ -161,6 +221,12 @@
                     	Allows you to put all assets into a single ".pak" file instead of copying individual files.
                         This approach reduces the number of transferred files that benefits projects with a large amount of asset files.
                         The default value is "true".
+                    </description>
+                </param>
+
+                <param name="build-cook-run-iostore" dslName="iostore" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Store cooked content in IoStore containers.
                     </description>
                 </param>
 
@@ -196,6 +262,72 @@
                         </param>
                     </option>
                     <option name="skipArchive" value="false"/>
+                </param>
+
+                <param name="build-cook-run-compile" dslName="compile" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Compile the selected targets before running BuildCookRun.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-installed" dslName="installedBuild" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Use an installed engine build.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-no-compile-uat" dslName="noCompileUAT" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Skip compiling Unreal Automation Tool.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-manifests" dslName="manifests" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Generate manifests during packaging.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-crash-reporter" dslName="crashReporter" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Include CrashReporter support.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-distribution" dslName="distribution" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Prepare the build for distribution.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-verbose" dslName="verbose" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Enable verbose logging for BuildCookRun.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-log-window" dslName="logWindow" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Open the Unreal log window while the command runs.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-no-xge" dslName="noXGE" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Disable XGE/Incredibuild distributed compilation.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-no-debug-info" dslName="noDebugInfo" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Skip generating debug symbols for packaged builds.
+                    </description>
+                </param>
+
+                <param name="build-cook-run-skip-encryption" dslName="skipEncryption" type="boolean" trueValue="true" falseValue="">
+                    <description>
+                        Disable encryption for pak/IoStore output.
+                    </description>
                 </param>
 
             </option>
@@ -451,14 +583,29 @@
                             maps = "FooMap+BarMap"
                             cultures = "FooCulture+BarCulture"
                             unversionedContent = true
+                            generateChunks = true
+                            iterativeCooking = true
+                            cookAll = true
+                            cookMapsOnly = true
+                            cookPartialGC = true
+                            fastCook = true
+                            ignoreCookErrors = false
+                            skipCookingEditorContent = true
+                            additionalCookerOptions = "-cookincremental -cookprocesscount=1"
                         }
                         stage = stageConfiguration {
                             directory = "./staged"
                         }
                         packageProject = true
                         pak = true
+                        iostore = true
                         compressed = true
                         prerequisites = true
+                        manifests = true
+                        installedBuild = true
+                        noXGE = true
+                        noDebugInfo = true
+                        skipEncryption = false
                         archive = archiveConfiguration {
                             directory = "./archived"
                         }

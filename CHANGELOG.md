@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added native BuildCookRun support for advanced cooker and packaging options such as `AdditionalCookerOptions`, chunk generation, iterative cooking, cook-all/cook-maps-only controls, partial GC, FastCook, ignore-cook-errors, editor-content exclusion, IoStore, manifests, distribution mode, NoXGE, NoDebugInfo, SkipEncryption, and related flags.
+
 ### Changed
 
 ### Fixed

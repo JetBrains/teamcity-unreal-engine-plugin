@@ -11,10 +11,46 @@
 <c:set var="parameter" value="${runComponent.usePak}"/>
 <%@ include file="../common/checkbox.jspf"%>
 
+<c:set var="parameter" value="${runComponent.useIoStore}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
 <c:set var="parameter" value="${runComponent.compressedContent}"/>
 <%@ include file="../common/checkbox.jspf"%>
 
 <c:set var="parameter" value="${runComponent.prerequisites}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.compile}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.installedBuild}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.noCompileUAT}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.manifests}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.crashReporter}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.distribution}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.verboseLogging}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.logWindow}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.noXGE}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.noDebugInfo}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${runComponent.skipEncryption}"/>
 <%@ include file="../common/checkbox.jspf"%>
 
 <c:set var="noBorder" value=""/>

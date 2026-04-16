@@ -27,6 +27,12 @@
                 Cook flags: <strong>${cookFlags}</strong>
             </div>
         </c:if>
+
+        <c:if test="${not empty propertiesBean.properties[cookComponent.additionalCookerOptions.name]}">
+            <div class="parameter">
+                ${cookComponent.additionalCookerOptions.displayName}: <props:displayValue name="${cookComponent.additionalCookerOptions.name}"/>
+            </div>
+        </c:if>
     </c:when>
     <c:otherwise>
         <div class="parameter">

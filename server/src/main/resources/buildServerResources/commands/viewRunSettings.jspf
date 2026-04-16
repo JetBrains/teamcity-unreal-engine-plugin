@@ -16,10 +16,10 @@
     </div>
 </c:if>
 
-<c:set var="runFalgs" value="${runComponent.formatFlags(propertiesBean.properties)}"/>
-<c:if test="${not empty runFalgs}">
+<c:set var="runFlags" value="${runComponent.formatFlags(propertiesBean.properties)}"/>
+<c:if test="${not empty runFlags}">
     <div class="parameter">
-        Run flags: <strong>${runFalgs}</strong>
+        Run flags: <strong>${runFlags}</strong>
     </div>
 </c:if>
 

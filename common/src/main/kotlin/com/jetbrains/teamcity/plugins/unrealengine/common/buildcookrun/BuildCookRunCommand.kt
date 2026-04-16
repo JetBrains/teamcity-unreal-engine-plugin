@@ -18,6 +18,7 @@ data class BuildCookRunCommand(
     val cookOptions: CookOptions? = null,
     val stageOptions: StageOptions? = null,
     val archiveOptions: ArchiveOptions? = null,
+    val options: BuildCookRunAdditionalOptions = BuildCookRunAdditionalOptions(),
     val extraArguments: List<String> = emptyList(),
 ) : UnrealCommand {
     companion object {
@@ -30,6 +31,7 @@ data class BuildCookRunCommand(
                 val cookOptions = CookStageSwitchParameter.parseCookOptions(runnerParameters)
                 val stageOptions = StageStageSwitchParameter.parseStageOptions(runnerParameters)
                 val archiveOptions = ArchiveSwitchParameter.parseArchiveOptions(runnerParameters)
+                val options = BuildCookRunAdditionalOptions.from(runnerParameters)
 
                 val additionalOptions =
                     buildList {
@@ -46,6 +48,7 @@ data class BuildCookRunCommand(
                     cookOptions,
                     stageOptions,
                     archiveOptions,
+                    options,
                     additionalOptions,
                 )
             }
@@ -68,6 +71,7 @@ data class BuildCookRunCommand(
             cookOptions?.let { addAll(cookOptions.arguments) } ?: add("-skipcook")
             stageOptions?.let { addAll(stageOptions.toArguments()) } ?: add("-skipstage")
             archiveOptions?.let { addAll(archiveOptions.toArguments()) }
+            addAll(options.arguments)
 
             addAll(extraArguments)
         }

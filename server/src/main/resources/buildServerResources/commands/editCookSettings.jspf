@@ -20,6 +20,36 @@
 <c:set var="parameter" value="${cookComponent.unversionedContent}"/>
 <%@ include file="../common/checkbox.jspf"%>
 
+<c:set var="parameter" value="${cookComponent.generateChunks}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.iterativeCooking}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.cookAll}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.cookMapsOnly}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.cookPartialGC}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.fastCook}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.ignoreCookErrors}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.skipEditorContent}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.excludeEditorContent}"/>
+<%@ include file="../common/checkbox.jspf"%>
+
+<c:set var="parameter" value="${cookComponent.additionalCookerOptions}"/>
+<%@ include file="../common/textField.jspf"%>
+
 <c:set var="cssClass" value=""/>
 <c:set var="noBorder" value=""/>
 

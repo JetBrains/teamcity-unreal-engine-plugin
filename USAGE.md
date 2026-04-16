@@ -76,6 +76,13 @@ The plugin includes the following predefined commands:
 * `BuildCookRun`
 * `BuildGraph` (distributed mode is a bit trickier, though - check the corresponding section below)
 
+`BuildCookRun` supports a native set of cook, staging, packaging, and archive options.
+For more specialized workflows, you can also configure advanced options such as
+`generateChunks`, `iterativeCooking`, `cookAll`, `cookMapsOnly`, `cookPartialGC`,
+`fastCook`, `ignoreCookErrors`, `skipCookingEditorContent`, `excludeEditorContent`,
+`iostore`, `manifests`, `distribution`, `noXGE`, `noDebugInfo`, `skipEncryption`, and
+`additionalCookerOptions` without falling back to raw `additionalArguments` strings.
+
 #### Custom Automation Commands
 
 You can also execute any custom automation command using the runner’s `RunAutomationCommand` option.
@@ -99,6 +106,44 @@ unrealEngine {
     }
     additionalArguments = "-buildmachine -unattended -noP4"
     ...
+}
+```
+
+#### BuildCookRun example with native cooker options
+
+```kotlin
+unrealEngine {
+    engineDetectionMode = manual {
+        rootDir = "%teamcity.build.checkoutDir%/Engine"
+    }
+
+    command = buildCookRun {
+        project = "%build.projectPath%"
+        buildConfiguration = standaloneGame {
+            configurations = "%build.config%"
+            platforms = "%build.platforms%"
+        }
+        cook = cookConfiguration {
+            generateChunks = true
+            iterativeCooking = true
+            cookAll = true
+            cookMapsOnly = true
+            cookPartialGC = true
+            fastCook = true
+            ignoreCookErrors = false
+            skipCookingEditorContent = true
+            excludeEditorContent = true
+            additionalCookerOptions = "-cookincremental -cookprocesscount=1"
+        }
+        iostore = true
+        manifests = true
+        installedBuild = true
+        noXGE = true
+        noDebugInfo = true
+        skipEncryption = false
+        distribution = false
+        logWindow = true
+    }
 }
 ```
 
