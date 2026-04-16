@@ -11,7 +11,7 @@ object CookStageSwitchParameter : CheckboxParameter {
     override val advanced = false
 
     fun parseCookOptions(runnerParameters: Map<String, String>) =
-        runnerParameters[name]?.toBooleanStrictOrNull()?.let {
+        runnerParameters[name]?.toBooleanStrictOrNull()?.takeIf { it }?.let {
             CookOptions.from(runnerParameters)
         }
 }

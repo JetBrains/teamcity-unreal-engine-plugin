@@ -11,7 +11,7 @@ object StageStageSwitchParameter : CheckboxParameter {
     override val advanced = false
 
     fun parseStageOptions(runnerParameters: Map<String, String>) =
-        runnerParameters[name]?.toBooleanStrictOrNull()?.let {
+        runnerParameters[name]?.toBooleanStrictOrNull()?.takeIf { it }?.let {
             StageOptions.from(runnerParameters)
         }
 }
