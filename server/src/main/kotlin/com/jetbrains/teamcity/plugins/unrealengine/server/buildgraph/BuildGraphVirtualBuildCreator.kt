@@ -6,6 +6,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.generateIdF
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.markAsGeneratedBy
 import com.jetbrains.teamcity.plugins.unrealengine.server.extensions.setRevisionsFrom
 import jetbrains.buildServer.serverSide.BuildPromotion
+import jetbrains.buildServer.serverSide.BuildAttributes
 import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.BuildTypeSettings
 import jetbrains.buildServer.serverSide.SimpleParameter
@@ -51,8 +52,14 @@ class BuildGraphVirtualBuildCreator(
 
         build.setRevisionsFrom(context.originalBuild)
         build.markAsGeneratedBy(context.originalBuild)
+        build.propagateCleanSourcesFrom(context.originalBuild)
 
         return build
+    }
+
+    private fun BuildPromotionEx.propagateCleanSourcesFrom(source: BuildPromotionEx) {
+        val cleanSources = source.getAttribute(BuildAttributes.CLEAN_SOURCES)?.toString() ?: return
+        setAttribute(BuildAttributes.CLEAN_SOURCES, cleanSources)
     }
 
     private fun String.toExternalId() = restrictedIdCharactersRegex.replace(this, "_")
