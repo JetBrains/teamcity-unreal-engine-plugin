@@ -19,7 +19,7 @@ object ArchiveSwitchParameter : CheckboxParameter {
     override val advanced = false
 
     fun parseArchiveOptions(runnerParameters: Map<String, String>) =
-        runnerParameters[name]?.toBooleanStrictOrNull()?.let {
+        runnerParameters[name]?.toBooleanStrictOrNull()?.takeIf { it }?.let {
             ArchiveOptions.from(runnerParameters)
         }
 }
