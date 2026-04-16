@@ -86,10 +86,41 @@ class UnrealEngineProcessListenerTests {
         }
     }
 
-    private fun createListener(vararg handlers: LogEventHandler) =
+    @Test
+    fun `reports errors as build problems by default`() {
+        // arrange
+        every { logEventParser.parse(any()) } returns logEvent.copy(level = LogLevel.Error)
+        val listener = createListener()
+
+        // act
+        listener.onStandardOutput(logEvent.message)
+
+        // assert
+        verify { buildLogger.logBuildProblem(any()) }
+    }
+
+    @Test
+    fun `can skip build problems for error logs`() {
+        // arrange
+        every { logEventParser.parse(any()) } returns logEvent.copy(level = LogLevel.Error)
+        val listener = createListener(reportErrorsAsBuildProblems = false)
+
+        // act
+        listener.onStandardOutput(logEvent.message)
+
+        // assert
+        verify(exactly = 0) { buildLogger.logBuildProblem(any()) }
+        verify { buildLogger.warning(logEvent.message) }
+    }
+
+    private fun createListener(
+        vararg handlers: LogEventHandler,
+        reportErrorsAsBuildProblems: Boolean = true,
+    ) =
         UnrealEngineProcessListener(
             buildLogger,
             logEventParser,
             handlers.asList(),
+            reportErrorsAsBuildProblems,
         )
 }
