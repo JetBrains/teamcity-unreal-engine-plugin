@@ -44,7 +44,7 @@ class UgsMetadataServerClient(
             )
     }
 
-    private class NetworkCallDispatcher(
+    internal class NetworkCallDispatcher(
         private val delegate: CoroutineDispatcher,
     ) : CoroutineDispatcher() {
         override fun dispatch(

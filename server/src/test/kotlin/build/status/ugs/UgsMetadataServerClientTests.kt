@@ -10,9 +10,16 @@ import com.jetbrains.teamcity.plugins.unrealengine.server.build.status.ugs.UgsMe
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import jetbrains.buildServer.serverSide.ReadOnlyException
+import jetbrains.buildServer.serverSide.IOGuardInitializer
+import jetbrains.buildServer.serverSide.impl.SecondaryNodeSecurityManager
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.TestInstance
+import java.util.Collections.emptySet
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UgsMetadataServerClientTests {
@@ -98,6 +105,28 @@ class UgsMetadataServerClientTests {
                 """{"stream":"//depot/stream","change":111,"project":"project","badges":[{"name":"foo","url":"http://link-to-build-log","state":3}]}"""
         }
 
+    @Test
+    fun `allows secondary node network checks from ktor dispatcher`() =
+        runTest {
+            // arrange
+            IOGuardInitializer.init()
+            SecondaryNodeSecurityManager.init { emptySet() }
+            val dispatcher = UgsMetadataServerClient.NetworkCallDispatcher(StandardTestDispatcher(testScheduler))
+
+            try {
+                assertFailsWith<ReadOnlyException> {
+                    checkNetworkAccess()
+                }
+
+                // act, assert
+                withContext(dispatcher) {
+                    checkNetworkAccess()
+                }
+            } finally {
+                SecondaryNodeSecurityManager.reset()
+            }
+        }
+
     private fun createMockEngine(versionResponse: String = ""): MockEngine =
         MockEngine { request ->
             when {
@@ -113,4 +142,8 @@ class UgsMetadataServerClientTests {
                 }
             }
         }
+
+    private fun checkNetworkAccess() {
+        System.getSecurityManager()?.checkConnect("ugs-metadata-server", 443)
+    }
 }
