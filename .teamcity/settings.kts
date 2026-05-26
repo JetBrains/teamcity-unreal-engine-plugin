@@ -38,12 +38,12 @@ object ReleaseBuildConfiguration : BuildType({
         gradle {
             name = "build"
             tasks = "clean build serverPlugin"
-            jdkHome = "%env.JDK_17%"
+            jdkHome = "%env.JDK_21_0%"
         }
         gradle {
             name = "publish to marketplace"
             tasks = "publishPlugin"
-            jdkHome = "%env.JDK_17%"
+            jdkHome = "%env.JDK_21_0%"
         }
     }
 
@@ -103,7 +103,7 @@ object MasterBuildConfiguration : BuildType({
         gradle {
             name = "build"
             tasks = "clean build serverPlugin"
-            jdkHome = "%env.JDK_17%"
+            jdkHome = "%env.JDK_21_0%"
         }
     }
 })
