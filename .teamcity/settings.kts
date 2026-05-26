@@ -46,7 +46,7 @@ object ReleaseBuildConfiguration : BuildType({
     }
 
     requirements {
-        exists("env.JDK_11")
+        exists("env.JDK_17")
     }
 
     artifactRules = "+:./server/build/distributions/teamcity-unreal-engine-plugin-server.zip"
@@ -109,6 +109,6 @@ object MasterBuildConfiguration : BuildType({
     }
 
     requirements {
-        exists("env.JDK_11")
+        exists("env.JDK_17")
     }
 })
