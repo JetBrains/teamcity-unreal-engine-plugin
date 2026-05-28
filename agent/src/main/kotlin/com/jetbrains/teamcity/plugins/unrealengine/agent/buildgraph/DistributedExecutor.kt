@@ -80,7 +80,10 @@ class DistributedExecutor(
                     "-SharedStorageDir=$sharedDir",
                     "-WriteToSharedStorage",
                 ),
-            processListenerFactory.create(AutomationTestLogEventHandler(context)),
+            processListenerFactory.create(
+                AutomationTestLogEventHandler(context),
+                reportErrorsAsBuildProblems = false,
+            ),
         )
     }
 

@@ -27,7 +27,10 @@ class SingleMachineExecutor(
                     toolRegistry.automationTool(context.runnerParameters).executablePath,
                     command.toArguments(),
                 ),
-                processListenerFactory.create(AutomationTestLogEventHandler(context)),
+                processListenerFactory.create(
+                    AutomationTestLogEventHandler(context),
+                    reportErrorsAsBuildProblems = false,
+                ),
             ),
         )
 }

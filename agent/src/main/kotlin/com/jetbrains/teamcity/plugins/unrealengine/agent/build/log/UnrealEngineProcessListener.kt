@@ -12,11 +12,15 @@ class UnrealEngineProcessListenerFactory(
     private val logEventParser: UnrealLogEventParser,
 ) {
     context(context: UnrealBuildContext)
-    fun create(vararg handlers: LogEventHandler) =
+    fun create(
+        vararg handlers: LogEventHandler,
+        reportErrorsAsBuildProblems: Boolean = true,
+    ) =
         UnrealEngineProcessListener(
             context.build.buildLogger,
             logEventParser,
             handlers.asList(),
+            reportErrorsAsBuildProblems,
         )
 }
 
@@ -24,6 +28,7 @@ class UnrealEngineProcessListener(
     private val buildLogger: BuildProgressLogger,
     private val logEventParser: UnrealLogEventParser,
     private val handlers: Collection<LogEventHandler>,
+    private val reportErrorsAsBuildProblems: Boolean = true,
 ) : ProcessListenerAdapter() {
     companion object {
         private val agentLogger = UnrealPluginLoggers.get<BuildCookRunWorkflowCreator>()
@@ -50,7 +55,12 @@ class UnrealEngineProcessListener(
         when (event.level) {
             LogLevel.Error, LogLevel.Critical -> {
                 buildStdOutLogger.error(event.message)
-                buildLogger.logBuildProblem(event.asBuildProblem())
+
+                if (reportErrorsAsBuildProblems) {
+                    buildLogger.logBuildProblem(event.asBuildProblem())
+                } else {
+                    buildLogger.warning(event.message)
+                }
             }
             LogLevel.Warning -> {
                 buildStdOutLogger.warn(event.message)

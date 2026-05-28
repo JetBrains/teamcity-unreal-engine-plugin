@@ -55,7 +55,10 @@ class RunAutomationTestsWorkflowCreator(
                 toolRegistry.editor(context.runnerParameters).executablePath,
                 arguments,
             ),
-            processListenerFactory.create(AutomationTestLogEventHandler(context)),
+            processListenerFactory.create(
+                AutomationTestLogEventHandler(context),
+                reportErrorsAsBuildProblems = false,
+            ),
         )
     }
 }
