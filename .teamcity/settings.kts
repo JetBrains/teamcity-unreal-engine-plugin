@@ -67,6 +67,8 @@ object MasterBuildConfiguration : BuildType({
         password(githubTokenParameter, "credentialsJSON:c2a1efe4-4a6e-4908-a12b-f61147f8028d", readOnly = true)
     }
 
+    artifactRules = "+:./server/build/distributions/teamcity-unreal-engine-plugin-server.zip"
+
     vcs {
         root(DslContext.settingsRoot)
     }
