@@ -17,10 +17,14 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import jetbrains.buildServer.serverSide.IOGuard
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
+import kotlin.coroutines.CoroutineContext
 
 class UgsMetadataServerClient(
     engine: HttpClientEngine,
@@ -31,7 +35,28 @@ class UgsMetadataServerClient(
         private val depotPathSplitter = PerforceDepotPathSplitter()
 
         @JvmStatic
-        fun createInstance() = UgsMetadataServerClient(CIO.create(), UgsMetadataServerSettings())
+        fun createInstance() =
+            UgsMetadataServerClient(
+                CIO.create {
+                    dispatcher = NetworkCallDispatcher(Dispatchers.IO)
+                },
+                UgsMetadataServerSettings(),
+            )
+    }
+
+    internal class NetworkCallDispatcher(
+        private val delegate: CoroutineDispatcher,
+    ) : CoroutineDispatcher() {
+        override fun dispatch(
+            context: CoroutineContext,
+            block: Runnable,
+        ) {
+            delegate.dispatch(context) {
+                IOGuard.allowNetworkCall<RuntimeException> {
+                    block.run()
+                }
+            }
+        }
     }
 
     private val client =
