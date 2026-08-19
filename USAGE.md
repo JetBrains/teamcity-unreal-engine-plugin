@@ -292,6 +292,21 @@ Here, the badge "Foo Badge" tracks the execution of two nodes: "Node A.2" and "N
 As soon as one of them starts executing, the badge will update its status. If one of them fails, the status will
 change to "Failure". The badge will only show "Success" when all dependencies complete successfully.
 
+### Troubleshooting
+
+#### Automation tests crash with SECURE CRT / LaunchWindows.cpp
+
+If automation tests crash inside Unreal Editor (for example, `SECURE CRT: Invalid parameter detected`) only on some agents,
+the failure usually originates from the engine/tests/runtime environment on that machine rather than from TeamCity service
+message parsing.
+
+Recommended checks:
+
+* Make sure Unreal Engine installation and plugins are consistent across all target agents.
+* Temporarily disable `nullRHI` for the automation step to check whether rendering mode affects the failing tests.
+* Run only project-specific tests (exclude unstable engine/plugin tests) to isolate environment-dependent failures.
+* Compare agent-local prerequisites (toolchains, redistributables, GPU/driver setup, access to optional services like Fab).
+
 ### Limitations
 
 * Although TeamCity still supports Java 8, this plugin is compatible with Java 11 or newer.
