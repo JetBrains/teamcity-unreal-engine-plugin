@@ -85,8 +85,11 @@ class BuildGraphDistributedBuildCreator(
         }
     }
 
+    // CleanNode is appended to ensure any locally cached BuildGraph manifests for the node about to be executed are cleaned.
+    // This is necessary because if BuildGraph finds manifests for the current node locally (which are always made at the end
+    // of a run), it skips pulling files from the shared storage, breaking distributed builds entirely.
     private fun MutableMap<String, String>.executeSingleNode(name: String) =
-        put(AdditionalArgumentsParameter.name, get(AdditionalArgumentsParameter.name) + " \"-SingleNode=$name\"")
+        put(AdditionalArgumentsParameter.name, get(AdditionalArgumentsParameter.name) + " \"-SingleNode=$name\" \"-CleanNode=$name\"")
 
     private fun MutableMap<String, String>.addInternalGraphSettings(originalBuildId: String) =
         putAll(BuildGraphRunnerInternalSettings.RegularBuildSettings(originalBuildId).toMap())
