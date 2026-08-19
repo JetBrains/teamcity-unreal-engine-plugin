@@ -17,7 +17,6 @@ import jetbrains.buildServer.commitPublisher.CommitStatusPublisherSettings
 import jetbrains.buildServer.commitPublisher.HttpBasedCommitStatusPublisher
 import jetbrains.buildServer.commitPublisher.PublisherException
 import jetbrains.buildServer.serverSide.BuildRevision
-import jetbrains.buildServer.serverSide.IOGuard
 import jetbrains.buildServer.serverSide.RelativeWebLinks
 import jetbrains.buildServer.serverSide.SBuild
 import jetbrains.buildServer.serverSide.SBuildType
@@ -82,21 +81,19 @@ class UgsCommitStatusPublisher(
         revision: BuildRevision,
         build: SBuild,
     ): Boolean =
-        IOGuard.allowNetworkCall<Boolean, Exception> {
-            runBlocking {
-                either {
-                    publishBadgeCommand.execute(event, revision, build, parameters)
-                }.also {
-                    logger.logResult(it, "badge state publication")
-                }.mapLeft {
-                    when (it) {
-                        is GenericError -> throw PublisherException(it.message, it.exception)
-                        else -> throw PublisherException(
-                            "An unexpected error occurred during build status publication to the UGS metadata server",
-                        )
-                    }
-                }.isRight()
-            }
+        runBlocking {
+            either {
+                publishBadgeCommand.execute(event, revision, build, parameters)
+            }.also {
+                logger.logResult(it, "badge state publication")
+            }.mapLeft {
+                when (it) {
+                    is GenericError -> throw PublisherException(it.message, it.exception)
+                    else -> throw PublisherException(
+                        "An unexpected error occurred during build status publication to the UGS metadata server",
+                    )
+                }
+            }.isRight()
         }
 
     // This level of indirection exists solely for testing purposes,

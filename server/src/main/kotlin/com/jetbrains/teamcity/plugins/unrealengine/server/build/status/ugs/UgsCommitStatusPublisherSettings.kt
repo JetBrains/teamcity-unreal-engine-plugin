@@ -9,7 +9,6 @@ import jetbrains.buildServer.commitPublisher.CommitStatusPublisher
 import jetbrains.buildServer.commitPublisher.CommitStatusPublisherProblems
 import jetbrains.buildServer.commitPublisher.PublisherException
 import jetbrains.buildServer.serverSide.BuildTypeIdentity
-import jetbrains.buildServer.serverSide.IOGuard
 import jetbrains.buildServer.serverSide.InvalidProperty
 import jetbrains.buildServer.serverSide.PropertiesProcessor
 import jetbrains.buildServer.serverSide.SBuildType
@@ -55,23 +54,21 @@ class UgsCommitStatusPublisherSettings(
         buildTypeOrTemplate: BuildTypeIdentity,
         root: VcsRoot,
         params: MutableMap<String, String>,
-    ) = IOGuard.allowNetworkCall<Exception> {
-        runBlocking<Unit> {
-            parametersParser
-                .parse(params)
-                .map { (serverUrl, _, _) ->
-                    either {
-                        client.testConnection(serverUrl)
-                    }.onLeft {
-                        when (it) {
-                            is GenericError -> throw PublisherException(it.message, it.exception)
-                            else -> throw PublisherException(
-                                "An unexpected error occurred while testing the connection to the metadata server",
-                            )
-                        }
+    ) = runBlocking<Unit> {
+        parametersParser
+            .parse(params)
+            .map { (serverUrl, _, _) ->
+                either {
+                    client.testConnection(serverUrl)
+                }.onLeft {
+                    when (it) {
+                        is GenericError -> throw PublisherException(it.message, it.exception)
+                        else -> throw PublisherException(
+                            "An unexpected error occurred while testing the connection to the metadata server",
+                        )
                     }
                 }
-        }
+            }
     }
 
     override fun createPublisher(
