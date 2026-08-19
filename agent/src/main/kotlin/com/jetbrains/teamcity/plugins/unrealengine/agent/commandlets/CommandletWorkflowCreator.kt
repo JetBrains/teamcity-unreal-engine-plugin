@@ -11,6 +11,7 @@ import com.jetbrains.teamcity.plugins.unrealengine.agent.UnrealToolRegistry
 import com.jetbrains.teamcity.plugins.unrealengine.agent.Workflow
 import com.jetbrains.teamcity.plugins.unrealengine.agent.WorkflowCreator
 import com.jetbrains.teamcity.plugins.unrealengine.agent.build.log.UnrealEngineProcessListenerFactory
+import com.jetbrains.teamcity.plugins.unrealengine.agent.reporting.CommandletLogEventHandler
 import com.jetbrains.teamcity.plugins.unrealengine.common.GenericError
 import com.jetbrains.teamcity.plugins.unrealengine.common.UnrealPluginLoggers
 import com.jetbrains.teamcity.plugins.unrealengine.common.commandlets.RunCommandletCommand
@@ -54,7 +55,7 @@ class CommandletWorkflowCreator(
                 toolRegistry.editor(context.runnerParameters).executablePath,
                 arguments,
             ),
-            processListenerFactory.create(),
+            processListenerFactory.create(CommandletLogEventHandler(context)),
         )
     }
 }
