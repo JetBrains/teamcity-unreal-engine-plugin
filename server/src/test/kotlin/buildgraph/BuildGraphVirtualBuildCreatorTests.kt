@@ -6,7 +6,9 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import jetbrains.buildServer.BuildTypeDescriptor.CheckoutType
+import jetbrains.buildServer.serverSide.BuildAttributes
 import jetbrains.buildServer.serverSide.BuildPromotionEx
 import jetbrains.buildServer.serverSide.SBuildType
 import jetbrains.buildServer.virtualConfiguration.generator.VirtualBuildTypeSettings
@@ -23,6 +25,7 @@ import kotlin.test.assertTrue
 
 class BuildGraphVirtualBuildCreatorTests {
     private val originalBuild = mockk<BuildPromotionEx>(relaxed = true)
+    private val generatedBuild = mockk<BuildPromotionEx>(relaxed = true)
     private val buildGeneratorFactory = mockk<VirtualPromotionGeneratorFactory>()
     private val buildTypeConfigurationSlot = slot<BiFunction<SBuildType, String, Boolean>>()
     private val virtualBuildTypeSettingsSlot = slot<VirtualBuildTypeSettings>()
@@ -43,7 +46,7 @@ class BuildGraphVirtualBuildCreatorTests {
                             capture(virtualBuildTypeSettingsSlot),
                             capture(buildTypeConfigurationSlot),
                         )
-                    } returns mockk<BuildPromotionEx>(relaxed = true)
+                    } returns generatedBuild
                 }
         }
     }
@@ -107,6 +110,21 @@ class BuildGraphVirtualBuildCreatorTests {
             originalBuildParameters.all {
                 virtualBuildTypeParameters[it.key]?.value == it.value
             }
+        }
+    }
+
+    @Test
+    fun `propagates clean sources attribute from the original build`() {
+        // arrange
+        val buildCreator = BuildGraphVirtualBuildCreator(buildGeneratorFactory)
+        every { originalBuild.getAttribute(BuildAttributes.CLEAN_SOURCES) } returns true.toString()
+
+        // act
+        with(buildCreator.inContextOf(originalBuild)) { buildCreator.create("foo") {} }
+
+        // assert
+        verify {
+            generatedBuild.setAttribute(BuildAttributes.CLEAN_SOURCES, true.toString())
         }
     }
 
