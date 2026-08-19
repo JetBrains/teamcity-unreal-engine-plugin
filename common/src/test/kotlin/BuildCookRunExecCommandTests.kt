@@ -8,6 +8,10 @@ import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildConf
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildConfigurationParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCookRunCommand
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.BuildCookRunProjectPathParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.ArchiveSwitchParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.CookStageSwitchParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.PackageStageSwitchParameter
+import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.StageStageSwitchParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.UnrealTargetConfigurationsParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.buildcookrun.UnrealTargetPlatformsParameter
 import com.jetbrains.teamcity.plugins.unrealengine.common.parameters.AdditionalArgumentsParameter
@@ -163,6 +167,37 @@ class BuildCookRunExecCommandTests {
                         "-build",
                         "-serverconfig=Shipping",
                         "-servertargetplatform=Linux+LinuxArm64",
+                        "-skipcook",
+                        "-skipstage",
+                    ),
+            ),
+            HappyPathTestCase(
+                runnerParameters =
+                    mapOf(
+                        BuildCookRunProjectPathParameter.name to "some-path",
+                        BuildConfigurationParameter.name to "StandaloneGame",
+                        UnrealTargetConfigurationsParameter.Standalone.name to "Shipping",
+                        UnrealTargetPlatformsParameter.Standalone.name to "Win64",
+                        CookStageSwitchParameter.name to false.toString(),
+                        StageStageSwitchParameter.name to false.toString(),
+                        ArchiveSwitchParameter.name to false.toString(),
+                        PackageStageSwitchParameter.name to false.toString(),
+                    ),
+                parsedCommand =
+                    BuildCookRunCommand(
+                        UnrealProjectPath("some-path"),
+                        BuildConfiguration.Standalone(
+                            nonEmptyListOf(UnrealTargetConfiguration.Shipping),
+                            nonEmptyListOf(UnrealTargetPlatform.Win64),
+                        ),
+                    ),
+                expectedArguments =
+                    listOf(
+                        "BuildCookRun",
+                        "-project=${context.workingDirectory}/some-path",
+                        "-build",
+                        "-configuration=Shipping",
+                        "-targetplatform=Win64",
                         "-skipcook",
                         "-skipstage",
                     ),
