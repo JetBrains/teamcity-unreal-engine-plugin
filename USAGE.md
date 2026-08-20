@@ -300,6 +300,9 @@ change to "Failure". The badge will only show "Success" when all dependencies co
   This should be addressed in [TW-89015](https://youtrack.jetbrains.com/issue/TW-89015)
 * Currently, the plugin does not manage the retention period of the produced artifacts in the shared storage in any way.
 It’s your responsibility to set it up properly.
+* The plugin does not detect whether Unreal Editor is already running interactively on a build agent.
+  If you share machines between local development and CI, use TeamCity agent requirements/compatibility rules
+  or dedicated agent pools for Unreal builds.
 
 ### Resources
 
